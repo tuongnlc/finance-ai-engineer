@@ -8,5 +8,6 @@ dependencies = [
     "mlflow>=3.14.0",
     "polars>=1.41.2",
     "qdrant-client>=1.18.0",
+    "scikit-learn>=1.7.2",
     "umap-learn>=0.5.12",
 ]
