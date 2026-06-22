@@ -2,6 +2,10 @@ from src.shared.data_pipeline.transform.base import TransformStep
 import polars as pl
 import numpy as np
 from umap import UMAP
+import mlflow
+import tempfile
+
+
 
 class UmapTransform(TransformStep):
     def __init__(self, 
@@ -24,27 +28,22 @@ class UmapTransform(TransformStep):
 
     def transform(self, df: pl.DataFrame, embedding_column_name: str) -> pl.DataFrame:
         """
-            Apply UMAP reduction to the input DataFrame.
+            Load model from MLFlow and do transform for the input DataFrame.
         """
         embedding_array = self._convert_df_to_array(df, embedding_column_name)
 
-        umap_transform = UMAP(
-            n_components=self.n_components,
-            min_dist=self.min_dist,
-            metric=self.metric,
-            random_state=self.random_state,
-        )
+        MODEL_URI = "models:/umap_model@prod"
+        mlflow.set_tracking_uri("http://localhost:5000")
 
-        reduced_embeddings = umap_transform.fit_transform(embedding_array)
+        with tempfile.TemporaryDirectory() as tmpdir:
+            model = mlflow.sklearn.load_model(MODEL_URI, dst_path=tmpdir)
+            reduced_embeddings = model.transform(embedding_array)
 
         reduced_embedding_series = pl.Series(
             name=f"{embedding_column_name}_umap", 
             values=reduced_embeddings.tolist() # Chuyển numpy array sang list of lists
         )
-
         output_df = df.with_columns(reduced_embedding_series)
-        print(output_df)
-        
         return output_df
 
     def log_to_mlfow(self) -> None:
