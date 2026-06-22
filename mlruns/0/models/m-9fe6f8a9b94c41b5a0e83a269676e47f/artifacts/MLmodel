@@ -1,0 +1,15 @@
+artifact_path: /Users/tuongnguyen/Desktop/projects/finance_ai_platform/finance-ai-engineer/mlruns/0/models/m-9fe6f8a9b94c41b5a0e83a269676e47f/artifacts
+flavors:
+  sklearn:
+    code: null
+    pickled_model: model.pkl
+    serialization_format: cloudpickle
+    sklearn_version: 1.7.2
+    skops_trusted_types: null
+mlflow_version: 3.14.0
+model_id: m-9fe6f8a9b94c41b5a0e83a269676e47f
+model_size_bytes: 525879
+model_uuid: m-9fe6f8a9b94c41b5a0e83a269676e47f
+prompts: null
+run_id: 81cd9609b4374f078c615be94269c063
+utc_time_created: '2026-06-22 13:36:02.343071'
