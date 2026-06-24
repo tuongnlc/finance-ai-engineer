@@ -25,7 +25,7 @@ class QdrantExtractorWithPayloadFilter(BaseExtractor):
         max_records: Optional[int] = None,
         with_vectors: bool = False,
     ):
-        self.qdrant_client = QdrantClient(url=qdrant_url)
+        self.qdrant_client = QdrantClient(url=qdrant_url, timeout=600)
         self.collection_name = collection_name
         self.payload_filter = payload_filter
         self.batch_size = batch_size
