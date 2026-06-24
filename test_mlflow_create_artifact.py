@@ -26,14 +26,8 @@ X = np.vstack(data_embedding_newspaper.to_numpy())
 from umap import UMAP
 import time
 
-import mlflow
-from mlflow import MlflowClient
-
 mlflow.set_tracking_uri("http://localhost:5000")
-mlflow.set_experiment("test_mlflow_artifact_v3")
-
-REGISTERED_MODEL_NAME = "umap_model"
-MODEL_ALIAS = "prod"
+mlflow.set_experiment("test_mlflow_artifact") 
 
 with mlflow.start_run(run_name="umap_reduction") as run:
     mlflow.log_param("n_components", 5)
@@ -41,31 +35,28 @@ with mlflow.start_run(run_name="umap_reduction") as run:
     mlflow.log_param("metric", "cosine")
     mlflow.log_param("random_state", 42)
 
+    start_time = time.time()
+
     umap_model = UMAP(
-        n_components=5,
-        min_dist=0.0,
-        metric="cosine",
-        random_state=42,
+        n_components=5, 
+        min_dist=0.0, 
+        metric='cosine', 
+        random_state=42
     )
 
     reduced_embeddings = umap_model.fit_transform(X)
+    print(reduced_embeddings.shape) #(10, 5)
+    print(f"UMAP reduction time: {time.time() - start_time}")
+    duration = time.time() - start_time
+    
+    # Log metrics
+    mlflow.log_metric("umap_reduction_time_sec", duration)
 
-    model_info = mlflow.sklearn.log_model(
+    mlflow.sklearn.log_model(
         sk_model=umap_model,
-        name="umap_model",
-        registered_model_name=REGISTERED_MODEL_NAME,
+        artifact_path="umap_model",
         serialization_format="cloudpickle",
     )
 
-client = MlflowClient(tracking_uri="http://localhost:5000")
 
-versions = client.search_model_versions(f"name='{REGISTERED_MODEL_NAME}'")
-latest_version = max(int(v.version) for v in versions)
-
-client.set_registered_model_alias(
-    name=REGISTERED_MODEL_NAME,
-    alias=MODEL_ALIAS,
-    version=str(latest_version),
-)
-
-print(f"Model URI co dinh de infer: models:/{REGISTERED_MODEL_NAME}@{MODEL_ALIAS}")
+    print(f"Đã log xong! Xem trên MLflow với Run ID: {run.info.run_id}")

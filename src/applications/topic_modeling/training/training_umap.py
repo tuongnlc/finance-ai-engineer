@@ -1,4 +1,5 @@
-import polars as pl
+import os
+
 from umap import UMAP
 import mlflow
 import numpy as np
@@ -16,10 +17,13 @@ class TrainingUmap:
         self.metric = metric
         self.random_state = random_state
 
-    # def _set_mlflow_client(self) -> None:
-    #     mlflow_client = MlflowClient(tracking_uri="http://localhost:5000")
-    #     mlflow.set_experiment("umap_model_training")
-    #     return mlflow_client
+    def _configure_mlflow_http_timeout(self) -> None:
+        """
+            Configure MLflow request timeout.
+        """
+        os.environ["MLFLOW_HTTP_REQUEST_TIMEOUT"] = os.getenv(
+            "MLFLOW_HTTP_REQUEST_TIMEOUT", "10"
+        )
 
     def _build_model(self) -> UMAP:
         """
@@ -71,11 +75,14 @@ class TrainingUmap:
         """
             Train the UMAP model on the input DataFrame.
         """
-        mlflow.set_tracking_uri("http://localhost:5000")
+        self._configure_mlflow_http_timeout()
+        # mlflow.set_tracking_uri("http://localhost:5000")
+        mlflow.set_tracking_uri("http://mlflow-server:5000")
         
         mlflow.set_experiment("umap_model_training")
-        with mlflow.start_run() as run:
-            mlflow_client = MlflowClient(tracking_uri="http://localhost:5000")
+        with mlflow.start_run():
+            # mlflow_client = MlflowClient(tracking_uri="http://localhost:5000")
+            mlflow_client = MlflowClient(tracking_uri="http://mlflow-server:5000")
             self._log_params()
             model = self._build_model()
             reduced_embeddings = model.fit_transform(X_train)

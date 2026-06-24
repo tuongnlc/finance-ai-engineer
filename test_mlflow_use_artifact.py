@@ -16,7 +16,6 @@ X = np.vstack(data_embedding_newspaper.to_numpy())
 
 MODEL_URI = "models:/umap_model@prod"
 
-mlflow.set_tracking_uri("http://localhost:5000")
 
 with tempfile.TemporaryDirectory() as tmpdir:
     model = mlflow.sklearn.load_model(MODEL_URI, dst_path=tmpdir)
