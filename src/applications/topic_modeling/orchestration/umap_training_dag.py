@@ -15,9 +15,9 @@ with DAG(
     tags=['UMAP', 'Training'],   
 ) as dag:
     # Task 1: Bash execution
-    start_training_umap_dag = BashOperator(
-        task_id='start_training_umap_dag',
-        bash_command='echo "Start Training UMAP Model!"'
+    start_inference_umap_dag = BashOperator(
+        task_id='start_inference_umap_dag',
+        bash_command='echo "Start Inference UMAP Model!"'
     )
 
     # Task 2: Python execution
@@ -26,4 +26,4 @@ with DAG(
         python_callable=main,
     )
 
-    start_training_umap_dag >> inference_umap_task  
+    start_inference_umap_dag >> inference_umap_task  
