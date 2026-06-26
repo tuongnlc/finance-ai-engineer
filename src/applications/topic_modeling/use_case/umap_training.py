@@ -1,8 +1,3 @@
-# Step 1: Load data
-
-# Step 2: Do transform
-
-# Step 3: Do train and upload to MLFlow
 from src.shared.data_pipeline.extract.qdrant_extractor import QdrantExtractorWithPayloadFilter
 import numpy as np
 from src.applications.topic_modeling.training.training_umap import TrainingUmap

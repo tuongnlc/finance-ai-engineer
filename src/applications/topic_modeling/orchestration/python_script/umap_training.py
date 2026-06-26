@@ -1,5 +1,5 @@
 from src.helpers.monday_check import check_monday
-from src.applications.topic_modeling.use_case.training_umap import TrainingUMAPUseCase
+from src.applications.topic_modeling.use_case.umap_training import TrainingUMAPUseCase
 
 
 def main():

@@ -3,7 +3,7 @@ from airflow.operators.bash import BashOperator
 from airflow.operators.python import PythonOperator
 from datetime import datetime
 # from orchestration.python_script.crawl_market_data_v1 import main
-from src.applications.topic_modeling.orchestration.python_script.training_umap import main
+from src.applications.topic_modeling.orchestration.python_script.umap_training import main
 
 
 
@@ -21,9 +21,9 @@ with DAG(
     )
 
     # Task 2: Python execution
-    training_umap = PythonOperator(
-        task_id='training_umap_task',
+    inference_umap_task = PythonOperator(
+        task_id='inference_umap_task',
         python_callable=main,
     )
 
-    start_training_umap_dag >> training_umap  
+    start_training_umap_dag >> inference_umap_task  

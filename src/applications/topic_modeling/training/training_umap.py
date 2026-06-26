@@ -8,7 +8,7 @@ from mlflow import MlflowClient
 
 class TrainingUmap:
     def __init__(self, 
-                 n_components: int = 100,
+                 n_components: int = 5,
                  min_dist: float = 0.1,
                  metric: str = "cosine",
                  random_state: int = 42):
@@ -77,7 +77,7 @@ class TrainingUmap:
         """
         self._configure_mlflow_http_timeout()
         # mlflow.set_tracking_uri("http://localhost:5000")
-        mlflow.set_tracking_uri("http://mlflow-server:5000")
+        mlflow.set_tracking_uri("http://mlflow-server:5000") #When run in docker
         
         mlflow.set_experiment("umap_model_training")
         with mlflow.start_run():
