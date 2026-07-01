@@ -48,7 +48,7 @@ def scroll_database(target_ids):
 
 def search_semantic(user_query: str, top_k: int = 5, fetch_k: int = 50) -> list[str]:
     embeddings = GoogleGenerativeAIEmbeddings(
-    google_api_key="AQ.Ab8RN6I-7KZXkLgcUl1IN6hOO_Kn2DB_SWWNIi6Yoa6GafaFHg",
+    google_api_key="",
     model="gemini-embedding-2",
     output_dimensionality=768
 )
