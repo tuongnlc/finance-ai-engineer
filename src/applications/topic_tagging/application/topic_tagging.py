@@ -74,29 +74,3 @@ newspaper_summary_template = ChatPromptTemplate.from_messages(
         ),
     ]
 )
-
-articles = [json.loads(article) for article in data_.get_column("article").to_list()]
-# print(json.dumps(articles[0], ensure_ascii=False, indent=2))
-
-
-llm = ChatGoogleGenerativeAI(
-    model="gemini-3.1-flash-lite",
-    api_key="",
-    temperature=0.3,
-    max_tokens=None,
-    timeout=None,
-    max_retries=0,
-)
-
-import time
-start_time = time.time()
-
-prompt = newspaper_summary_template.partial(format_instructions=parser.get_format_instructions())
-chain = prompt | llm | parser
-results = chain.batch(articles, config={"max_concurrency": 5})
-
-llm_output = []
-for idx, result in enumerate(results, start=1):
-    print(f"=== Result {idx} ===")
-    print(json.dumps(result.model_dump(), ensure_ascii=False, indent=2))
-    llm_output.append(result.model_dump())
