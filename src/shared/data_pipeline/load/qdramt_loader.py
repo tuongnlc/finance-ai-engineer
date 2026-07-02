@@ -67,7 +67,6 @@ class QdrantLoader(BaseLoader):
                         payload=payload_dict,
                     )
                 )
-            print(points[-1])
 
         self.qdrant_client.upload_points(
             collection_name=self.destination_collection_name,
