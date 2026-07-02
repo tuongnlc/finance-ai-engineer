@@ -26,6 +26,6 @@ def add_column_qdrant(
         print(f"Column {column} already exists in the collection {qdrant_extractor.collection_name}")
         return
 
-    transformed_data = AddColumn(column=column, value=value, dtype=dtype)(original_data)
+    transformed_data = AddColumn(column=column, value=value, dtype=dtype).transform(original_data)
     qdrant_loader.load(transformed_data, vector_column=None)
     print("Column added to qdrant collection")

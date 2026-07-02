@@ -32,3 +32,12 @@ class AddColumn(TransformStep):
 
         df = df.with_columns(column_expr.alias(self.column))
         return df
+
+
+class DropColumns(TransformStep):
+    def __init__(self, columns: list[str]):
+        self.columns = columns
+
+    def transform(self, df: pl.DataFrame) -> pl.DataFrame:
+        df = df.drop(self.columns)
+        return df

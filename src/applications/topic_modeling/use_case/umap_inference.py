@@ -1,12 +1,5 @@
-# Step 1: Load data
-
-# Step 2: Do transform
-
-# Step 3: Do train and upload to MLFlow
 from src.shared.data_pipeline.transform.columns import SelectColumns
 from src.shared.data_pipeline.extract.qdrant_extractor import QdrantExtractorWithPayloadFilter
-import numpy as np
-# from src.applications.topic_modeling.training.training_umap import TrainingUmap
 from src.applications.topic_modeling.inference.inference_umap import InferenceUmap
 import polars as pl
 from src.shared.data_pipeline.load.qdramt_loader import QdrantLoader
