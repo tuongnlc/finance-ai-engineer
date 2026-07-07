@@ -6,7 +6,16 @@ import polars as pl
 import json
 from langchain_core.output_parsers import PydanticOutputParser
 from langchain_google_genai import ChatGoogleGenerativeAI
+import os
+import time
+from dotenv import load_dotenv
 
+load_dotenv()
+
+topic_tagging_api_key = os.getenv("TOPIC_TAGGING_API_KEY_1")
+topic_tagging_model = os.getenv("TOPIC_TAGGING_MODEL")
+BATCH_SIZE = 5
+BATCH_SLEEP_SECONDS = 20
 
 class TopicTaggingUseCase:
     def __init__(
@@ -53,14 +62,13 @@ class TopicTaggingUseCase:
         topic_tagging_prompt = TopicTaggingPromptLoading().load_and_parse_prompt()
         prompt = topic_tagging_prompt.partial(format_instructions=parser.get_format_instructions())
 
-
         #prepare data
         articles = [json.loads(article) for article in df.get_column("article").to_list()]
 
         #prepare llm
         llm = ChatGoogleGenerativeAI(
-            model="gemini-3.1-flash-lite",
-            api_key="",
+            model=topic_tagging_model,
+            api_key=topic_tagging_api_key,
             temperature=0.3,
             max_tokens=None,
             timeout=None,
@@ -68,13 +76,22 @@ class TopicTaggingUseCase:
         )
 
         chain = prompt | llm | parser
-        results = chain.batch(articles, config={"max_concurrency": 5})
-
         llm_output = []
-        for idx, result in enumerate(results, start=1):
-            print(f"=== Result {idx} ===")
-            print(json.dumps(result.model_dump(), ensure_ascii=False, indent=2))
-            llm_output.append(result.model_dump())
+        for batch_start in range(0, len(articles), BATCH_SIZE):
+            batch_number = (batch_start // BATCH_SIZE) + 1
+            batch_articles = articles[batch_start: batch_start + BATCH_SIZE]
+            results = chain.batch(batch_articles, config={"max_concurrency": BATCH_SIZE})
+
+            for idx, result in enumerate(results, start=batch_start + 1):
+                print(f"=== Result {idx} ===")
+                print(json.dumps(result.model_dump(), ensure_ascii=False, indent=2))
+                llm_output.append(result.model_dump())
+
+            if batch_start + BATCH_SIZE < len(articles):
+                print(
+                    f"Batch {batch_number} completed. Sleeping {BATCH_SLEEP_SECONDS}s before next batch..."
+                )
+                time.sleep(BATCH_SLEEP_SECONDS)
 
         df_llm_output = pl.DataFrame(llm_output)
         return df_llm_output
@@ -153,8 +170,12 @@ class TopicTaggingUseCase:
         try:
             df = self.extract()
             df = self.transform(df)
-            df = df.limit(2)
+            
+            start_time = time.time()
             llm_output = self.call_llm(df)
+            end_time = time.time()
+            print(f"LLM inference time: {end_time - start_time}")
+
             self.load(llm_output, df)
         finally:
             self._close_clients()

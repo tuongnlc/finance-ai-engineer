@@ -9,18 +9,14 @@ qdrant_extractor = QdrantExtractorWithPayloadFilter(
     qdrant_url="localhost:6333",
     collection_name="newspaper",
     payload_filter={
+        "publish_date":"2026-05-03",
         "is_topic_tagging": 0,
     },
     with_vectors=False,
 )
 
-qdrant_loader = QdrantLoader(
-    qdrant_url="localhost:6333",
-    destination_collection_name="newspaper",
-)
+df_ = qdrant_extractor.extract()
+print(len(df_))
 
-topic_tagging_use_case = TopicTaggingUseCase(
-    extractor=qdrant_extractor,
-    loader=qdrant_loader,
-)
-df = topic_tagging_use_case.run()
+df_ = df_.select("publish_date]").min()
+print(df_)
