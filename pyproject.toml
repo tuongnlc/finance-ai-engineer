@@ -5,6 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
+    "alembic>=1.18.4",
     "apache-airflow>=3.2.2",
     "fastapi>=0.138.0",
     "gradio>=6.19.0",
@@ -12,6 +13,7 @@ dependencies = [
     "load-dotenv>=0.1.0",
     "mlflow>=3.14.0",
     "polars>=1.41.2",
+    "psycopg[binary]>=3.3.4",
     "qdrant-client>=1.18.0",
     "scikit-learn>=1.7.2",
     "umap-learn>=0.5.12",
