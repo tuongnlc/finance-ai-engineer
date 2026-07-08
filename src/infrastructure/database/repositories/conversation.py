@@ -1,6 +1,6 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-# from src.infrastructure.database.models.conversation import Conversation
+from src.applications.chatbot.domain.models.chat import Conversation
 from src.infrastructure.database.models.conversation import ConversationORM
 
 
