@@ -1,0 +1,21 @@
+services:
+  postgres_chatbot:
+    image: postgres:16-alpine
+    container_name: chatbot_postgres
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "${CHATBOT_POSTGRES_PORT:-5433}:5432"
+    volumes:
+      - chatbot_postgres_data:/var/lib/postgresql/data
+    networks:
+      - finance_network
+
+volumes:
+  chatbot_postgres_data:
+
+networks:
+  finance_network:
+    external: true
+    name: finance_network
