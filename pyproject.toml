@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
     "apache-airflow>=3.2.2",
+    "fastapi>=0.138.0",
     "gradio>=6.19.0",
     "langchain-google-genai>=4.2.6",
     "load-dotenv>=0.1.0",
@@ -14,4 +15,5 @@ dependencies = [
     "qdrant-client>=1.18.0",
     "scikit-learn>=1.7.2",
     "umap-learn>=0.5.12",
+    "uvicorn>=0.49.0",
 ]
