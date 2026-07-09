@@ -2,7 +2,7 @@ from typing import Annotated
 from uuid import UUID
 from fastapi import APIRouter, Depends
 
-from ..schemas.chat import (
+from ..schemas.conversation import (
     CreateConversationRequest,
     CreateConversationResponse,
     GetConversationResponse,

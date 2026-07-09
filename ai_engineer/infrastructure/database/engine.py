@@ -1,12 +1,26 @@
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 from functools import lru_cache
+import os
 
-# 1. Define your connection parameters
-USERNAME = 'postgres'
-PASSWORD = 'postgres'
-HOST = 'localhost'
-PORT = '5433'  # Default PostgreSQL port
-DATABASE = 'chatbot_db'
+from dotenv import load_dotenv
+
+load_dotenv()
+
+
+def _normalize(value: str | None, default: str) -> str:
+    if not value:
+        return default
+    v = value.strip()
+    if v.lower() in {"none", "null"}:
+        return default
+    return v
+
+
+USERNAME = _normalize(os.getenv("POSTGRES_USER"), "postgres")
+PASSWORD = _normalize(os.getenv("POSTGRES_PASSWORD"), "postgres")
+HOST = _normalize(os.getenv("POSTGRES_HOST"), "localhost")
+PORT = _normalize(os.getenv("POSTGRES_PORT"), "5433")
+DATABASE = _normalize(os.getenv("POSTGRES_DB"), "chatbot_db")
 
 def _connection_url() -> str:
     return f"postgresql+psycopg://{USERNAME}:{PASSWORD}@{HOST}:{PORT}/{DATABASE}"
