@@ -57,7 +57,7 @@ class Message(Base):
     content: Mapped[str] = mapped_column(String(255), nullable=False)
     attachments: Mapped[str] = mapped_column(String(255), nullable=True)
     created_at: Mapped[date] = mapped_column(
-        default=date.today(),
+        default=date.today,
         nullable=False,
     )
 
