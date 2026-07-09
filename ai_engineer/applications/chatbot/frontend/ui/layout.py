@@ -1,6 +1,6 @@
 import gradio as gr
 
-from ai_engineer.applications.chatbot.frontend.controllers.conversation_controller import send_message
+from ai_engineer.applications.chatbot.frontend.controllers.message_controller import send_message
 
 
 def build_demo() -> gr.Blocks:
@@ -133,7 +133,7 @@ def build_demo() -> gr.Blocks:
                 scale=8,
                 min_width=320,
             )
-            model = gr.Dropdown(
+            gr.Dropdown(
                 choices=["Flash", "Pro"],
                 value="Flash",
                 label=None,
@@ -155,13 +155,13 @@ def build_demo() -> gr.Blocks:
 
         send_btn.click(
             fn=send_message,
-            inputs=[message, chat, model, session],
+            inputs=[message, chat, session],
             outputs=[chat, message, send_btn, session],
             queue=False,
         )
         message.submit(
             fn=send_message,
-            inputs=[message, chat, model, session],
+            inputs=[message, chat, session],
             outputs=[chat, message, send_btn, session],
             queue=False,
         )
