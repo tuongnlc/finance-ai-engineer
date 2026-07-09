@@ -1,6 +1,6 @@
 import uuid
 from ai_engineer.applications.chatbot.domain.repositories.conversation import ConversationRepository
-from ai_engineer.applications.chatbot.domain.models.chat import Conversation
+from ai_engineer.applications.chatbot.domain.models.conversation import Conversation
 from datetime import date
 
 

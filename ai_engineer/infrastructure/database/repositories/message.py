@@ -37,7 +37,7 @@ class PostgresMessageRepository:
             message_url=message.message_url,
             status=message.status,
             content=message.content,
-            attachment=message.attachment,
+            attachments=message.attachments,
             created_at=message.created_at,
         )
 
@@ -53,6 +53,5 @@ class PostgresMessageRepository:
             status=message.status,
             created_at=message.created_at,
             content=message.content,
-            attachment=message.attachment,
-            created_at=message.created_at,
+            attachments=message.attachments,
         )

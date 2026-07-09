@@ -1,7 +1,7 @@
 from typing import Protocol
 import uuid
 
-from ai_engineer.applications.chatbot.domain.models.chat import Conversation
+from ai_engineer.applications.chatbot.domain.models.conversation import Conversation
 
 
 class ConversationRepository(Protocol):

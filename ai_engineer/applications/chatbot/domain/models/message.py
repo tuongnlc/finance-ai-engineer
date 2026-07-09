@@ -17,13 +17,13 @@ class MessageStatus(str, Enum):
 @dataclass
 class Message:
     id: uuid.UUID
-    space_id: Optional[str] = None
-    conversation_id: Optional[uuid.UUID]
-    user_id: Optional[str] = None
+    conversation_id: uuid.UUID
     created_timestamp: int
-    content_type: str = None
-    message_url: [str] = None
+    content: str
+    space_id: Optional[str] = None
+    user_id: Optional[str] = None
+    content_type: Optional[str] = None
+    message_url: Optional[str] = None
     status: Optional[MessageStatus] = None
-    content: str 
-    attachment: Optional[str] = None
+    attachments: Optional[str] = None
     created_at: date = field(default_factory=date.today)
