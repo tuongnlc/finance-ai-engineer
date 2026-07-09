@@ -1,6 +1,5 @@
 from fastapi import FastAPI
-# from .router import router
-from .routes import health, chat
+from .routes import health, conversation
 
 
 
@@ -13,7 +12,7 @@ def create_chatbot_api():
         license={"name": "MIT License"},
     )
     app.include_router(health.router)
-    app.include_router(chat.router)
+    app.include_router(conversation.router)
     return app
 
 

@@ -1,6 +1,6 @@
 
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 from typing import Optional
 import uuid
@@ -17,8 +17,8 @@ class ConversationStatus(str, Enum):
 @dataclass
 class Conversation:
     id: uuid.UUID
+    created_timestamp: int
     user_id: Optional[str] = None
     space_id: Optional[str] = None
-    created_timestamp: int 
     status: Optional[ConversationStatus] = None
-    created_at: date = date.today()
+    created_at: date = field(default_factory=date.today)

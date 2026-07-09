@@ -10,7 +10,7 @@ class PostgresConversationRepository:
 
     async def create(self, conversation: Conversation) -> Conversation:
         conversation_orm = self._to_orm(conversation)
-        await self._session.add(conversation_orm)
+        self._session.add(conversation_orm)
         # await self._session.commit()
         await self._session.flush()
         await self._session.refresh(conversation_orm)
@@ -20,22 +20,27 @@ class PostgresConversationRepository:
         result = await self._session.execute(
             select(ConversationORM).where(ConversationORM.id == conversation_id)
         )
-        return self._to_domain(result.scalar_one_or_none())
+        conversation_orm = result.scalar_one_or_none()
+        if conversation_orm is None:
+            return None
+        return self._to_domain(conversation_orm)
 
-    async def _to_orm(self, conversation: Conversation) -> ConversationORM:
+    def _to_orm(self, conversation: Conversation) -> ConversationORM:
         return ConversationORM(
             id=conversation.id,
             space_id=conversation.space_id,
             user_id=conversation.user_id,
             created_timestamp=conversation.created_timestamp,
             status=conversation.status,
+            created_at=conversation.created_at,
         )
 
-    async def _to_domain(self, conversation: ConversationORM) -> Conversation:
+    def _to_domain(self, conversation: ConversationORM) -> Conversation:
         return Conversation(
             id=conversation.id,
             space_id=conversation.space_id,
             user_id=conversation.user_id,
             created_timestamp=conversation.created_timestamp,
             status=conversation.status,
+            created_at=conversation.created_at,
         )
