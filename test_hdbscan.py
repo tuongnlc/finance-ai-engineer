@@ -1,6 +1,6 @@
 
 
-from src.shared.data_pipeline.extract.qdrant_extractor import QdrantExtractorWithPayloadFilter
+from ai_engineer.shared.data_pipeline.extract.qdrant_extractor import QdrantExtractorWithPayloadFilter
 import numpy as np
 import os
 
