@@ -1,4 +1,5 @@
 from datetime import date
+from uuid import UUID
 from pydantic import BaseModel, Field
 from typing import Optional
 from enum import Enum
@@ -12,7 +13,7 @@ class ConversationStatus(str, Enum):
 
 
 class CreateConversationRequest(BaseModel):
-    id: str
+    id: UUID
     user_id: Optional[str] = None
     space_id: Optional[str] = None
     created_timestamp: int = None
@@ -21,9 +22,12 @@ class CreateConversationRequest(BaseModel):
 
 
 class CreateConversationResponse(BaseModel):
-    id: str
+    id: UUID
     user_id: Optional[str] = None
     space_id: Optional[str] = None
     created_timestamp: int = None
     status: Optional[ConversationStatus] = None
-    created_at: date = date.today()
+    created_at: date = Field(default_factory=date.today)
+
+class GetConversationResponse(CreateConversationResponse):
+    pass
