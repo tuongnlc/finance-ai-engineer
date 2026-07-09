@@ -6,6 +6,12 @@ from sqlalchemy.orm import Mapped, mapped_column
 from datetime import date
 from sqlalchemy import BigInteger
 
+from sqlalchemy.orm import DeclarativeBase
+
+
+class Base(DeclarativeBase):
+    pass
+
 
 class ConversationORM(Base):
     __tablename__ = 'conversation'
@@ -19,6 +25,6 @@ class ConversationORM(Base):
     created_timestamp: Mapped[int] = mapped_column(BigInteger, nullable=False)
     status: Mapped[str] = mapped_column(String(255), nullable=False, default="PENDING")
     created_at: Mapped[date] = mapped_column(
-        default=date.today(),
+        default=date.today,
         nullable=False,
     )

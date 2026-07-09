@@ -31,3 +31,5 @@ class CreateConversationResponse(BaseModel):
 
 class GetConversationResponse(CreateConversationResponse):
     pass
+
+
