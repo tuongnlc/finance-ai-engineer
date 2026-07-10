@@ -22,8 +22,6 @@ class Message:
     content: str
     space_id: Optional[str] = None
     user_id: Optional[str] = None
-    content_type: Optional[str] = None
     message_url: Optional[str] = None
     status: Optional[MessageStatus] = None
-    attachments: Optional[str] = None
     created_at: date = field(default_factory=date.today)

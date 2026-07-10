@@ -40,11 +40,10 @@ class PostgresMessageRepository:
             conversation_id=message.conversation_id,
             user_id=message.user_id,
             created_timestamp=message.created_timestamp,
-            content_type=message.content_type,
             message_url=message.message_url,
             status=message.status,
             content=message.content,
-            attachments=message.attachments,
+
             created_at=message.created_at,
         )
 
@@ -55,10 +54,9 @@ class PostgresMessageRepository:
             conversation_id=message.conversation_id,
             user_id=message.user_id,
             created_timestamp=message.created_timestamp,
-            content_type=message.content_type,
             message_url=message.message_url,
             status=message.status,
             created_at=message.created_at,
             content=message.content,
-            attachments=message.attachments,
+
         )

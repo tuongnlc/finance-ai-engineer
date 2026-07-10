@@ -34,11 +34,9 @@ async def create_message(
         conversation_id=request.conversation_id,
         user_id=request.user_id,
         created_timestamp=message.created_timestamp,
-        content_type=request.content_type,
         message_url=request.message_url,
         status=status,
         content=request.content,
-        attachments=request.attachments,
         created_at=message.created_at,
     )
 
@@ -56,10 +54,9 @@ async def get_message(
         user_id=message.user_id,
         created_timestamp=message.created_timestamp,
         status=message.status,
-        content_type=message.content_type,
+
         message_url=message.message_url,
         content=message.content,
-        attachments=message.attachments,
         created_at=message.created_at,
     )
 

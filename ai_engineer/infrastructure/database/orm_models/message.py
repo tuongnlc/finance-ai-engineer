@@ -29,11 +29,9 @@ class MessageORM(Base):
     )
     user_id: Mapped[str] = mapped_column(String(255), nullable=True)
     created_timestamp: Mapped[int] = mapped_column(BigInteger, nullable=False)
-    content_type: Mapped[str] = mapped_column(String(255), nullable=False, default="TEXT")
     message_url: Mapped[str] = mapped_column(String(255), nullable=True)
     status: Mapped[str] = mapped_column(String(255), nullable=False, default="PENDING")
     content: Mapped[str] = mapped_column(String(255), nullable=False)
-    attachments: Mapped[str] = mapped_column(String(255), nullable=True)
     created_at: Mapped[date] = mapped_column(
         default=date.today,
         nullable=False,

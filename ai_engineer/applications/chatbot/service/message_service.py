@@ -15,11 +15,9 @@ class MessageService:
             conversation_id = request.conversation_id,
             user_id = request.user_id,
             created_timestamp = request.created_timestamp,
-            content_type = request.content_type,
             message_url = request.message_url,
             status = 'PENDING',
             content = request.content,
-            attachments = request.attachments,
             created_at = date.today(),
 
         )

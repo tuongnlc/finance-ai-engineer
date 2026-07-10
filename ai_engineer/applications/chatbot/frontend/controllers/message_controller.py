@@ -55,10 +55,9 @@ async def send_message(text, history, session=None):
             conversation_id=conversation_id,
             user_id="tuongnlc",
             space_id=session.get("space_id"),
-            content_type="text",
+
             message_url="",
             status="PENDING",
-            attachments=""
         )
     except Exception as exc:
         assistant_content = f"Backend error: {type(exc).__name__}: {exc}"
