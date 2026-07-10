@@ -8,6 +8,7 @@ from uuid import UUID
 class LLMCallerRequest(BaseModel):
     id: UUID
     content: str
+    question_context: Optional[str] = None
 
 
 class LLMCallerResponse(BaseModel):

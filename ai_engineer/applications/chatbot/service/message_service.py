@@ -27,3 +27,6 @@ class MessageService:
 
     async def get_by_id(self, message_id: uuid.UUID) -> Message:
         return await self._message_repository.get_by_id(message_id)
+
+    async def get_messages_by_conversation_id(self, conversation_id: uuid.UUID) -> list[Message]:
+        return await self._message_repository.get_messages_by_conversation_id(str(conversation_id))

@@ -19,6 +19,7 @@ async def send_message(text, history, session=None):
             "user_id": None,
             "space_id": None,
             "conversation_id": None,
+            "message_history": [],
         }
 
     cleaned = (text or "").strip()
@@ -33,7 +34,6 @@ async def send_message(text, history, session=None):
         )
 
     conversation_id = session.get("conversation_id")
-    # assistant_content = cleaned
 
     #create conversation if not exist
     try:
@@ -63,9 +63,18 @@ async def send_message(text, history, session=None):
     except Exception as exc:
         assistant_content = f"Backend error: {type(exc).__name__}: {exc}"
 
+    #query all messages in conversation
+    messages = await message_api.get_messages_by_conversation_id(
+        conversation_id=conversation_id,
+    )
+    message_history = [message["content"] for message in messages]
+
     llm_response = await chat_with_llm_api.chat_with_llm(
         id=uuid.uuid4(),
         user_question=cleaned,
+        question_context="user historical chat: " + ", ".join(
+            message_history 
+        ),
     )
     assistant_content = llm_response["response"]
 

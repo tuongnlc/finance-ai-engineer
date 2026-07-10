@@ -63,12 +63,22 @@ async def get_message(
         created_at=message.created_at,
     )
 
+@router.get("/conversation/{conversation_id}", status_code=200)
+async def get_messages_by_conversation_id(
+        conversation_id: UUID,
+        message_service: Annotated[MessageService, Depends(get_message_service)],
+    ) -> list[GetMessageResponse]:
+    messages = await message_service.get_messages_by_conversation_id(conversation_id)
+    return messages
+
+
 @router.post("/chat_with_llm/", status_code=200)
 async def chat_with_llm(
         request: LLMCallerRequest,
     ) -> LLMCallerResponse:
     response = llm_service.call_llm(
         user_question=request.content,
+        question_context=request.question_context,
     )
     return LLMCallerResponse(
         id=request.id,

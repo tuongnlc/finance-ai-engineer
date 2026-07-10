@@ -16,3 +16,6 @@ class MessageRepository(Protocol):
 
     async def delete(self, conversation_id: uuid.UUID) -> None:
         pass
+
+    async def get_messages_by_conversation_id(self, conversation_id: uuid.UUID) -> list[Message]:
+        pass

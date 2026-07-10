@@ -3,8 +3,7 @@ import uuid
 import time
 
 
-
-BACKEND_BASE_URL = "http://127.0.0.1:8000/message/create_message"
+MESSAGE_BASE_URL = "http://127.0.0.1:8000/message"  
 class MessageApi:
     """
         Communicate directly with back-end service
@@ -33,8 +32,18 @@ class MessageApi:
         }
         async with httpx.AsyncClient(timeout=30.0, follow_redirects=True) as client:
             resp = await client.post(
-                f"{BACKEND_BASE_URL}",
+                f"{MESSAGE_BASE_URL}/create_message",
                 json=payload,
+            )
+            resp.raise_for_status()
+            return resp.json()
+
+    async def get_messages_by_conversation_id(self, 
+        conversation_id: uuid.UUID,
+    ):
+        async with httpx.AsyncClient(timeout=30.0, follow_redirects=True) as client:
+            resp = await client.get(
+                f"{MESSAGE_BASE_URL}/conversation/{conversation_id}",
             )
             resp.raise_for_status()
             return resp.json()
