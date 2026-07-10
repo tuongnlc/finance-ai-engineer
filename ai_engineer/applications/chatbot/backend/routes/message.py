@@ -3,7 +3,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends
 
 from ai_engineer.applications.chatbot.backend.schemas.message import CreateMessageRequest, CreateMessageResponse, GetMessageResponse
-from ai_engineer.applications.chatbot.app.message_service import MessageService
+from ai_engineer.applications.chatbot.service.message_service import MessageService
 from ai_engineer.applications.chatbot.backend.dependencies import get_message_service
 
 router = APIRouter(prefix="/message", tags=["Message"])
