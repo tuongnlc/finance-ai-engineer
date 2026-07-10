@@ -1,7 +1,7 @@
 """create message table
 
 Revision ID: a787dd3fe279
-Revises: f1b6a9123cde
+Revises: e9933a934d35
 Create Date: 2026-07-09 15:36:52.250093
 
 """
@@ -13,7 +13,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision: str = 'a787dd3fe279'
-down_revision: Union[str, Sequence[str], None] = 'f1b6a9123cde'
+down_revision: Union[str, Sequence[str], None] = 'e9933a934d35'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 

@@ -17,11 +17,9 @@ class CreateMessageRequest(BaseModel):
     conversation_id: UUID
     user_id: Optional[str] = None
     created_timestamp: int
-    content_type: Optional[str] = None
     message_url: Optional[str] = None
     status: Optional[MessageStatus] = None
     content: str
-    attachments: Optional[str] = None
     created_at: date = Field(default_factory=date.today)
 
 
@@ -31,11 +29,9 @@ class CreateMessageResponse(BaseModel):
     conversation_id: UUID
     user_id: Optional[str] = None
     created_timestamp: int
-    content_type: Optional[str] = None
     message_url: Optional[str] = None
     status: Optional[MessageStatus] = None
     content: str
-    attachments: Optional[str] = None
     created_at: date = Field(default_factory=date.today)
 
 

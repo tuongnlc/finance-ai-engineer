@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from .routes import health, conversation, message
+from .routes import health, conversation, message, llm_response
 
 
 
@@ -14,6 +14,7 @@ def create_chatbot_api():
     app.include_router(health.router)
     app.include_router(conversation.router)
     app.include_router(message.router)
+    app.include_router(llm_response.router)
     return app
 
 
