@@ -1,10 +1,13 @@
 from ai_engineer.applications.chatbot.frontend.services.conversation_api import ConversationApi
 from ai_engineer.applications.chatbot.frontend.services.message_api import MessageApi
+from ai_engineer.applications.chatbot.frontend.services.llm_caller_api import ChatWithLLMApi
+import uuid
 
 import gradio as gr
 
 conversation_api = ConversationApi()  # create conversation api to communicate with back-end service
 message_api = MessageApi()
+chat_with_llm_api = ChatWithLLMApi()
 
 async def send_message(text, history, session=None):
     """
@@ -19,6 +22,7 @@ async def send_message(text, history, session=None):
         }
 
     cleaned = (text or "").strip()
+
     if not cleaned:
         current_history = history or []
         return (
@@ -29,7 +33,7 @@ async def send_message(text, history, session=None):
         )
 
     conversation_id = session.get("conversation_id")
-    assistant_content = cleaned
+    # assistant_content = cleaned
 
     #create conversation if not exist
     try:
@@ -58,6 +62,12 @@ async def send_message(text, history, session=None):
         )
     except Exception as exc:
         assistant_content = f"Backend error: {type(exc).__name__}: {exc}"
+
+    llm_response = await chat_with_llm_api.chat_with_llm(
+        id=uuid.uuid4(),
+        user_question=cleaned,
+    )
+    assistant_content = llm_response["response"]
 
     next_history = (history or []) + [
         {"role": "user", "content": cleaned},
