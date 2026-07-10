@@ -26,6 +26,13 @@ class PostgresMessageRepository:
             return None
         return self._to_domain(message_orm)
 
+    async def get_messages_by_conversation_id(self, conversation_id: str) -> list[Message]:
+        result = await self._session.execute(
+            select(MessageORM).where(MessageORM.conversation_id == conversation_id)
+        )
+        messages_orm = result.scalars().all()
+        return [self._to_domain(message_orm) for message_orm in messages_orm]
+
     def _to_orm(self, message: Message) -> MessageORM:
         return MessageORM(
             id=message.id,
