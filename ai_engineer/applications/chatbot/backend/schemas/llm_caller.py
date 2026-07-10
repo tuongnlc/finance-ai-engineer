@@ -7,7 +7,7 @@ from uuid import UUID
 
 class LLMCallerRequest(BaseModel):
     id: UUID
-    content: list[dict]
+    content: str
 
 
 class LLMCallerResponse(BaseModel):
