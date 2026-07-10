@@ -3,12 +3,12 @@ import mlflow
 from langchain_core.prompts import ChatPromptTemplate
 
 
-class TopicTaggingPromptLoading:
+class ChatbotPromptLoading:
     def __init__(self):
-        tracking_uri = os.getenv("MLFLOW_TRACKING_URI", "http://mlflow-server:5000")
+        tracking_uri = os.getenv("MLFLOW_TRACKING_URI", "http://localhost:5000") #use localhost cause frontend fun in local
         mlflow.set_tracking_uri(tracking_uri)
         mlflow.set_registry_uri(tracking_uri)
-        self.prompt_name = "topic_tagging" #Cause we use this class for Topic Tagging only
+        self.prompt_name = "chatbot_prompt" #Cause we use this class for Chatbot Prompt only
 
     @staticmethod
     def _to_langchain_chat_prompt(template: str | list[dict]) -> ChatPromptTemplate:
@@ -33,5 +33,4 @@ class TopicTaggingPromptLoading:
     def load_and_parse_prompt(self) -> ChatPromptTemplate:
         prompt = mlflow.genai.load_prompt(self.prompt_name)        
         langchain_template = prompt.to_single_brace_format()
-        langchain_template = self._escape_braces_for_langchain(langchain_template, set(prompt.variables)) #only need for TopicTagging Prompt
         return self._to_langchain_chat_prompt(langchain_template)
