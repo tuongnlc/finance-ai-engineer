@@ -3,7 +3,7 @@
 
 """
 import uuid
-from sqlalchemy import String
+from sqlalchemy import String, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from datetime import date
@@ -78,7 +78,7 @@ class LLMResponse(Base):
         UUID(as_uuid=True),
         nullable=False,
     )
-    llm_response: Mapped[str] = mapped_column(String(255), nullable=False)
+    llm_response: Mapped[str] = mapped_column(Text, nullable=False)
     content_type: Mapped[str] = mapped_column(String(255), nullable=False, default="TEXT")
     attachments: Mapped[str] = mapped_column(String(255), nullable=True)
     created_at: Mapped[date] = mapped_column(

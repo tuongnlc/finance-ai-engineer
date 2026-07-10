@@ -1,6 +1,8 @@
+from datetime import date
 from ai_engineer.applications.chatbot.frontend.services.conversation_api import ConversationApi
 from ai_engineer.applications.chatbot.frontend.services.message_api import MessageApi
 from ai_engineer.applications.chatbot.frontend.services.llm_caller_api import ChatWithLLMApi
+from ai_engineer.applications.chatbot.frontend.services.llm_response_api import LLMResponseApi
 import uuid
 
 import gradio as gr
@@ -8,6 +10,8 @@ import gradio as gr
 conversation_api = ConversationApi()  # create conversation api to communicate with back-end service
 message_api = MessageApi()
 chat_with_llm_api = ChatWithLLMApi()
+llm_response_api = LLMResponseApi()
+
 
 async def send_message(text, history, session=None):
     """
@@ -50,12 +54,13 @@ async def send_message(text, history, session=None):
 
     #create message 
     try:
+        message_id = uuid.uuid4()
         await message_api.create_message(
+            id=message_id,
             content=cleaned,
             conversation_id=conversation_id,
             user_id="tuongnlc",
             space_id=session.get("space_id"),
-
             message_url="",
             status="PENDING",
         )
@@ -81,6 +86,17 @@ async def send_message(text, history, session=None):
         {"role": "user", "content": cleaned},
         {"role": "assistant", "content": assistant_content},
     ]
+
+    #write llm response to db
+    await llm_response_api.create_llm_response(
+        id=uuid.uuid4(),
+        message_id=message_id,
+        conversation_id=conversation_id,
+        llm_response=assistant_content,
+        content_type="TEXT",
+        attachments=None,
+        created_at=date.today(),
+    )
 
     return (
         gr.update(value=next_history, visible=True),
