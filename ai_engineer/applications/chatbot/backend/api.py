@@ -1,9 +1,12 @@
 from fastapi import FastAPI
+
+from ai_engineer.shared.observability.mlflow_config import setup_mlflow
+
 from .routes import health, conversation, message, llm_response
 
 
-
 def create_chatbot_api():
+    setup_mlflow()
     app = FastAPI(
         title="Chatbot API",
         version="1.0",

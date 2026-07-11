@@ -9,6 +9,7 @@ dependencies = [
     "apache-airflow>=3.2.2",
     "fastapi>=0.138.0",
     "gradio>=6.19.0",
+    "langchain>=1.3.12",
     "langchain-google-genai>=4.2.6",
     "load-dotenv>=0.1.0",
     "mlflow>=3.14.0",
