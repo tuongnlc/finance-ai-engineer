@@ -3,6 +3,8 @@ from ai_engineer.applications.chatbot.frontend.services.conversation_api import 
 from ai_engineer.applications.chatbot.frontend.services.message_api import MessageApi
 from ai_engineer.applications.chatbot.frontend.services.llm_caller_api import ChatWithLLMApi
 from ai_engineer.applications.chatbot.frontend.services.llm_response_api import LLMResponseApi
+from ai_engineer.applications.chatbot.frontend.services.rag_servicce_api import RAGServiceApi
+
 import uuid
 
 import gradio as gr
@@ -11,7 +13,7 @@ conversation_api = ConversationApi()  # create conversation api to communicate w
 message_api = MessageApi()
 chat_with_llm_api = ChatWithLLMApi()
 llm_response_api = LLMResponseApi()
-
+rag_service_api = RAGServiceApi()
 
 async def send_message(text, history, session=None):
     """
@@ -72,13 +74,26 @@ async def send_message(text, history, session=None):
         conversation_id=conversation_id,
     )
     message_history = [message["content"] for message in messages]
+    user_historical_chat = "User historical chat: " + ", ".join(message_history)
+
+    #Add context by query vector db
+    rag_response = await rag_service_api.get_documents_with_user_query(
+        user_query=cleaned,
+    )
+
+    adding_content_from_rag = []
+    for document in rag_response["results"]:
+        title = document["title"]
+        content = document["content"]
+        adding_content_from_rag.append(f"{title}: {content}")
+
+    #Create question context from user historical chat and rag response
+    question_context = user_historical_chat + ", Related document:" + ", ".join(adding_content_from_rag)
 
     llm_response = await chat_with_llm_api.chat_with_llm(
         id=uuid.uuid4(),
         user_question=cleaned,
-        question_context="user historical chat: " + ", ".join(
-            message_history 
-        ),
+        question_context=question_context
     )
     assistant_content = llm_response["response"]
 
