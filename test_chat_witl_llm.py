@@ -1,10 +1,6 @@
 import os
 from dotenv import load_dotenv
-from langchain_core.output_parsers import PydanticOutputParser
-from langchain_core.prompts import ChatPromptTemplate
-from pydantic import BaseModel, ConfigDict
 
-from ai_engineer.applications.chatbot.applications.prompt.prompt_loading import ChatbotPromptLoading
 from ai_engineer.applications.chatbot.service.llm_caller_service import LLMCallerService
 
 load_dotenv()

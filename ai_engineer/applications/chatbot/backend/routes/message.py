@@ -1,25 +1,25 @@
 from typing import Annotated
 from uuid import UUID
+
 from fastapi import APIRouter, Depends
 
-from ai_engineer.applications.chatbot.backend.schemas.llm_caller import LLMCallerRequest, LLMCallerResponse
-from ai_engineer.applications.chatbot.backend.schemas.message import CreateMessageRequest, CreateMessageResponse, GetMessageResponse
-from ai_engineer.applications.chatbot.applications.models import LLMResponse
+from ai_engineer.applications.chatbot.backend.dependencies import (
+    get_llm_caller_service,
+    get_message_service,
+)
+from ai_engineer.applications.chatbot.backend.schemas.llm_caller import (
+    LLMCallerRequest,
+    LLMCallerResponse,
+)
+from ai_engineer.applications.chatbot.backend.schemas.message import (
+    CreateMessageRequest,
+    CreateMessageResponse,
+    GetMessageResponse,
+)
 from ai_engineer.applications.chatbot.service.llm_caller_service import LLMCallerService
 from ai_engineer.applications.chatbot.service.message_service import MessageService
-from ai_engineer.applications.chatbot.backend.dependencies import get_message_service
-import os
 
 router = APIRouter(prefix="/message", tags=["Message"])
-
-llm_api_key_1 = os.getenv("LLM_CHAT_API_KEY_1")
-model = os.getenv("LLM_CHAT_MODEL")
-temperature = 0.7
-llm_service = LLMCallerService(
-    api_key=llm_api_key_1,
-    model_name=model,
-    temperature=temperature,
-)
 
 @router.post("/create_message", status_code=201)
 async def create_message(
@@ -72,6 +72,7 @@ async def get_messages_by_conversation_id(
 @router.post("/chat_with_llm/", status_code=200)
 async def chat_with_llm(
         request: LLMCallerRequest,
+        llm_service: Annotated[LLMCallerService, Depends(get_llm_caller_service)],
     ) -> LLMCallerResponse:
     response = llm_service.call_llm(
         user_question=request.content,

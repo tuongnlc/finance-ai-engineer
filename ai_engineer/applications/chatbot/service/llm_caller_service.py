@@ -6,7 +6,6 @@ from ai_engineer.shared.llm.create_llm import create_gemini_llm
 from ai_engineer.applications.chatbot.applications.models import LLMResponse
 from ai_engineer.applications.chatbot.applications.prompt.prompt_loading import ChatbotPromptLoading
 
-
 class LLMCallerService:
     _lock = RLock()
     _template = None
