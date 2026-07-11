@@ -48,6 +48,8 @@ def search_semantic(user_query: str, top_k: int = 5, fetch_k: int = 50) -> list[
         with_vectors=False             
      )
 
+    print(search_result)
+
     output_points = []
     seen = set()
 
