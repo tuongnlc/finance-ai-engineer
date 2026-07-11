@@ -3,12 +3,14 @@ from functools import lru_cache
 from typing import Annotated
 
 from fastapi import Depends
+from qdrant_client import QdrantClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ai_engineer.applications.chatbot.service.conversation_service import ConversationService
 from ai_engineer.applications.chatbot.service.llm_caller_service import LLMCallerService
 from ai_engineer.applications.chatbot.service.llm_response_service import LLMResponseService
 from ai_engineer.applications.chatbot.service.message_service import MessageService
+from ai_engineer.applications.chatbot.service.rag_service import DocumentSearchService
 from ai_engineer.infrastructure.database.repositories.conversation import PostgresConversationRepository
 from ai_engineer.infrastructure.database.repositories.llm_response import PostgresLLMResponseRepository
 from ai_engineer.infrastructure.database.repositories.message import PostgresMessageRepository
@@ -42,4 +44,18 @@ def get_llm_caller_service() -> LLMCallerService:
         api_key=os.getenv("LLM_CHAT_API_KEY_1"),
         model_name=os.getenv("LLM_CHAT_MODEL"),
         temperature=0.7,
+    )
+
+
+@lru_cache
+def get_qdrant_client() -> QdrantClient:
+    return QdrantClient(url=os.getenv("QDRANT_URL", "http://localhost:6333"))
+
+
+@lru_cache
+def get_document_search_service() -> DocumentSearchService:
+    return DocumentSearchService(
+        qdrant_client=get_qdrant_client(),
+        api_key=os.getenv("LLM_CHAT_API_KEY_1"),
+        model_name=os.getenv("LLM_EMBEDDING_MODEL", "gemini-embedding-2"),
     )
