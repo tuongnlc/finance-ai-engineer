@@ -18,5 +18,6 @@ dependencies = [
     "qdrant-client>=1.18.0",
     "scikit-learn>=1.7.2",
     "umap-learn>=0.5.12",
+    "unidecode>=1.4.0",
     "uvicorn>=0.49.0",
 ]

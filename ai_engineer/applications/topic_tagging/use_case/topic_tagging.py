@@ -1,3 +1,4 @@
+from unidecode import unidecode
 from ai_engineer.shared.data_pipeline.load.qdrant_loader import QdrantLoader
 from ai_engineer.applications.topic_tagging.application.prompt.prompt_loading import TopicTaggingPromptLoading
 from ai_engineer.applications.topic_tagging.application.models import TopicTagging
@@ -12,22 +13,19 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-topic_tagging_api_key = os.getenv("TOPIC_TAGGING_API_KEY_1")
+topic_tagging_api_key = os.getenv("TOPIC_TAGGING_API_KEY_2")
 topic_tagging_model = os.getenv("TOPIC_TAGGING_MODEL")
 BATCH_SIZE = 5
 BATCH_SLEEP_SECONDS = 20
 
+
 class TopicTaggingUseCase:
     def __init__(
             self,
-            # publish_date: date,
             extractor: QdrantExtractorWithPayloadFilter, 
-            # transformer: Transformer, 
             loader: QdrantLoader
         ):
-        # Initialize the components
         self.extractor = extractor
-        # self.transformer = transformer
         self.loader = loader
 
     @staticmethod
@@ -41,6 +39,27 @@ class TopicTaggingUseCase:
             },
             ensure_ascii=False,
         )
+
+    @staticmethod
+    def _normalize_unicode(value=None):
+        if value is None:
+            return None
+        if isinstance(value, str):
+            return unidecode(value).lower()
+        if isinstance(value, list):
+            return [
+                unidecode(item).lower() if isinstance(item, str) else item
+                for item in value
+            ]
+        return value
+
+    @staticmethod
+    def _normalize_llm_response(value):
+        if isinstance(value, str):
+            return unidecode(value).lower()
+        if isinstance(value, list):
+            return [unidecode(item).lower() if isinstance(item, str) else item for item in value]
+        return value
 
     def extract(self):
         df = self.extractor.extract()
@@ -83,9 +102,16 @@ class TopicTaggingUseCase:
             results = chain.batch(batch_articles, config={"max_concurrency": BATCH_SIZE})
 
             for idx, result in enumerate(results, start=batch_start + 1):
+                result = result.model_dump()
+                
+                result = { #normalize all value except id
+                    key: value if key == "id" else self._normalize_unicode(value)
+                    for key, value in result.items()
+                }
+                
                 print(f"=== Result {idx} ===")
-                print(json.dumps(result.model_dump(), ensure_ascii=False, indent=2))
-                llm_output.append(result.model_dump())
+                print(json.dumps(result, ensure_ascii=False, indent=2))
+                llm_output.append(result)
 
             if batch_start + BATCH_SIZE < len(articles):
                 print(
@@ -134,7 +160,7 @@ class TopicTaggingUseCase:
 
         #drop all column if columns exist in original df
         data_join = df_.drop([c for c in new_cols if c in df_.columns]) # can use exclude instead
-
+        
         base_cols = [
             "id",
             "newspaper_title",
@@ -157,8 +183,7 @@ class TopicTaggingUseCase:
             )
         except Exception as e:
             print(f"Enrichment join failed, fallback to base columns only: {e}")
-
-        self.loader.load(data_final, vector_column=None)
+        self.loader.load(data_final, vector_column=None)        
 
     def _close_clients(self):
         for component in (self.extractor, self.loader):
@@ -169,6 +194,7 @@ class TopicTaggingUseCase:
     def run(self):
         try:
             df = self.extract()
+            
             df = self.transform(df)
             
             start_time = time.time()
