@@ -46,22 +46,22 @@ print(response)
 from underthesea import word_tokenize
 from fastembed import SparseTextEmbedding
 
-tokens = word_tokenize(response, format="text")
-# print(tokens)
-bm25_model = SparseTextEmbedding(model_name="Qdrant/bm25",  disable_stemmer=True)
-sparse_vector = next(bm25_model.embed([tokens]))
-# print(sparse_vector)
-print(sparse_vector.indices)
-print(sparse_vector.values)
+# tokens = word_tokenize(response, format="text")
+# # print(tokens)
+# bm25_model = SparseTextEmbedding(model_name="Qdrant/bm25",  disable_stemmer=True)
+# sparse_vector = next(bm25_model.embed([tokens]))
+# # print(sparse_vector)
+# print(sparse_vector.indices)
+# print(sparse_vector.values)
 
 
-# create vector embedding
-embedding_llmn = create_gemini_embedding(
-    model_name="gemini-embedding-2",
-    api_key="",
-    output_dimensionality=768,
-)
-dense_vector = embedding_llmn.embed_query(response)
+# # create vector embedding
+# embedding_llmn = create_gemini_embedding(
+#     model_name="gemini-embedding-2",
+#     api_key="",
+#     output_dimensionality=768,
+# )
+# dense_vector = embedding_llmn.embed_query(response)
 # print(dense_vector)
 
 
@@ -83,5 +83,6 @@ hydrid_hit = document_search_service.similar_search_with_hydrid_search(
     limit=20
 )
 
-print(hydrid_hit)
-    
+# print(hydrid_hit)
+output_documents = document_search_service.retrieve_database_with_points(hydrid_hit)
+print(output_documents)

@@ -120,7 +120,7 @@ class DocumentSearchService:
         )
         return search_results.points
 
-    def retrieve_database_with_document_ids(self,
+    def retrieve_database_with_points(self,
         points, 
         top_k: int = 5,
     ):
