@@ -1,7 +1,7 @@
 from datetime import date
 from ai_engineer.applications.chatbot.frontend.services.conversation_api import ConversationApi
 from ai_engineer.applications.chatbot.frontend.services.message_api import MessageApi
-from ai_engineer.applications.chatbot.frontend.services.llm_caller_api import ChatWithLLMApi
+from ai_engineer.applications.chatbot.frontend.services.llm_caller_api import ChatWithLLMApi, VietnamTextFormatAPI
 from ai_engineer.applications.chatbot.frontend.services.llm_response_api import LLMResponseApi
 from ai_engineer.applications.chatbot.frontend.services.rag_servicce_api import RAGServiceApi
 
@@ -14,6 +14,7 @@ message_api = MessageApi()
 chat_with_llm_api = ChatWithLLMApi()
 llm_response_api = LLMResponseApi()
 rag_service_api = RAGServiceApi()
+vietnam_text_format_api = VietnamTextFormatAPI()
 
 async def send_message(text, history, session=None):
     """
@@ -69,31 +70,48 @@ async def send_message(text, history, session=None):
     except Exception as exc:
         assistant_content = f"Backend error: {type(exc).__name__}: {exc}"
 
-    #query all messages in conversation
+    # #query all messages in conversation
     messages = await message_api.get_messages_by_conversation_id(
         conversation_id=conversation_id,
     )
     message_history = [message["content"] for message in messages]
     user_historical_chat = "User historical chat: " + ", ".join(message_history)
 
-    #Add context by query vector db
-    rag_response = await rag_service_api.get_documents_with_user_query(
-        user_query=cleaned,
-    )
-
-    adding_content_from_rag = []
-    for document in rag_response["results"]:
-        title = document["title"]
-        content = document["content"]
-        adding_content_from_rag.append(f"{title}: {content}")
-
-    #Create question context from user historical chat and rag response
-    question_context = user_historical_chat + ", Related document:" + ", ".join(adding_content_from_rag)
-
-    llm_response = await chat_with_llm_api.chat_with_llm(
+    #calll back-end to format query
+    formatted_query = await vietnam_text_format_api.format_text(
         id=uuid.uuid4(),
         user_question=cleaned,
-        question_context=question_context
+        question_context="string",
+    )
+    formatted_query = formatted_query["response"]
+
+    # #Add context by query vector db
+    rag_response = await rag_service_api.get_documents_with_user_query(
+        user_query=formatted_query,
+    )
+    print("rag response is")
+    print(rag_response)
+
+    if len(rag_response.get("results")) == 0:
+        question_context = ""
+    else:
+        adding_content_from_rag = []
+        for document in rag_response["results"]:
+            title = document["title"]
+            content = document["content"]
+            adding_content_from_rag.append(f"{title}: {content}")
+
+        # #Create question context from user historical chat and rag response
+        question_context = user_historical_chat + ", Related document:" + ", ".join(adding_content_from_rag)
+
+    # print(formatted_query)
+    print(question_context)
+
+    #Call llm with question context
+    llm_response = await chat_with_llm_api.chat_with_llm(
+        id=uuid.uuid4(),
+        user_question=formatted_query,
+        question_context=question_context,
     )
     assistant_content = llm_response["response"]
 
@@ -102,7 +120,7 @@ async def send_message(text, history, session=None):
         {"role": "assistant", "content": assistant_content},
     ]
 
-    #write llm response to db
+    # #write llm response to db
     await llm_response_api.create_llm_response(
         id=uuid.uuid4(),
         message_id=message_id,
