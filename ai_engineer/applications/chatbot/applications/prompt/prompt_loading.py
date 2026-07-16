@@ -4,11 +4,11 @@ from langchain_core.prompts import ChatPromptTemplate
 
 
 class ChatbotPromptLoading:
-    def __init__(self):
+    def __init__(self, prompt_name: str ):
         tracking_uri = os.getenv("MLFLOW_TRACKING_URI", "http://localhost:5000") #use localhost cause frontend fun in local
         mlflow.set_tracking_uri(tracking_uri)
         mlflow.set_registry_uri(tracking_uri)
-        self.prompt_name = "chatbot_prompt" #Cause we use this class for Chatbot Prompt only
+        self.prompt_name = prompt_name
 
     @staticmethod
     def _to_langchain_chat_prompt(template: str | list[dict]) -> ChatPromptTemplate:

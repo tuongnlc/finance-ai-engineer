@@ -44,8 +44,19 @@ def get_llm_caller_service() -> LLMCallerService:
         api_key=os.getenv("LLM_CHAT_API_KEY_1"),
         model_name=os.getenv("LLM_CHAT_MODEL"),
         temperature=0.7,
+        prompt_name="chatbot_prompt",
+        add_parser=True,
     )
 
+@lru_cache
+def get_llm_caller_service_vietnam_language_format_prompt() -> LLMCallerService:
+    return LLMCallerService(
+        api_key=os.getenv("LLM_CHAT_API_KEY_1"),
+        model_name=os.getenv("LLM_CHAT_MODEL"),
+        temperature=0,
+        prompt_name='vietnam_language_format_prompt',
+        add_parser=False
+    )
 
 @lru_cache
 def get_qdrant_client() -> QdrantClient:
@@ -54,6 +65,7 @@ def get_qdrant_client() -> QdrantClient:
 
 @lru_cache
 def get_document_search_service() -> DocumentSearchService:
+
     return DocumentSearchService(
         qdrant_client=get_qdrant_client(),
         sparse_model_name=os.getenv("SPARSE_MODEL_NAME", "Qdrant/bm25"),
