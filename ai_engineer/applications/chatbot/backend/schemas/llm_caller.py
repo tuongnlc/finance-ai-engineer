@@ -14,3 +14,7 @@ class LLMCallerRequest(BaseModel):
 class LLMCallerResponse(BaseModel):
     id: UUID
     response: str
+
+
+class LLMCallerWithoutContextRequest(BaseModel):
+    content: str

@@ -69,16 +69,16 @@ async def get_messages_by_conversation_id(
     return messages
 
 
-@router.post("/chat_with_llm/", status_code=200)
-async def chat_with_llm(
-        request: LLMCallerRequest,
-        llm_service: Annotated[LLMCallerService, Depends(get_llm_caller_service)],
-    ) -> LLMCallerResponse:
-    response = llm_service.call_llm(
-        user_question=request.content,
-        question_context=request.question_context,
-    )
-    return LLMCallerResponse(
-        id=request.id,
-        response=response
-    )
+# @router.post("/chat_with_llm/", status_code=200)
+# async def chat_with_llm(
+#         request: LLMCallerRequest,
+#         llm_service: Annotated[LLMCallerService, Depends(get_llm_caller_service)],
+#     ) -> LLMCallerResponse:
+#     response = llm_service.call_llm(
+#         user_question=request.content,
+#         question_context=request.question_context,
+#     )
+#     return LLMCallerResponse(
+#         id=request.id,
+#         response=response
+#     )

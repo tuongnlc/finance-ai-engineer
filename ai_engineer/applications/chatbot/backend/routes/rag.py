@@ -15,18 +15,11 @@ router = APIRouter(prefix="/rag", tags=["RAG"])
 async def get_documents_with_user_query(
         request: InputVectorSearch,
         rag_service: Annotated[DocumentSearchService, Depends(get_document_search_service)],
-        llm_caller_service: Annotated[LLMCallerService, Depends(get_llm_caller_service_vietnam_language_format_prompt)],
     ) -> OutputVectorSearch:
     query = request.query
-    text_format = llm_caller_service.call_llm(query)
-    text_format = text_format[0].get("text")
-
-    print("User ask: ")
-    print(text_format)
-
 
     results = rag_service.similar_search_with_hydrid_search(
-        query=text_format,
+        query=query,
         limit=20        
     )
 
