@@ -56,6 +56,10 @@ def get_qdrant_client() -> QdrantClient:
 def get_document_search_service() -> DocumentSearchService:
     return DocumentSearchService(
         qdrant_client=get_qdrant_client(),
-        api_key=os.getenv("LLM_CHAT_API_KEY_1"),
-        model_name=os.getenv("LLM_EMBEDDING_MODEL", "gemini-embedding-2"),
+        sparse_model_name=os.getenv("SPARSE_MODEL_NAME", "Qdrant/bm25"),
+        sparse_vector_name=os.getenv("SPARSE_VECTOR_NAME", "bm25_sparse"),
+        dense_model_name=os.getenv("DENSE_MODEL_NAME", "gemini-embedding-2"),
+        dense_vector_name=os.getenv("DENSE_VECTOR_NAME", "gemini_dense_vector"),
+        collection_name="newspaper_embedded",
+        dense_api_key=os.getenv("LLM_CHAT_API_KEY_1"),
     )
