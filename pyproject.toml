@@ -8,6 +8,7 @@ dependencies = [
     "alembic>=1.18.4",
     "apache-airflow>=3.2.2",
     "fastapi>=0.138.0",
+    "fastembed>=0.8.0",
     "gradio>=6.19.0",
     "langchain>=1.3.12",
     "langchain-google-genai>=4.2.6",
@@ -18,6 +19,7 @@ dependencies = [
     "qdrant-client>=1.18.0",
     "scikit-learn>=1.7.2",
     "umap-learn>=0.5.12",
+    "underthesea>=9.5.0",
     "unidecode>=1.4.0",
     "uvicorn>=0.49.0",
 ]
