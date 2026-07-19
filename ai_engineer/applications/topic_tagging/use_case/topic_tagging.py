@@ -41,24 +41,16 @@ class TopicTaggingUseCase:
         )
 
     @staticmethod
-    def _normalize_unicode(value=None):
+    def _lowercase_text(value=None):
         if value is None:
             return None
         if isinstance(value, str):
-            return unidecode(value).lower()
+            return value.lower()
         if isinstance(value, list):
             return [
-                unidecode(item).lower() if isinstance(item, str) else item
+                item.lower() if isinstance(item, str) else item
                 for item in value
             ]
-        return value
-
-    @staticmethod
-    def _normalize_llm_response(value):
-        if isinstance(value, str):
-            return unidecode(value).lower()
-        if isinstance(value, list):
-            return [unidecode(item).lower() if isinstance(item, str) else item for item in value]
         return value
 
     def extract(self):
@@ -105,7 +97,7 @@ class TopicTaggingUseCase:
                 result = result.model_dump()
                 
                 result = { #normalize all value except id
-                    key: value if key == "id" else self._normalize_unicode(value)
+                    key: value if key == "id" else self._lowercase_text(value)
                     for key, value in result.items()
                 }
                 
