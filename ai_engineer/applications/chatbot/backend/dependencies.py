@@ -64,14 +64,26 @@ def get_qdrant_client() -> QdrantClient:
 
 
 @lru_cache
-def get_document_search_service() -> DocumentSearchService:
+def get_rag_collection_names() -> tuple[str, ...]:
+    collection_names = os.getenv(
+        "RAG_COLLECTION_NAMES",
+        "newspaper_embedded,stock_price_embedded",
+    )
+    return tuple(
+        collection_name.strip()
+        for collection_name in collection_names.split(",")
+        if collection_name.strip()
+    )
 
+
+@lru_cache
+def get_document_search_service(collection_name: str) -> DocumentSearchService:
     return DocumentSearchService(
         qdrant_client=get_qdrant_client(),
         sparse_model_name=os.getenv("SPARSE_MODEL_NAME", "Qdrant/bm25"),
         sparse_vector_name=os.getenv("SPARSE_VECTOR_NAME", "bm25_sparse"),
         dense_model_name=os.getenv("DENSE_MODEL_NAME", "gemini-embedding-2"),
         dense_vector_name=os.getenv("DENSE_VECTOR_NAME", "gemini_dense_vector"),
-        collection_name="newspaper_embedded",
+        collection_name=collection_name,
         dense_api_key=os.getenv("LLM_CHAT_API_KEY_1"),
     )
