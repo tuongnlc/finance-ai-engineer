@@ -60,7 +60,7 @@ document_search_service = DocumentSearchService(
     dense_api_key=llm_api_key,
 )
 
-hydrid_hit = document_search_service.similar_search_with_hydrid_search(
+hydrid_hit = document_search_service.simlar_search_with_dense_vector(
     query=response,
     limit=20
 )

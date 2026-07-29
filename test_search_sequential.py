@@ -1,6 +1,4 @@
-# from qdrant_client.models import , Fusion
-
-#Convert Vietnamese without diacritics to Vietnamese with diacritics
+import asyncio
 from qdrant_client import QdrantClient, models
 from ai_engineer.applications.chatbot.service.rag_service import DocumentSearchService
 from ai_engineer.shared.llm.create_llm import create_gemini_embedding, create_gemini_llm
@@ -47,9 +45,22 @@ response = response.content[0].get("text")
 print("tieng viet co dau")
 print(response)
 
-# query qdrant db
 qdrant_client = QdrantClient(url="http://localhost:6333", timeout=600)
 
+from time import time
+start_time = time()
+#search newspaper
+document_search_service = DocumentSearchService(
+    qdrant_client,
+    sparse_model_name="Qdrant/bm25",
+    sparse_vector_name="bm25_sparse",
+    dense_model_name="gemini-embedding-2",
+    dense_vector_name="gemini_dense_vector",
+    collection_name="newspaper_embedded",
+    dense_api_key=llm_api_key,
+)
+
+# search finance document
 document_search_service = DocumentSearchService(
     qdrant_client,
     sparse_model_name="Qdrant/bm25",
@@ -60,9 +71,17 @@ document_search_service = DocumentSearchService(
     dense_api_key=llm_api_key,
 )
 
-hydrid_hit = document_search_service.similar_search_with_hydrid_search(
+
+async def main():
+    results = await document_search_service.retrieve_database_with_user_query(
     query=response,
     limit=20
 )
+    print(results)
+# print(hydrid_hit)
 
-print(hydrid_hit)
+if __name__ == "__main__":
+    asyncio.run(main())
+
+
+

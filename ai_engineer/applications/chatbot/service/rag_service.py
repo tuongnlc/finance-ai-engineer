@@ -1,3 +1,4 @@
+import asyncio
 from typing import Optional
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from qdrant_client import QdrantClient, models
@@ -26,7 +27,6 @@ class DocumentSearchService:
             self.sparse_embedding: SparseTextEmbedding = SparseTextEmbedding(model_name="Qdrant/bm25",  disable_stemmer=True)
             self.sparse_vector_name = sparse_vector_name
         
-
     def embed_dense_query(self, query: str) -> list[float]:
         return self.dense_embedding.embed_query(query)
 
@@ -53,7 +53,7 @@ class DocumentSearchService:
             with_vectors=with_vectors,
             score_threshold=score_threshold,
         )
-        return search_result.points
+        return search_result
 
     def simlar_search_with_sparse_vector(
             self,
@@ -76,7 +76,7 @@ class DocumentSearchService:
             with_vectors=with_vectors,
             score_threshold=score_threshold,
         )
-        return search_result.points
+        return search_result
 
     def similar_search_with_hydrid_search(
         self,
@@ -118,45 +118,89 @@ class DocumentSearchService:
             with_vectors=with_vectors,
             # score_threshold=0.3
         )
-        return search_results.points
+        return search_results
 
-    def retrieve_database_with_points(self,
-        points, 
+    async def retrieve_database_with_user_query(
+        self,
+        query: str,
+        limit: int = 5,
         top_k: int = 5,
-    ):
-        document_ids = []
+        search_type: str = "hybrid",
+):
+        search_results = await asyncio.to_thread(
+            self.similar_search_with_hydrid_search if search_type == "hybrid"
+            else self.simlar_search_with_dense_vector if search_type == "dense"
+            else self.simlar_search_with_sparse_vector,
+            query,
+            limit,
+        )
+
+        document_ids_for_financial_data = []
+        document_ids_for_newspaper = []
         seen = set()
 
-        for point in points:
-            doc_id = (point.payload or {}).get("document_id")
+        for point in search_results.points:
+            payload = point.payload or {}
+            doc_id = payload.get("document_id")
+
             if doc_id is None:
-                continue
+                if len(document_ids_for_financial_data) < top_k:
+                    document_ids_for_financial_data.append(point.id)
+            else:
+                doc_id = str(doc_id)
+                if doc_id in seen:
+                    continue
+                seen.add(doc_id)
+                if len(document_ids_for_newspaper) < top_k:
+                    document_ids_for_newspaper.append(doc_id)
 
-            doc_id = str(doc_id)
-            if doc_id in seen:
-                continue
-
-            seen.add(doc_id)
-            document_ids.append(doc_id)
-
-            if len(document_ids) >= top_k: #get 5 points
+            if len(document_ids_for_financial_data) >= top_k and len(document_ids_for_newspaper) >= top_k:
                 break
 
-        document_ids = [str(x) for x in document_ids]
-        points = self.qdrant_client.retrieve(
-            collection_name="newspaper",
-            ids=document_ids,
-            with_payload=True,
-            with_vectors=False,
+        async def retrieve_newspaper():
+            if not document_ids_for_newspaper:
+                return []
+            return await asyncio.to_thread(
+                self.qdrant_client.retrieve,
+                "newspaper",
+                document_ids_for_newspaper,
+                True,
+                False,
+            )
+
+        async def retrieve_financial():
+            if not document_ids_for_financial_data:
+                return []
+            return await asyncio.to_thread(
+                self.qdrant_client.retrieve,
+                "stock_price_embedded",
+                document_ids_for_financial_data,
+                True,
+                False,
+            )
+
+        newspaper_points, financial_points = await asyncio.gather(
+            retrieve_newspaper(),
+            retrieve_financial(),
         )
 
         output_documents = []
+        for point in newspaper_points:
+            payload = point.payload or {}
+            output_documents.append(
+                {
+                    "title": payload.get("newspaper_title"),
+                    "content": payload.get("newspaper_content"),
+                }
+            )
 
+        for point in financial_points:
+            payload = point.payload or {}
+            output_documents.append(
+                {
+                    "title": payload.get("stock_id") or "market_information",
+                    "content": payload.get("chunk_content"),
+                }
+            )
 
-        for point in points:
-            output_documents.append({
-                "title": point.payload["newspaper_title"],
-                "content": point.payload["newspaper_content"],
-            })
-        
         return output_documents
