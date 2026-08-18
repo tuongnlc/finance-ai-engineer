@@ -5,6 +5,8 @@ from qdrant_client import QdrantClient, models
 from ai_engineer.applications.chatbot.service.rag_service import DocumentSearchService
 from ai_engineer.shared.llm.create_llm import create_gemini_embedding, create_gemini_llm
 
+DocumentSearchService
+
 import os
 from dotenv import load_dotenv
 load_dotenv()
@@ -13,7 +15,7 @@ load_dotenv()
 llm_api_key = os.getenv("LLM_CHAT_API_KEY_1")
 
 
-van_ban_khong_dau = 'Doanh thu ngan hang ACB'
+van_ban_khong_dau = 'No xau ngan hang ACB'
 
 llm = create_gemini_llm(
     api_key=llm_api_key,
@@ -60,9 +62,27 @@ document_search_service = DocumentSearchService(
     dense_api_key=llm_api_key,
 )
 
-hydrid_hit = document_search_service.simlar_search_with_dense_vector(
+dense_hit = document_search_service.simlar_search_with_dense_vector(
     query=response,
     limit=20
 )
 
-print(hydrid_hit)
+# print(type(dense_hit))
+
+print(len(dense_hit.points)) #return 20 points
+
+# print("-----------------")
+# print("")
+# for hit in dense_hit:
+# #     # print(hit.payload)
+#     # print(hit.points)
+#     print(hit)
+# #     break
+
+# print("-----------------")
+# print("")
+
+for point in dense_hit.points:
+    print(point.payload)
+    print(" ")
+#     break
