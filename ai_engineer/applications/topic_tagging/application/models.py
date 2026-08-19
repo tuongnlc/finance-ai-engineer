@@ -7,20 +7,14 @@ class TopicTagging(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     id: str
-    topic_keywords: List[str]
-    stock_mention: List[str]
-    mention_people: List[str]
-    mention_stock_funds: List[str]
-    foreign_securities_funds: List[str]
-    government_policies: List[str]
+    main_topic: List[str]
+    stocks_mention: List[str]
+    person_mention: List[str]
 
     @field_validator(
-        "topic_keywords",
-        "stock_mention",
-        "mention_people",
-        "mention_stock_funds",
-        "foreign_securities_funds",
-        "government_policies",
+        "main_topic",
+        "stocks_mention",
+        "person_mention",
         mode="before",
     )
     @classmethod

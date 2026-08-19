@@ -23,7 +23,7 @@ qdrant_loader = QdrantLoader(
 add_column_qdrant(
     qdrant_loader=qdrant_loader,
     qdrant_extractor=qdrant_extractor,
-    column="stock_mention",
+    column="main_topic",
     value=[],
     dtype=pl.List(pl.Utf8),
 )
@@ -32,57 +32,21 @@ add_column_qdrant(
 add_column_qdrant(
     qdrant_loader=qdrant_loader,
     qdrant_extractor=qdrant_extractor,
-    column="topic_keywords",
+    column="stocks_mention",
     value=[],
     dtype=pl.List(pl.Utf8),
 )
 
-# Add sentiment_analysis payload if not exists
+# # Add sentiment_analysis payload if not exists
 add_column_qdrant(
     qdrant_loader=qdrant_loader,
     qdrant_extractor=qdrant_extractor,
-    column="sentiment_analysis",
-    value="",
-    dtype=pl.Utf8,
-)
-
-# Add mention_people payload if not exists
-add_column_qdrant(
-    qdrant_loader=qdrant_loader,
-    qdrant_extractor=qdrant_extractor,
-    column="mention_people",
+    column="person_mention",
     value=[],
     dtype=pl.List(pl.Utf8),
 )
 
-# Add mention stock_funds payload if not exists
-add_column_qdrant(
-    qdrant_loader=qdrant_loader,
-    qdrant_extractor=qdrant_extractor,
-    column="mention_stock_funds",
-    value=[],
-    dtype=pl.List(pl.Utf8),
-)
-
-# Add foreign_securities_funds payload if not exists
-add_column_qdrant(
-    qdrant_loader=qdrant_loader,
-    qdrant_extractor=qdrant_extractor,
-    column="foreign_securities_funds",
-    value=[],
-    dtype=pl.List(pl.Utf8),
-)
-
-# Add government_policies payload if not exists
-add_column_qdrant(
-    qdrant_loader=qdrant_loader,
-    qdrant_extractor=qdrant_extractor,
-    column="government_policies",
-    value=[],
-    dtype=pl.List(pl.Utf8),
-)
-
-# Add is_topic_tagging
+# # Add mention_people payload if not exists
 add_column_qdrant(
     qdrant_loader=qdrant_loader,
     qdrant_extractor=qdrant_extractor,
@@ -91,10 +55,46 @@ add_column_qdrant(
     dtype=pl.Int8,
 )
 
-add_column_qdrant(
-    qdrant_loader=qdrant_loader,
-    qdrant_extractor=qdrant_extractor,
-    column="topic_tagging",
-    value="",
-    dtype=pl.Utf8,
-)
+# # Add mention stock_funds payload if not exists
+# add_column_qdrant(
+#     qdrant_loader=qdrant_loader,
+#     qdrant_extractor=qdrant_extractor,
+#     column="mention_stock_funds",
+#     value=[],
+#     dtype=pl.List(pl.Utf8),
+# )
+
+# # Add foreign_securities_funds payload if not exists
+# add_column_qdrant(
+#     qdrant_loader=qdrant_loader,
+#     qdrant_extractor=qdrant_extractor,
+#     column="foreign_securities_funds",
+#     value=[],
+#     dtype=pl.List(pl.Utf8),
+# )
+
+# # Add government_policies payload if not exists
+# add_column_qdrant(
+#     qdrant_loader=qdrant_loader,
+#     qdrant_extractor=qdrant_extractor,
+#     column="government_policies",
+#     value=[],
+#     dtype=pl.List(pl.Utf8),
+# )
+
+# # Add is_topic_tagging
+# add_column_qdrant(
+#     qdrant_loader=qdrant_loader,
+#     qdrant_extractor=qdrant_extractor,
+#     column="is_topic_tagging",
+#     value=0,
+#     dtype=pl.Int8,
+# )
+
+# add_column_qdrant(
+#     qdrant_loader=qdrant_loader,
+#     qdrant_extractor=qdrant_extractor,
+#     column="topic_tagging",
+#     value="",
+#     dtype=pl.Utf8,
+# )
