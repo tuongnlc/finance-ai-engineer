@@ -1,3 +1,4 @@
+import random
 from unidecode import unidecode
 from ai_engineer.shared.data_pipeline.load.qdrant_loader import QdrantLoader
 from ai_engineer.applications.topic_tagging.application.prompt.prompt_loading import TopicTaggingPromptLoading
@@ -13,7 +14,20 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-topic_tagging_api_key = os.getenv("TOPIC_TAGGING_API_KEY_2")
+list_of_api_keys = [
+    "GCP_PROJECT_1",
+    "GCP_PROJECT_2",
+    "GCP_PROJECT_3",
+    "GCP_PROJECT_4",
+    "GCP_PROJECT_5",
+    "GCP_PROJECT_6",
+    "GCP_PROJECT_7",
+    "GCP_PROJECT_8",
+]
+
+api_key = random.choice(list_of_api_keys)
+
+topic_tagging_api_key = os.getenv(api_key)
 topic_tagging_model = os.getenv("TOPIC_TAGGING_MODEL")
 BATCH_SIZE = 5
 BATCH_SLEEP_SECONDS = 20
@@ -114,40 +128,11 @@ class TopicTaggingUseCase:
         df_llm_output = pl.DataFrame(llm_output)
         return df_llm_output
 
-    @staticmethod
-    def _list_join_nonempty(column: str, *, separator: str = ", ") -> pl.Expr:
-        col = pl.coalesce(
-            [
-                pl.col(column).cast(pl.List(pl.Utf8), strict=False),
-                pl.lit([], dtype=pl.List(pl.Utf8)),
-            ]
-        )
-        return pl.when(col.list.len() > 0).then(col.list.join(separator)).otherwise(None)
-
     def load(self, df_llm_output: pl.DataFrame, df_: pl.DataFrame):
-        df_llm_output = df_llm_output.with_columns(
-            pl.concat_str(
-                [
-                    self._list_join_nonempty("stock_mention"),
-                    self._list_join_nonempty("topic_keywords"),
-                    self._list_join_nonempty("mention_people"),
-                    self._list_join_nonempty("mention_stock_funds"),
-                    self._list_join_nonempty("foreign_securities_funds"),
-                    self._list_join_nonempty("government_policies"),
-                ],
-                separator=", ",
-                ignore_nulls=True,
-            ).alias("topic_tagging")
-        )
-
         new_cols = [
-            "stock_mention",
-            "topic_keywords",
-            "mention_people",
-            "mention_stock_funds",
-            "foreign_securities_funds",
-            "government_policies",
-            "topic_tagging",
+            "stocks_mention",
+            "main_topic",
+            "person_mention",
         ]
 
         #drop all column if columns exist in original df
@@ -175,7 +160,7 @@ class TopicTaggingUseCase:
             )
         except Exception as e:
             print(f"Enrichment join failed, fallback to base columns only: {e}")
-        self.loader.load(data_final, vector_column=None)        
+        self.loader.load(data_final, vector_column=None)  
 
     def _close_clients(self):
         for component in (self.extractor, self.loader):
@@ -186,6 +171,8 @@ class TopicTaggingUseCase:
     def run(self):
         try:
             df = self.extract()
+
+            df = df.limit(50) #Update later
             
             df = self.transform(df)
             

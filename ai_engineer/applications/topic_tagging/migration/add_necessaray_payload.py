@@ -29,31 +29,31 @@ add_column_qdrant(
 )
 
 # # Add topic_keywords payload if not exists
-# add_column_qdrant(
-#     qdrant_loader=qdrant_loader,
-#     qdrant_extractor=qdrant_extractor,
-#     column="topic_keywords",
-#     value=[],
-#     dtype=pl.List(pl.Utf8),
-# )
+add_column_qdrant(
+    qdrant_loader=qdrant_loader,
+    qdrant_extractor=qdrant_extractor,
+    column="stocks_mention",
+    value=[],
+    dtype=pl.List(pl.Utf8),
+)
 
 # # Add sentiment_analysis payload if not exists
-# add_column_qdrant(
-#     qdrant_loader=qdrant_loader,
-#     qdrant_extractor=qdrant_extractor,
-#     column="sentiment_analysis",
-#     value="",
-#     dtype=pl.Utf8,
-# )
+add_column_qdrant(
+    qdrant_loader=qdrant_loader,
+    qdrant_extractor=qdrant_extractor,
+    column="person_mention",
+    value=[],
+    dtype=pl.List(pl.Utf8),
+)
 
 # # Add mention_people payload if not exists
-# add_column_qdrant(
-#     qdrant_loader=qdrant_loader,
-#     qdrant_extractor=qdrant_extractor,
-#     column="mention_people",
-#     value=[],
-#     dtype=pl.List(pl.Utf8),
-# )
+add_column_qdrant(
+    qdrant_loader=qdrant_loader,
+    qdrant_extractor=qdrant_extractor,
+    column="is_topic_tagging",
+    value=0,
+    dtype=pl.Int8,
+)
 
 # # Add mention stock_funds payload if not exists
 # add_column_qdrant(
