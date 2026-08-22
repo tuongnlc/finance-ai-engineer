@@ -29,9 +29,8 @@ api_key = random.choice(list_of_api_keys)
 
 topic_tagging_api_key = os.getenv(api_key)
 topic_tagging_model = os.getenv("TOPIC_TAGGING_MODEL")
-BATCH_SIZE = 5
-BATCH_SLEEP_SECONDS = 20
-
+BATCH_SIZE = 15
+BATCH_SLEEP_SECONDS = 60
 
 class TopicTaggingUseCase:
     def __init__(
@@ -105,7 +104,10 @@ class TopicTaggingUseCase:
         for batch_start in range(0, len(articles), BATCH_SIZE):
             batch_number = (batch_start // BATCH_SIZE) + 1
             batch_articles = articles[batch_start: batch_start + BATCH_SIZE]
+
+            start_time_batch = time.time()
             results = chain.batch(batch_articles, config={"max_concurrency": BATCH_SIZE})
+            end_time_batch = time.time()
 
             for idx, result in enumerate(results, start=batch_start + 1):
                 result = result.model_dump()
@@ -120,6 +122,7 @@ class TopicTaggingUseCase:
                 llm_output.append(result)
 
             if batch_start + BATCH_SIZE < len(articles):
+                print(f"Batch {batch_number} completed in {end_time_batch - start_time_batch}s")
                 print(
                     f"Batch {batch_number} completed. Sleeping {BATCH_SLEEP_SECONDS}s before next batch..."
                 )
@@ -172,7 +175,7 @@ class TopicTaggingUseCase:
         try:
             df = self.extract()
 
-            df = df.limit(50) #Update later
+            df = df.limit(60) #Update later
             
             df = self.transform(df)
             
