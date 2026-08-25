@@ -173,10 +173,7 @@ class TopicTaggingUseCase:
 
     def run(self):
         try:
-            df = self.extract()
-
-            df = df.limit(60) #Update later
-            
+            df = self.extract()            
             df = self.transform(df)
             
             start_time = time.time()
