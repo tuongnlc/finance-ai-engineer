@@ -37,7 +37,7 @@ add_column_qdrant(
     dtype=pl.List(pl.Utf8),
 )
 
-# # Add sentiment_analysis payload if not exists
+# # Add person_mention payload if not exists
 add_column_qdrant(
     qdrant_loader=qdrant_loader,
     qdrant_extractor=qdrant_extractor,
@@ -46,7 +46,7 @@ add_column_qdrant(
     dtype=pl.List(pl.Utf8),
 )
 
-# # Add mention_people payload if not exists
+# # Add is_topic_tagging payload if not exists
 add_column_qdrant(
     qdrant_loader=qdrant_loader,
     qdrant_extractor=qdrant_extractor,

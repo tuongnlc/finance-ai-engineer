@@ -163,7 +163,7 @@ class TopicTaggingUseCase:
             )
         except Exception as e:
             print(f"Enrichment join failed, fallback to base columns only: {e}")
-        self.loader.load(data_final, vector_column=None)  
+        self.loader.load(data_final)  
 
     def _close_clients(self):
         for component in (self.extractor, self.loader):
@@ -173,7 +173,7 @@ class TopicTaggingUseCase:
 
     def run(self):
         try:
-            df = self.extract()            
+            df = self.extract()
             df = self.transform(df)
             
             start_time = time.time()

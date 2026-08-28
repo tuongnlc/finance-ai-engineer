@@ -1,8 +1,9 @@
+from datetime import datetime
 from ai_engineer.shared.data_pipeline.extract.base import BaseExtractor
-import polars as pl
 from qdrant_client import QdrantClient
-from qdrant_client.models import Filter, FieldCondition, MatchValue
+from qdrant_client.models import DatetimeRange, Filter, FieldCondition, MatchAny, MatchValue, Range
 from typing import Optional
+import polars as pl
 
 
 class QdrantExtractorWithPayloadFilter(BaseExtractor):
@@ -12,6 +13,11 @@ class QdrantExtractorWithPayloadFilter(BaseExtractor):
         Parameters:
             qdrant_url (str): Qdrant database URL
             collection_name (str): Collection name to extract data from
+            with_vectors (Mandatory):
+                -  with_vectors=False: Query Payload only
+                -  with_vectors=["bm25_sparse"]: Query Payload with sparse vectors
+                -  with_vectors=["gemini_dense_vector"]: Query Payload with dense vectors
+                -  with_vectors=["bm25_sparse", "gemini_dense_vector"]: Query Payload with multiple vectors
 
         Returns:
             polars.DataFrame: DataFrame containing the extracted data from qdrant database
@@ -23,14 +29,26 @@ class QdrantExtractorWithPayloadFilter(BaseExtractor):
         payload_filter: dict,
         batch_size: int = 256,
         max_records: Optional[int] = None,
-        with_vectors: bool = False,
+        with_vectors: list[str] | bool | None = None,
     ):
-        self.qdrant_client = QdrantClient(url=qdrant_url, timeout=600)
+        self.qdrant_client = QdrantClient(url=qdrant_url)
         self.collection_name = collection_name
         self.payload_filter = payload_filter
         self.batch_size = batch_size
         self.max_records = max_records
-        self.with_vectors = with_vectors
+        self.with_vectors = with_vectors if with_vectors is not None else False
+
+    @staticmethod
+    def is_datetime_str(val):
+        if not isinstance(val, str):
+            return False
+        try:
+            # Thử parse nhanh xem có đúng định dạng ngày tháng không
+            # Định dạng 'YYYY-MM-DD' hoặc có thêm giờ đều được ngầm hiểu
+            datetime.fromisoformat(val.replace("Z", "+00:00"))
+            return True
+        except ValueError:
+            return False
 
     def _build_payload_filter(
         self
@@ -44,12 +62,47 @@ class QdrantExtractorWithPayloadFilter(BaseExtractor):
         must_conditions = []
 
         for key, value in self.payload_filter.items():
-            must_conditions.append(
-                FieldCondition(
-                    key=key,
-                    match=MatchValue(value=value),
+            if isinstance(value, dict) and any(k in value for k in ["gt", "gte", "lt", "lte"]):
+            # 1. CHECK IF ANY VALUE IS DATETIME STRING
+                if any(self.is_datetime_str(v) for v in value.values() if v is not None):
+                    must_conditions.append(
+                        FieldCondition(
+                            key=key,
+                            range=DatetimeRange(
+                                gte=value.get("gte"),
+                                gt=value.get("gt"),
+                                lte=value.get("lte"),
+                                lt=value.get("lt")
+                            )
+                        )
+                    )
+                else:
+                    # 2. USE RANGE IF VALUES ARE NUMERIC
+                    must_conditions.append(
+                        FieldCondition(
+                            key=key,
+                            range=Range(
+                                gte=value.get("gte"),
+                                gt=value.get("gt"),
+                                lte=value.get("lte"),
+                                lt=value.get("lt")
+                            )
+                        )
+                    )
+            elif isinstance(value, list):
+                must_conditions.append(
+                    FieldCondition(
+                        key=key,
+                        match=MatchAny(any=value),
+                    )
                 )
-            )
+            else:
+                must_conditions.append(
+                    FieldCondition(
+                        key=key,
+                        match=MatchValue(value=value),
+                    )
+                )
 
         return Filter(must=must_conditions)
 
@@ -71,22 +124,34 @@ class QdrantExtractorWithPayloadFilter(BaseExtractor):
                 collection_name=self.collection_name,
                 scroll_filter=query_filter,
                 with_payload=True,
+                with_vectors=self.with_vectors,
                 limit=self.batch_size,
                 offset=next_offset,
-                with_vectors=self.with_vectors,
             )
 
             if not records:
                 break
 
-            rows.extend(
-                {
+            for record in records:
+                row = {
                     "id": record.id,
                     **(record.payload or {}),
-                    **({"vector": record.vector} if self.with_vectors else {}),
                 }
-                for record in records
-            )
+
+                if self.with_vectors:
+                    if (
+                        isinstance(self.with_vectors, list)
+                        and isinstance(record.vector, dict)
+                        and len(self.with_vectors) == 1
+                    ):
+                        row["vector"] = record.vector.get(self.with_vectors[0])
+                    elif isinstance(self.with_vectors, list) and isinstance(record.vector, dict):
+                        for vector_name in self.with_vectors:
+                            row[vector_name] = record.vector.get(vector_name)
+                    else:
+                        row["vector"] = record.vector
+
+                rows.append(row)
 
             if self.max_records is not None and len(rows) >= self.max_records:
                 rows = rows[: self.max_records]
@@ -96,8 +161,8 @@ class QdrantExtractorWithPayloadFilter(BaseExtractor):
                 break
 
         output_df = pl.DataFrame(rows) if rows else pl.DataFrame()
-
         print(f"NUMBER of records extracted: {len(rows)}")
+
         return output_df
 
     def extract(self) -> pl.DataFrame:
@@ -108,5 +173,6 @@ class QdrantExtractorWithPayloadFilter(BaseExtractor):
                 polars.DataFrame: DataFrame containing the extracted data from qdrant database
         """
         query_filter = self._build_payload_filter()
+        print(f"Query to qdrant: {query_filter}")
         return self._extract_with_payload_filter(query_filter)
         

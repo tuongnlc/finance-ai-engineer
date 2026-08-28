@@ -41,3 +41,16 @@ class DropColumns(TransformStep):
     def transform(self, df: pl.DataFrame) -> pl.DataFrame:
         df = df.drop(self.columns)
         return df
+
+
+class ReplaceCharInColumn(TransformStep):
+    def __init__(self, column: str, old_char: str, new_char: str):
+        self.column = column
+        self.old_char = old_char
+        self.new_char = new_char
+
+    def transform(self, df: pl.DataFrame) -> pl.DataFrame:
+        df = df.with_columns(
+            pl.col(self.column).str.replace_all(self.old_char, self.new_char).alias(self.column)
+        )
+        return df
