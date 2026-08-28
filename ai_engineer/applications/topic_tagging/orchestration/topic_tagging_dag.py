@@ -2,8 +2,10 @@ from airflow import DAG
 from airflow.operators.bash import BashOperator
 from airflow.operators.python import PythonOperator
 from datetime import datetime
-from ai_engineer.applications.topic_tagging.orchestration.python_script.topic_tagging import main
+from ai_engineer.applications.topic_tagging.orchestration.python_script.topic_tagging import main as topic_tagging_task
+# from ai_engineer.applications.topic_tagging.orchestration.python_script.add_tagging_to_newspaper_embedded import main as add_tagging_to_newspaper_embedded_task 
 
+# logical_data = {"ds"}
 
 with DAG(
     dag_id='2027_07_07_topic_tagging',
@@ -21,7 +23,13 @@ with DAG(
     # Task 2: Python execution
     topic_tagging = PythonOperator(
         task_id='topic_tagging_task',
-        python_callable=main,
+        python_callable=topic_tagging_task,
     )
+
+    # Task 3: Add tagging to newspaper embedded
+    # add_tagging_to_newspaper_embedded = PythonOperator(
+    #     task_id='add_tagging_to_newspaper_embedded_task',
+    #     python_callable=add_tagging_to_newspaper_embedded_task,
+    # )
 
     start_topic_tagging_dag >> topic_tagging  
