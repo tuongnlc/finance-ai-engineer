@@ -175,4 +175,8 @@ class QdrantExtractorWithPayloadFilter(BaseExtractor):
         query_filter = self._build_payload_filter()
         print(f"Query to qdrant: {query_filter}")
         return self._extract_with_payload_filter(query_filter)
+
+    def close(self):
+        if hasattr(self.qdrant_client, "close"):
+            self.qdrant_client.close()
         
