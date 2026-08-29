@@ -1,0 +1,304 @@
+from ai_engineer.applications.topic_summary.application.call_llm import CallLLMWithStructuredOutput
+from ai_engineer.applications.topic_summary.application.pdf_generator import PdfSummarizationGenerator
+from ai_engineer.shared.data_pipeline.extract.qdrant_extractor import QdrantExtractorWithPayloadFilter
+
+# Step 1: repair summary
+from typing import Literal
+from langchain_core.output_parsers import PydanticOutputParser
+import os
+from dotenv import load_dotenv
+from pydantic import BaseModel, RootModel
+load_dotenv()
+
+from ai_engineer.helpers.prompt.prompt_loading import MLFlowPromptLoading
+
+from ai_engineer.shared.llm.create_llm import create_gemini_llm
+
+
+publish_date = "2026-08-28"
+# Step 1: call qdrant extractor
+extract = QdrantExtractorWithPayloadFilter(
+    qdrant_url="http://localhost:6333",
+    collection_name="newspaper",
+    payload_filter={
+        "publish_date": publish_date,
+        "main_topic": "quản trị doanh nghiệp"
+    }
+)
+
+df_ = extract.extract()
+df_ = df_.limit(2)
+rows = df_.to_dicts()
+print(len(rows))
+
+# Step 2: Call llm to get response
+class TopicAnalysis(BaseModel):
+    summary: str 
+    sentiment_analysis: Literal["Tích cực", "Tiêu cực", "Trung lập"] 
+
+class TopicAnalysisOutput(RootModel[dict[str, TopicAnalysis]]):
+    pass
+
+parser = PydanticOutputParser(pydantic_object=TopicAnalysisOutput)
+
+prompt = MLFlowPromptLoading(
+    prompt_name="topic_summary__business"
+).load_and_parse_prompt().partial(
+    format_instructions=parser.get_format_instructions()
+)
+
+llm_api_key = os.getenv("GCP_PROJECT_7")
+
+llm = create_gemini_llm(
+    api_key=llm_api_key,
+    model_name="gemini-3.5-flash-lite",
+    temperature=0,
+)
+
+call_llm = CallLLMWithStructuredOutput(
+    llm=llm,
+    prompt_name="topic_summary__business",
+    llm_api_key=llm_api_key,
+    structure_output=TopicAnalysisOutput,
+)
+
+responses = call_llm.call_llm_in_batch(
+    # rows
+    inputs=rows,
+)
+
+print("test loading prompt from mlflow")
+
+output_list_call_llm = []
+for row, response in zip(rows, responses):
+    content_dict = {
+        "stocks_mention": row["stocks_mention"],
+        "person_mention": row["person_mention"],
+    }
+    content_dict.update(response.model_dump())
+    output_list_call_llm.append(content_dict)
+
+# content = output_list_call_llm
+print(output_list_call_llm)
+
+# # Step 3: Repair data for pdf convert
+from xhtml2pdf import pisa
+date_ = "28/08/2026"
+report_type = "Báo cáo thông tin doanh nghiệp"
+
+FONT_PATH = "/Library/Fonts/Arial Unicode.ttf"
+
+pdf_generator = PdfSummarizationGenerator(
+    font_path=FONT_PATH,
+    report_date=date_,
+    report_type=report_type
+)
+
+pdf_generator.run(output_list_call_llm)
+
+# def _escape_html(text):
+#     return (text.replace("&", "&amp;")
+#                 .replace("<", "&lt;")
+#                 .replace(">", "&gt;")
+#                 .replace('"', "&quot;"))
+
+
+# def _title_case(s):
+#     if not s:
+#         return s
+#     words = s.split(" ")
+#     result = []
+#     for w in words:
+#         if len(w) == 0:
+#             result.append(w)
+#         else:
+#             result.append(w[0].upper() + w[1:])
+#     return " ".join(result)
+
+
+# def _group_by_company(items):
+#     grouped = {}
+#     for item in items:
+#         company_val = item.get("stocks_mention", "")
+#         if isinstance(company_val, list):
+#             company = ", ".join(str(c) for c in company_val).upper()
+#         else:
+#             company = str(company_val).upper()
+
+#         mention_val = item.get("person_mention", "")
+#         if isinstance(mention_val, list):
+#             mention_person = ", ".join(str(p) for p in mention_val)
+#         else:
+#             mention_person = str(mention_val)
+
+#         if company not in grouped:
+#             grouped[company] = []
+
+#         meta_keys = ("stocks_mention", "person_mention")
+#         for key, value in item.items():
+#             if key in meta_keys:
+#                 continue
+#             if value:
+#                 if isinstance(value, dict):
+#                     summary = value.get("summary", "")
+#                     sac_thai = value.get("sentiment_analysis", "")
+#                 else:
+#                     summary = str(value)
+#                     sac_thai = ""
+#                 grouped[company].append((key, summary, sac_thai, mention_person))
+#     return grouped
+
+
+# def _sentiment_style(sac_thai):
+#     s = (sac_thai or "").strip().lower()
+#     if "tích cực" in s or s == "tich cuc":
+#         return "background-color: #e6f4ea; color: #137333; border: 1px solid #ace0af;"
+#     if "tiêu cực" in s or s == "tieu cuc":
+#         return "background-color: #fce8e6; color: #a50e0e; border: 1px solid #f5b0ab;"
+#     return "background-color: #f1f3f4; color: #5f6368; border: 1px solid #dadce0;"
+
+
+# def build_html(date_str, rtype, items):
+#     grouped = _group_by_company(items)
+#     company_list = list(grouped.items())
+
+#     body_parts = []
+#     for idx, (company, topics) in enumerate(company_list):
+#         company_html = (
+#             f'<div class="company-block">\n'
+#             f'  <h1 class="company-name">Công ty: {_escape_html(company)}</h1>\n'
+#         )
+#         mention_person = topics[0][3] if topics else ""
+#         if mention_person:
+#             company_html += (
+#                 f'  <p style="font-style: italic; color: #555; font-size: 10pt; margin-top: 2px;">'
+#                 f'Nhân sự liên quan: {_escape_html(mention_person)}</p>\n'
+#             )
+#         company_html += f'</div>'
+#         body_parts.append(company_html)
+
+#         for topic_name, topic_content, sac_thai, _ in topics:
+#             badge_html = ""
+#             if sac_thai:
+#                 badge_html = (
+#                     f'<span class="sentiment-badge" style="{_sentiment_style(sac_thai)}">'
+#                     f'{_escape_html(sac_thai)}</span>'
+#                 )
+#             body_parts.append(
+#                 f'<h2 class="topic-title">{_escape_html(_title_case(topic_name))} {badge_html}</h2>\n'
+#                 f'<p>{_escape_html(topic_content)}</p>'
+#             )
+
+#         if idx < len(company_list) - 1:
+#             body_parts.append(
+#                 '<p style="text-align: center; letter-spacing: 8px; color: #888; margin: 40px 0 20px 0;">- - - -</p>'
+#             )
+
+#     return f"""
+# <!DOCTYPE html>
+# <html>
+# <head>
+#     <meta charset="UTF-8">
+#     <style>
+#         @font-face {{
+#             font-family: 'ArialUnicode';
+#             src: url('Arial Unicode.ttf');
+#         }}
+
+#         body {{
+#             font-family: 'ArialUnicode', sans-serif;
+#             font-size: 11pt;
+#             color: #333333;
+#             line-height: 1.6;
+#             margin: 40px;
+#         }}
+
+#         .header {{
+#             margin-bottom: 20px;
+#             border-bottom: 2px solid #1e3c72;
+#             padding-bottom: 10px;
+#         }}
+
+#         h1 {{
+#             color: #1e3c72;
+#             font-size: 20pt;
+#             margin: 0 0 5px 0;
+#         }}
+
+#         .date {{
+#             color: #666666;
+#             font-size: 10pt;
+#         }}
+
+#         .company-block {{
+#             margin-top: 24px;
+#             margin-bottom: 4px;
+#             page-break-inside: avoid;
+#         }}
+
+#         .company-name {{
+#             color: #1e3c72;
+#             font-size: 16pt;
+#             border-bottom: 1px solid #cfd8e3;
+#             padding-bottom: 4px;
+#             margin-bottom: 6px;
+#         }}
+
+#         h2 {{
+#             color: #2a5298;
+#             font-size: 13pt;
+#             margin-top: 16px;
+#             margin-bottom: 8px;
+#         }}
+
+#         .sentiment-badge {{
+#             display: inline-block;
+#             font-size: 9pt;
+#             padding: 2px 8px;
+#             border-radius: 3px;
+#             font-weight: normal;
+#             margin-left: 6px;
+#             vertical-align: middle;
+#         }}
+
+#         p {{
+#             margin: 0 0 15px 0;
+#             text-align: justify;
+#         }}
+#     </style>
+# </head>
+# <body>
+#     <div class="header">
+#         <h1>{_escape_html(rtype)}</h1>
+#         <div class="date">Ngày phát hành: {_escape_html(date_str)}</div>
+#     </div>
+
+#     {chr(10).join(body_parts)}
+
+# </body>
+# </html>
+# """
+
+
+# html_content = build_html(date_, report_type, content)
+
+# def link_callback(uri, rel):
+#     if uri == 'Arial Unicode.ttf':
+#         return FONT_PATH
+#     return uri
+
+# def convert_html_to_pdf(html_str, output_pdf):
+#     with open(output_pdf, "wb") as pdf_file:
+#         pisa_status = pisa.CreatePDF(
+#             html_str,
+#             dest=pdf_file,
+#             link_callback=link_callback
+#         )
+    
+#     if pisa_status.err:
+#         print("Có lỗi xảy ra trong quá trình chuyển đổi!")
+#     else:
+#         print(f"Đã tạo file PDF tiếng Việt thành công: {output_pdf}")
+
+# if __name__ == "__main__":
+#     convert_html_to_pdf(html_content, "bao_cao_chuan_tieng_viet.pdf")
