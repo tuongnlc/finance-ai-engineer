@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 import os
 
 from ai_engineer.applications.topic_summary.application.call_llm import CallLLMWithStructuredOutput
+from ai_engineer.applications.topic_summary.application.pdf_generator import PdfSummarizationGenerator
 from ai_engineer.shared.data_pipeline.extract.qdrant_extractor import QdrantExtractorWithPayloadFilter
 
 load_dotenv()
@@ -32,9 +33,11 @@ class TopicSummaryUseCase:
             self,
             extractor: QdrantExtractorWithPayloadFilter,
             llm_caller: CallLLMWithStructuredOutput,
+            pdf_generator: PdfSummarizationGenerator,
         ):
         self.extractor = extractor
         self.llm_caller = llm_caller
+        self.pdf_generator = pdf_generator
 
     def extract(self):
         df = self.extractor.extract()
@@ -65,6 +68,11 @@ class TopicSummaryUseCase:
                 content_dict.update(response.model_dump())
                 output_list_call_llm.append(content_dict)
             
-            return output_list_call_llm
+            # Generate pdf from output_list_call_llm
+            self.pdf_generator.run(
+                content=output_list_call_llm
+            )
+            
+            # return output_list_call_llm
         finally:
             self._close_clients()

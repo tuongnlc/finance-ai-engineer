@@ -1,5 +1,6 @@
 from ai_engineer.applications.topic_summary.application.call_llm import CallLLMWithStructuredOutput
 from ai_engineer.applications.topic_summary.application.models import TopicAnalysisOutput
+from ai_engineer.applications.topic_summary.application.pdf_generator import PdfSummarizationGenerator
 from ai_engineer.applications.topic_summary.use_case.topic_summary import TopicSummaryUseCase
 from ai_engineer.shared.data_pipeline.extract.qdrant_extractor import QdrantExtractorWithPayloadFilter
 from dotenv import load_dotenv
@@ -35,10 +36,19 @@ llm_caller = CallLLMWithStructuredOutput(
     structure_output=TopicAnalysisOutput,
 )
 
+#Create pdf generator
+font_path = "/Library/Fonts/Arial Unicode.ttf"
+pdf_generator = PdfSummarizationGenerator(
+    font_path=font_path,
+    report_date=publish_date,
+    report_type="Báo cáo thông tin doanh nghiệp",
+)
+
 # Using in use case
 use_case = TopicSummaryUseCase(
     extractor=extractor,
     llm_caller=llm_caller,
+    pdf_generator=pdf_generator,
 )
 
 df = use_case.run()

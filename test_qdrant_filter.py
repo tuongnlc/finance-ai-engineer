@@ -1,4 +1,5 @@
 from ai_engineer.applications.topic_summary.application.call_llm import CallLLMWithStructuredOutput
+from ai_engineer.applications.topic_summary.application.pdf_generator import PdfSummarizationGenerator
 from ai_engineer.shared.data_pipeline.extract.qdrant_extractor import QdrantExtractorWithPayloadFilter
 
 # Step 1: repair summary
@@ -81,11 +82,19 @@ for row, response in zip(rows, responses):
 print(output_list_call_llm)
 
 # # Step 3: Repair data for pdf convert
-# from xhtml2pdf import pisa
-# date_ = "28/08/2026"
-# report_type = "Báo cáo thông tin doanh nghiệp"
+from xhtml2pdf import pisa
+date_ = "28/08/2026"
+report_type = "Báo cáo thông tin doanh nghiệp"
 
-# FONT_PATH = "/Library/Fonts/Arial Unicode.ttf"
+FONT_PATH = "/Library/Fonts/Arial Unicode.ttf"
+
+pdf_generator = PdfSummarizationGenerator(
+    font_path=FONT_PATH,
+    report_date=date_,
+    report_type=report_type
+)
+
+pdf_generator.run(output_list_call_llm)
 
 # def _escape_html(text):
 #     return (text.replace("&", "&amp;")

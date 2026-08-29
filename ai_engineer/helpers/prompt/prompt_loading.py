@@ -5,8 +5,8 @@ from langchain_core.prompts import ChatPromptTemplate
 
 class MLFlowPromptLoading:
     def __init__(self, prompt_name: str):
-        # tracking_uri = os.getenv("MLFLOW_TRACKING_URI", "http://mlflow-server:5000")
-        tracking_uri = "http://localhost:5000"
+        tracking_uri = os.getenv("MLFLOW_TRACKING_URI", "http://mlflow-server:5000")
+        # tracking_uri = "http://localhost:5000"
         mlflow.set_tracking_uri(tracking_uri)
         mlflow.set_registry_uri(tracking_uri)
         self.prompt_name = prompt_name  #Cause we use this class for Topic Tagging only
