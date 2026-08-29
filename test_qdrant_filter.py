@@ -1,12 +1,84 @@
+from ai_engineer.shared.data_pipeline.extract.qdrant_extractor import QdrantExtractorWithPayloadFilter
+
+# Step 1: repair summary
+from typing import Literal
+from langchain_core.output_parsers import PydanticOutputParser
+import os
+from dotenv import load_dotenv
+from pydantic import BaseModel, RootModel
+load_dotenv()
+
+from ai_engineer.helpers.prompt.prompt_loading import MLFlowPromptLoading
+
+from ai_engineer.shared.llm.create_llm import create_gemini_llm
+
+
+publish_date = "2026-08-28"
+# Step 1: call qdrant extractor
+extract = QdrantExtractorWithPayloadFilter(
+    qdrant_url="http://localhost:6333",
+    collection_name="newspaper",
+    payload_filter={
+        "publish_date": publish_date,
+        "main_topic": "quản trị doanh nghiệp"
+    }
+)
+
+df_ = extract.extract()
+df_ = df_.limit(5)
+rows = df_.to_dicts()
+print(len(rows))
+
+# Step 2: Call llm to get response
+class TopicAnalysis(BaseModel):
+    summary: str 
+    sentiment_analysis: Literal["Tích cực", "Tiêu cực", "Trung lập"] 
+
+class TopicAnalysisOutput(RootModel[dict[str, TopicAnalysis]]):
+    pass
+
+parser = PydanticOutputParser(pydantic_object=TopicAnalysisOutput)
+
+prompt = MLFlowPromptLoading(
+    prompt_name="topic_summary__business"
+).load_and_parse_prompt().partial(
+    format_instructions=parser.get_format_instructions()
+)
+
+llm_api_key = os.getenv("LLM_CHAT_API_KEY_1")
+
+llm = create_gemini_llm(
+    api_key=llm_api_key,
+    model_name="gemini-3.1-flash-lite",
+    temperature=0,
+)
+
+structured_llm = llm.with_structured_output(TopicAnalysisOutput)
+
+chain = prompt | structured_llm
+
+output_list_call_llm = []
+
+for row in rows:
+    content_dict = {}
+    content = row["newspaper_content"]
+    content_dict["stocks_mention"] = row["stocks_mention"]
+    content_dict["person_mention"] = row["person_mention"]
+
+    response = chain.invoke({
+        "text_content": content
+    })
+    content_dict.update(response.model_dump())
+    output_list_call_llm.append(content_dict)
+
+content = output_list_call_llm
+
+# Step 3: Repair data for pdf convert
 from xhtml2pdf import pisa
-
-
 date_ = "28/08/2026"
 report_type = "Báo cáo thông tin doanh nghiệp"
 
-
 FONT_PATH = "/Library/Fonts/Arial Unicode.ttf"
-
 
 def _escape_html(text):
     return (text.replace("&", "&amp;")
