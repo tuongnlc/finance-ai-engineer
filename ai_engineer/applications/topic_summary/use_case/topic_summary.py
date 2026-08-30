@@ -57,18 +57,30 @@ class TopicSummaryUseCase:
             responses = self.llm_caller.call_llm_in_batch(
                 inputs=inputs,
             )
-
+            print(responses)
             #combine inputs and responses
             output_list_call_llm = []
-            for row, response in zip(inputs, responses):
-                content_dict = {
-                    "stocks_mention": row["stocks_mention"],
-                    "person_mention": row["person_mention"],
-                }
-                content_dict.update(response.model_dump())
-                output_list_call_llm.append(content_dict)
+
+            # Add if else logic to handle type of output format:
+            if self.pdf_generator.report_type == "Báo cáo thông tin doanh nghiệp":
+                for row, response in zip(inputs, responses):
+                    content_dict = {
+                        "stocks_mention": row["stocks_mention"],
+                        "person_mention": row["person_mention"],
+                    }
+                    content_dict.update(response.model_dump())
+                    output_list_call_llm.append(content_dict)
+            elif self.pdf_generator.report_type == "Báo cáo thông tin kinh tế vĩ mô & chính sách":
+                for row, response in zip(inputs, responses):
+                    content_dict = {
+                        "stocks_mention": "",
+                        "person_mention": row.get("person_mention", ""),
+                    }
+                    content_dict.update(response.model_dump())
+                    output_list_call_llm.append(content_dict)
+            # print(output_list_call_llm)
             
-            # Generate pdf from output_list_call_llm
+            # # Generate pdf from output_list_call_llm
             self.pdf_generator.run(
                 content=output_list_call_llm
             )
