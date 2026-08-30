@@ -1,16 +1,17 @@
 import os
 from ai_engineer.applications.topic_summary.application.call_llm import CallLLMWithStructuredOutput
-from ai_engineer.applications.topic_summary.application.models import MacroNewspaperSummaryOutput
+from ai_engineer.applications.topic_summary.application.models import MarketNewspaperSummaryOutput, FundNewspaperSummaryOutput
 from ai_engineer.applications.topic_summary.application.pdf_generator import PdfSummarizationGenerator
 from ai_engineer.applications.topic_summary.use_case.topic_summary import TopicSummaryUseCase
 from ai_engineer.shared.data_pipeline.extract.qdrant_extractor import QdrantExtractorWithPayloadFilter
 from dotenv import load_dotenv
 
+
 from ai_engineer.shared.llm.create_llm import create_gemini_llm
 # import os
 
 load_dotenv()
-publish_date = "2026-08-30"
+publish_date = "2026-06-27"
 
 # Step 1: Create extractor
 extractor = QdrantExtractorWithPayloadFilter(
@@ -18,12 +19,12 @@ extractor = QdrantExtractorWithPayloadFilter(
     collection_name="newspaper",
     payload_filter={
         "publish_date": publish_date,
-        "main_topic": "kinh tế vĩ mô & chính sách"
+        "main_topic": "quỹ & danh mục đầu tư"
     }
 )
 
-df__marcro = extractor.extract()
-print(len(df__marcro))
+df__market = extractor.extract()
+print(len(df__market))
 
 #Step 2: Create llm caller
 llm_api_key = os.getenv("GCP_PROJECT_7")
@@ -36,9 +37,9 @@ llm = create_gemini_llm(
 
 llm_caller = CallLLMWithStructuredOutput(
     llm=llm,
-    prompt_name="topic_summary__macro",
+    prompt_name="topic_summary__fund",
     llm_api_key=llm_api_key,
-    structure_output=MacroNewspaperSummaryOutput,
+    structure_output=FundNewspaperSummaryOutput,
 )
 
 # These code use to test - not delete
@@ -47,13 +48,13 @@ llm_caller = CallLLMWithStructuredOutput(
 # structure_llm = llm_caller._create_llm_with_structured_output()
 # print(structure_llm)
 
-#Step 3: Create pdf generator
+# Step 3: Create pdf generator
 font_path = "/Library/Fonts/Arial Unicode.ttf"
 pdf_generator = PdfSummarizationGenerator(
     font_path=font_path,
     report_date=publish_date,
-    report_type="Báo cáo kinh tế vĩ mô & chính sách",
-    output_pdf_path=f"test__macro__{publish_date}.pdf",
+    report_type="Báo cáo quỹ & danh mục đầu tư",
+    output_pdf_path=f"test__fund__{publish_date}.pdf",
 )
 
 # Using in use case
@@ -63,5 +64,4 @@ use_case = TopicSummaryUseCase(
     pdf_generator=pdf_generator,
 )
 
-df = use_case.run()
-print(df)
+use_case.run()

@@ -29,14 +29,14 @@ class PdfSummarizationGenerator:
         return " ".join(result)
 
     @staticmethod
-    def _group_by_company(items):
+    def _group_by_company(items, group_by_fund=False):
         grouped = {}
         for item in items:
-            company_val = item.get("stocks_mention", "")
-            if isinstance(company_val, list):
-                company = ", ".join(str(c) for c in company_val).upper()
+            stocks_val = item.get("stocks_mention", "")
+            if isinstance(stocks_val, list):
+                company = ", ".join(str(c) for c in stocks_val).upper()
             else:
-                company = str(company_val).upper()
+                company = str(stocks_val).upper()
 
             mention_val = item.get("person_mention", "")
             if isinstance(mention_val, list):
@@ -44,21 +44,39 @@ class PdfSummarizationGenerator:
             else:
                 mention_person = str(mention_val)
 
-            if company not in grouped:
-                grouped[company] = []
+            item_fund = item.get("fund_mention") or item.get("fund_name", "")
 
-            meta_keys = ("stocks_mention", "person_mention")
+            meta_keys = ("stocks_mention", "person_mention", "fund_mention", "fund_name")
             for key, value in item.items():
                 if key in meta_keys:
                     continue
-                if value:
-                    if isinstance(value, dict):
-                        summary = value.get("summary", "")
-                        sac_thai = value.get("sentiment_analysis", "")
-                    else:
-                        summary = str(value)
-                        sac_thai = ""
-                    grouped[company].append((key, summary, sac_thai, mention_person))
+                if not value:
+                    continue
+                if isinstance(value, dict):
+                    summary = value.get("summary", "")
+                    sac_thai = value.get("sentiment_analysis", "")
+                    topic_fund = value.get("fund_mention") or value.get("fund_name", "")
+                else:
+                    summary = str(value)
+                    sac_thai = ""
+                    topic_fund = ""
+
+                effective_fund = topic_fund or item_fund
+                if isinstance(effective_fund, list):
+                    effective_fund_str = ", ".join(str(f) for f in effective_fund)
+                else:
+                    effective_fund_str = str(effective_fund)
+
+                if group_by_fund:
+                    group_key = effective_fund_str.upper() or company
+                else:
+                    group_key = company
+
+                if group_key not in grouped:
+                    grouped[group_key] = []
+                grouped[group_key].append(
+                    (key, summary, sac_thai, mention_person, effective_fund_str)
+                )
         return grouped
 
     @staticmethod
@@ -184,10 +202,42 @@ class PdfSummarizationGenerator:
             company_html += f'</div>'
             body_parts.append(company_html)
 
-            for topic_name, topic_content, sac_thai, _ in topics:
+            for topic_name, topic_content, sac_thai, _, _ in topics:
                 body_parts.append(self._build_topic_block(topic_name, topic_content, sac_thai))
 
             if idx < len(company_list) - 1:
+                body_parts.append(self._build_separator())
+
+        return chr(10).join(body_parts)
+
+    def _build_fund_body(self, items):
+        grouped = self._group_by_company(items, group_by_fund=True)
+        fund_list = list(grouped.items())
+
+        body_parts = []
+        for idx, (fund_name, topics) in enumerate(fund_list):
+            fund_html = (
+                f'<div class="company-block">\n'
+                f'  <h1 class="company-name">Quỹ: {self._escape_html(fund_name)}</h1>\n'
+            )
+            mention_person = topics[0][3] if topics else ""
+            if mention_person:
+                fund_html += (
+                    f'  <p style="font-style: italic; color: #555; font-size: 10pt; margin-top: 2px;">'
+                    f'Nhân sự liên quan: {self._escape_html(mention_person)}</p>\n'
+                )
+            fund_html += f'</div>'
+            body_parts.append(fund_html)
+
+            for topic_name, topic_content, sac_thai, _, mention_fund in topics:
+                body_parts.append(self._build_topic_block(topic_name, topic_content, sac_thai))
+                if mention_fund:
+                    body_parts.append(
+                        f'<p style="font-size: 10pt; color: #555; margin-top: -10px; margin-bottom: 12px;">'
+                        f'<strong>Quỹ liên quan:</strong> {self._escape_html(mention_fund)}</p>'
+                    )
+
+            if idx < len(fund_list) - 1:
                 body_parts.append(self._build_separator())
 
         return chr(10).join(body_parts)
@@ -263,8 +313,10 @@ class PdfSummarizationGenerator:
         rtype_norm = (rtype or "").strip().lower()
         if "kinh tế vĩ mô" in rtype_norm or "chính sách" in rtype_norm:
             return self._build_macro_or_market_body
-        if "thị trường" in rtype_norm or "giao dịch" in rtype_norm: #Note: macro and market share the same body builder
+        if "thị trường" in rtype_norm or "giao dịch" in rtype_norm:
             return self._build_macro_or_market_body
+        if "quỹ" in rtype_norm or "danh mục đầu tư" in rtype_norm:
+            return self._build_fund_body
         return self._build_business_body
 
     def build_html(self, date_str, rtype, items):

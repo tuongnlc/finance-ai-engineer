@@ -5,6 +5,7 @@ from ai_engineer.applications.topic_summary.application.models import (
     TopicAnalysisOutput,
     MacroNewspaperSummaryOutput,
     MarketNewspaperSummaryOutput,
+    FundNewspaperSummaryOutput,
 )
 from ai_engineer.applications.topic_summary.application.pdf_generator import PdfSummarizationGenerator
 from ai_engineer.applications.topic_summary.use_case.topic_summary import TopicSummaryUseCase
@@ -47,7 +48,14 @@ _TOPIC_CONFIG = {
         "prompt_name": "topic_summary__market",
         "structure_output": MarketNewspaperSummaryOutput,
         "pdf_filename": "bao_cao_thi_truong_giao_dich_{publish_date}.pdf",
-    }
+    },
+    "fund": { # Quỹ & Danh mục đầu tư
+        "report_type": "Báo cáo quỹ & danh mục đầu tư",
+        "main_topic": "quỹ & danh mục đầu tư",
+        "prompt_name": "topic_summary__fund",
+        "structure_output": FundNewspaperSummaryOutput,
+        "pdf_filename": "bao_cao_quy_{publish_date}.pdf",
+    },
 }
 
 

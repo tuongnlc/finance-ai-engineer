@@ -82,13 +82,20 @@ class TopicSummaryUseCase:
                     }
                     content_dict.update(response.model_dump())
                     output_list_call_llm.append(content_dict)
-            # print(output_list_call_llm)
-            
+            elif (
+                    self.pdf_generator.report_type == "Báo cáo quỹ & danh mục đầu tư"
+                ):
+                for row, response in zip(inputs, responses):
+                    content_dict = {
+                        "person_mention": row.get("person_mention", ""),
+                    }
+                    content_dict.update(response.model_dump())
+                    output_list_call_llm.append(content_dict)
+                        
             # # Generate pdf from output_list_call_llm
             self.pdf_generator.run(
                 content=output_list_call_llm
             )
             
-            # return output_list_call_llm
         finally:
             self._close_clients()
