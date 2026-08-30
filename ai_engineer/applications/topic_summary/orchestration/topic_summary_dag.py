@@ -10,12 +10,12 @@ from ai_engineer.applications.topic_summary.orchestration.python_script.topic_su
 )
 
 
-def _pick_two_distinct_keys():
-    key_name_1, key_name_2 = random.sample(GCP_API_KEY_NAMES, 2)
-    return os.getenv(key_name_1), os.getenv(key_name_2)
+def _pick_three_distinct_keys():
+    key_name_1, key_name_2, key_name_3 = random.sample(GCP_API_KEY_NAMES, 3)
+    return os.getenv(key_name_1), os.getenv(key_name_2), os.getenv(key_name_3)
 
 
-_llm_key_business, _llm_key_macro = _pick_two_distinct_keys()
+_llm_key_business, _llm_key_macro, _llm_key_market = _pick_three_distinct_keys()
 
 
 _PUBLISH_DATE_TEMPLATE = (
@@ -63,4 +63,14 @@ with DAG(
         },
     )
 
-    start_topic_dag >> [topic_summary__business, topic_summary__macro]
+    topic_summary__market = PythonOperator(
+        task_id='topic_summary__market',
+        python_callable=topic_summary_main,
+        op_kwargs={
+            'publish_date': _PUBLISH_DATE_TEMPLATE,
+            'topic_type': 'market',
+            'llm_api_key': _llm_key_market,
+        },
+    )
+
+    start_topic_dag >> [topic_summary__business, topic_summary__macro, topic_summary__market]
