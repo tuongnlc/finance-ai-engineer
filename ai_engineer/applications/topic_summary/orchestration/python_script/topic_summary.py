@@ -2,10 +2,11 @@ import random
 from pathlib import Path
 from ai_engineer.applications.topic_summary.application.call_llm import CallLLMWithStructuredOutput
 from ai_engineer.applications.topic_summary.application.models import (
-    TopicAnalysisOutput,
+    BusinessNewspaperSummaryOutput,
     MacroNewspaperSummaryOutput,
     MarketNewspaperSummaryOutput,
     FundNewspaperSummaryOutput,
+    LawNewspaperSummaryOutput,
 )
 from ai_engineer.applications.topic_summary.application.pdf_generator import PdfSummarizationGenerator
 from ai_engineer.applications.topic_summary.use_case.topic_summary import TopicSummaryUseCase
@@ -32,7 +33,7 @@ _TOPIC_CONFIG = {
         "report_type": "Báo cáo thông tin doanh nghiệp",
         "main_topic": "quản trị doanh nghiệp",
         "prompt_name": "topic_summary__business",
-        "structure_output": TopicAnalysisOutput,
+        "structure_output": BusinessNewspaperSummaryOutput,
         "pdf_filename": "bao_cao_doanh_nghiep_{publish_date}.pdf",
     },
     "macro": { # Kinh tế vĩ mô & chính sách
@@ -56,6 +57,13 @@ _TOPIC_CONFIG = {
         "structure_output": FundNewspaperSummaryOutput,
         "pdf_filename": "bao_cao_quy_{publish_date}.pdf",
     },
+    "law": { # Pháp lý & quản lý nhà nước
+        "report_type": "Báo cáo pháp lý & quản lý nhà nước",
+        "main_topic": "pháp lý & quản lý nhà nước",
+        "prompt_name": "topic_summary__law",
+        "structure_output": LawNewspaperSummaryOutput,
+        "pdf_filename": "bao_cao_phap_ly_quan_ly_nha_nuoc_{publish_date}.pdf",
+    },
 }
 
 
@@ -78,7 +86,7 @@ def build_use_case(publish_date: str, topic_type: str, llm_api_key: str) -> Topi
 
     llm = create_gemini_llm(
         api_key=llm_api_key,
-        model_name="gemini-3.5-flash-lite",
+        model_name="gemini-3.5-flash-lite", #Update later
         temperature=0,
     )
 

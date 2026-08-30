@@ -1,4 +1,4 @@
-from ai_engineer.applications.topic_summary.application.prompt.prompt_template import business_template, macro_template, market_template, fund_template
+from ai_engineer.applications.topic_summary.application.prompt.prompt_template import business_template, macro_template, market_template, fund_template, law_template
 from ai_engineer.helpers.prompt.prompt_registry.prompt_register import PromptRegister
 
 if __name__ == "__main__":
@@ -23,7 +23,13 @@ if __name__ == "__main__":
     # )
 
     # Register fund summary template
+    # prompt_register.register_prompt(
+    #     prompt_name='topic_summary__fund', 
+    #     prompt_template=fund_template
+    # )
+
+    # Register law summary template
     prompt_register.register_prompt(
-        prompt_name='topic_summary__fund', 
-        prompt_template=fund_template
+        prompt_name='topic_summary__law', 
+        prompt_template=law_template
     )
