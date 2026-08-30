@@ -1,12 +1,11 @@
 import time
 from langchain_core.output_parsers import PydanticOutputParser
-from ai_engineer.applications.topic_summary.application.models import TopicAnalysisOutput
 from ai_engineer.helpers.prompt.prompt_loading import MLFlowPromptLoading
 from ai_engineer.shared.llm.create_llm import create_gemini_llm
 
 
 class CallLLMWithStructuredOutput:
-    def __init__(self, llm, prompt_name: str, llm_api_key: str, structure_output: type[TopicAnalysisOutput]):
+    def __init__(self, llm, prompt_name: str, llm_api_key: str, structure_output):    
         self.llm = llm
         self.prompt_name = prompt_name
         self.llm_api_key = llm_api_key

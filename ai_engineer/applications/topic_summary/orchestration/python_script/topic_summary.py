@@ -2,7 +2,7 @@ import random
 from pathlib import Path
 from ai_engineer.applications.topic_summary.application.call_llm import CallLLMWithStructuredOutput
 from ai_engineer.applications.topic_summary.application.models import (
-    TopicAnalysisOutput,
+    BusinessNewspaperSummaryOutput,
     MacroNewspaperSummaryOutput,
     MarketNewspaperSummaryOutput,
     FundNewspaperSummaryOutput,
@@ -33,7 +33,7 @@ _TOPIC_CONFIG = {
         "report_type": "Báo cáo thông tin doanh nghiệp",
         "main_topic": "quản trị doanh nghiệp",
         "prompt_name": "topic_summary__business",
-        "structure_output": TopicAnalysisOutput,
+        "structure_output": BusinessNewspaperSummaryOutput,
         "pdf_filename": "bao_cao_doanh_nghiep_{publish_date}.pdf",
     },
     "macro": { # Kinh tế vĩ mô & chính sách
