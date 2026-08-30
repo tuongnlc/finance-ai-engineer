@@ -70,7 +70,7 @@ class TopicSummaryUseCase:
                     }
                     content_dict.update(response.model_dump())
                     output_list_call_llm.append(content_dict)
-            elif self.pdf_generator.report_type == "Báo cáo thông tin kinh tế vĩ mô & chính sách":
+            elif self.pdf_generator.report_type == "Báo cáo kinh tế vĩ mô & chính sách":
                 for row, response in zip(inputs, responses):
                     content_dict = {
                         "stocks_mention": "",

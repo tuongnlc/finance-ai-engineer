@@ -52,7 +52,7 @@ font_path = "/Library/Fonts/Arial Unicode.ttf"
 pdf_generator = PdfSummarizationGenerator(
     font_path=font_path,
     report_date=publish_date,
-    report_type="Báo cáo thông tin kinh tế vĩ mô & chính sách",
+    report_type="Báo cáo kinh tế vĩ mô & chính sách",
     output_pdf_path=f"test__macro__{publish_date}.pdf",
 )
 
