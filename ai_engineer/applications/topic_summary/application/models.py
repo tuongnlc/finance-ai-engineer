@@ -25,3 +25,11 @@ class MarketNewspaperSummary(BaseModel):
     
 class MarketNewspaperSummaryOutput(RootModel[dict[str, MarketNewspaperSummary]]):
     pass
+
+class FundNewspaperSummary(BaseModel):
+    summary: str
+    sentiment_analysis: Literal["Tích cực", "Tiêu cực", "Trung lập"] 
+    fund_name: list[str]
+    
+class FundNewspaperSummaryOutput(RootModel[dict[str, FundNewspaperSummary]]):
+    pass

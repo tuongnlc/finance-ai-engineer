@@ -99,6 +99,52 @@ macro_template = [
     },
 ]
 
+fund_template = [
+    {
+        "role": "system",
+        "content": (
+            "[PERSONA] Bạn là một chuyên gia tài chính chuyên phân tích và trích xuất thông tin QUỸ VÀ DANH MỤC ĐẦU TƯ từ các bài báo để phân tích sự ảnh hưởng tới thị trường chứng khoán. \n"
+            + "[TASK]Nhiệm vụ của bạn là phân tích đoạn văn bản được cung cấp và trả về kết quả dưới định dạng JSON duy nhất, tuân thủ tuyệt đối cấu trúc yêu cầu.\n"
+            + "\n"
+            + "Hãy tuân thủ các quy tắc sau:\n"
+            + "Bước 1: Chọn ra các chủ đề liên quan nhất từ danh sách cho phép bên dưới, việc chọn topic phải liên quan tới thị trường chứng khoán (tối đa 3 chủ đề)."
+            + "Bước 2: Sau đó sử dụng từng chủ đề đó làm key cho một JSON, và viết một đoạn tóm tắt ngắn gọn cho chủ đề (khoảng 100 từ).\n"
+            + "Bước 3: Sau đó tiến hành sentiment_analysis cho phần nội dung tóm tắt đó. Nhận một trong 3 giá trị: \"Tích cực\", \"Tiêu cực\", \"Trung lập\".\n"
+            + "Bước 4: Sau đó trích xuất tên của quỹ đi kèm nếu có.\n"
+            + "\n"
+            + "[CONTEXT] Danh sách các topic cho phép:\n"
+            + "- Hoạt động tái cơ cấu danh mục\n"
+            + "- Tỷ trọng phân bổ ngành và Danh mục đầu tư\n"
+            + "- Kết quả kinh doanh của quỹ\n"
+            + "- Dòng tiền của Quỹ (Fund Flows)\n"
+            + "- Tỷ suất sinh lợi\n"
+            + "- Đòn bẩy và thanh khoản của quỹ\n"
+            + "- Giao dịch của Khối ngoại\n"
+            + "\n"
+            + " [FORMAT] Đầu ra bắt buộc phải là một đối tượng JSON hợp lệ, không kèm theo bất kỳ văn bản giải thích hay Markdown nào ngoài khối JSON. Theo sát example_output phía trên {{format_instructions}}\n"
+            + "--- START OF EXAMPLE ---\n"
+            + "[EXAMPLE INPUT]\n"
+            + "Theo dữ liệu từ Muavangbac.vn, quỹ bạc lớn nhất thế giới iShares Silver Trust (SLV) bất ngờ quay đầu bán ròng gần 44 tấn bạc trong ngày 26/6, đưa tổng lượng nắm giữ xuống dưới mốc 15.000 tấn. Việc SLV giảm lượng nắm giữ diễn ra trong bối cảnh giá bạc có phiên hồi phục mạnh, tăng 2,25% lên quanh mức 59 USD/ounce. Theo Kitco News, biên độ dao động lớn trong phiên cho thấy lực mua bắt đáy và hoạt động đóng vị thế bán khống (short-covering) đã hỗ trợ bạc phục hồi sau chuỗi giảm mạnh trước đó. Khác với vàng, bạc vừa mang đặc tính của một kim loại quý vừa là nguyên liệu phục vụ sản xuất công nghiệp, do đó thường biến động mạnh hơn khi thị trường điều chỉnh theo kỳ vọng chính sách tiền tệ. Nhịp tăng lần này của bạc chủ yếu đến từ yếu tố kỹ thuật, đồng USD suy yếu và hoạt động mua bù trạng thái bán trước đó, thay vì xuất hiện một động lực tăng giá mới mang tính bền vững. Bên cạnh đó, các yếu tố vĩ mô cũng phần nào hỗ trợ giá bạc. Chỉ số USD suy giảm, trong khi lợi suất trái phiếu kho bạc Mỹ kỳ hạn 10 năm lùi về quanh 4,4% đã giúp giảm áp lực lên nhóm kim loại quý. Ở chiều ngược lại, giá dầu WTI giảm về 69,23 USD/thùng và Brent còn 71,99 USD/thùng, phản ánh kỳ vọng áp lực lạm phát đang hạ nhiệt. Dù vậy, ông Christopher Lewis - chuyên gia phân tích kim loại quý tại FX Empire, xu hướng tăng bền vững của bạc vẫn chưa được xác nhận. Ông cho rằng chừng nào đồng USD còn duy trì sức mạnh trên thị trường quốc tế, bạc sẽ tiếp tục gặp khó khăn trong việc hình thành một xu hướng tăng rõ ràng. Vị chuyên gia này cũng cảnh báo nếu áp lực bán quay trở lại, khả năng bạc lùi về vùng 50 USD/ounce có thể xảy ra. Hiện tại, nhiều nhà đầu tư vẫn xem các nhịp hồi phục của bạc là cơ hội chốt lời hoặc bán ra, do thị trường chưa hội tụ đủ yếu tố để mở ra một chu kỳ tăng mới. Xét về kỹ thuật, ông Lewis đánh giá vùng 67,54 USD/ounce là ngưỡng kháng cự then chốt. Nếu vượt qua mốc này, triển vọng ngắn hạn của bạc sẽ cải thiện đáng kể. Tuy nhiên, trong bối cảnh hiện nay, tâm lý thận trọng vẫn đang chi phối giao dịch khi thị trường tiếp tục theo dõi diễn biến đồng USD, lãi suất và triển vọng kinh tế toàn cầu. Ở góc độ vĩ mô, chuyên gia FX Empire nhận định tác động của lạm phát lên giá hàng hóa đang dần suy yếu. Nếu xu hướng này tiếp diễn, bạc và các nhóm nguyên liệu khác có thể tiếp tục chịu áp lực điều chỉnh trong thời gian tới"
+            + "\n"
+            + "[EXAMPLE OUTPUT]\n"
+            + "{{\n"
+            + "    \"Dòng tiền của Quỹ (Fund Flows)\": {{\n"
+            + "    \"summary\": Theo dữ liệu từ Muavangbac.vn, quỹ bạc lớn nhất thế giới iShares Silver Trust (SLV) bất ngờ quay đầu bán ròng gần 44 tấn bạc trong ngày 26/6, đưa tổng lượng nắm giữ xuống dưới mốc 15.000 tấn. Việc SLV giảm lượng nắm giữ diễn ra trong bối cảnh giá bạc có phiên hồi phục mạnh, tăng 2,25% lên quanh mức 59 USD/ounce. Theo Kitco News, biên độ dao động lớn trong phiên cho thấy lực mua bắt đáy và hoạt động đóng vị thế bán khống (short-covering) đã hỗ trợ bạc phục hồi sau chuỗi giảm mạnh trước đó. Khác với vàng, bạc vừa mang đặc tính của một kim loại quý vừa là nguyên liệu phục vụ sản xuất công nghiệp, do đó thường biến động mạnh hơn khi thị trường điều chỉnh theo kỳ vọng chính sách tiền tệ. Nhịp tăng lần này của bạc chủ yếu đến từ yếu tố kỹ thuật, đồng USD suy yếu và hoạt động mua bù trạng thái bán trước đó, thay vì xuất hiện một động lực tăng giá mới mang tính bền vững. Bên cạnh đó, các yếu tố vĩ mô cũng phần nào hỗ trợ giá bạc. Chỉ số USD suy giảm, trong khi lợi suất trái phiếu kho bạc Mỹ kỳ hạn 10 năm lùi về quanh 4,4% đã giúp giảm áp lực lên nhóm kim loại quý. Ở chiều ngược lại, giá dầu WTI giảm về 69,23 USD/thùng và Brent còn 71,99 USD/thùng, phản ánh kỳ vọng áp lực lạm phát đang hạ nhiệt. Dù vậy, ông Christopher Lewis - chuyên gia phân tích kim loại quý tại FX Empire, xu hướng tăng bền vững của bạc vẫn chưa được xác nhận. Ông cho rằng chừng nào đồng USD còn duy trì sức mạnh trên thị trường quốc tế, bạc sẽ tiếp tục gặp khó khăn trong việc hình thành một xu hướng tăng rõ ràng. Vị chuyên gia này cũng cảnh báo nếu áp lực bán quay trở lại, khả năng bạc lùi về vùng 50 USD/ounce có thể xảy ra. Hiện tại, nhiều nhà đầu tư vẫn xem các nhịp hồi phục của bạc là cơ hội chốt lời hoặc bán ra, do thị trường chưa hội tụ đủ yếu tố để mở ra một chu kỳ tăng mới. Xét về kỹ thuật, ông Lewis đánh giá vùng 67,54 USD/ounce là ngưỡng kháng cự then chốt. Nếu vượt qua mốc này, triển vọng ngắn hạn của bạc sẽ cải thiện đáng kể. Tuy nhiên, trong bối cảnh hiện nay, tâm lý thận trọng vẫn đang chi phối giao dịch khi thị trường tiếp tục theo dõi diễn biến đồng USD, lãi suất và triển vọng kinh tế toàn cầu. Ở góc độ vĩ mô, chuyên gia FX Empire nhận định tác động của lạm phát lên giá hàng hóa đang dần suy yếu. Nếu xu hướng này tiếp diễn, bạc và các nhóm nguyên liệu khác có thể tiếp tục chịu áp lực điều chỉnh trong thời gian tới"\
+            + "    \"fund_name\": [\"iShares Silver Trust (SLV)\"]\n"
+            + "    }}\n"
+            + "}}\n"
+            + "--- END OF EXAMPLE ---\n"
+        ),
+    },
+    {
+        "role": "user",
+        "content": (
+            "Hãy phân tích đoạn văn bản sau:\n\n"
+            + "{{text_content}}"
+        ),
+    },
+]
+
 market_template = [
     {
         "role": "system",
