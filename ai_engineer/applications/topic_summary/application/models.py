@@ -10,11 +10,18 @@ class TopicAnalysisOutput(RootModel[dict[str, TopicAnalysis]]):
     pass
 
 
-
 class MacroNewspaperSummary(BaseModel):
     summary: str
     sentiment_analysis: Literal["Tích cực", "Tiêu cực", "Trung lập"] 
     circular_and_policy: list[str]
     
 class MacroNewspaperSummaryOutput(RootModel[dict[str, MacroNewspaperSummary]]):
+    pass
+
+class MarketNewspaperSummary(BaseModel):
+    summary: str
+    sentiment_analysis: Literal["Tích cực", "Tiêu cực", "Trung lập"] 
+    circular_and_policy: list[str]
+    
+class MarketNewspaperSummaryOutput(RootModel[dict[str, MarketNewspaperSummary]]):
     pass

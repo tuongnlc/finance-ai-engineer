@@ -218,7 +218,7 @@ class PdfSummarizationGenerator:
             f'<strong>Thông tư, chính sách:</strong> {self._escape_html(policy_info)}</p>'
         )
 
-    def _build_macro_body(self, items):
+    def _build_macro_or_market_body(self, items):
         body_parts = []
         meta_keys = ("stocks_mention", "person_mention")
         for idx, item in enumerate(items):
@@ -262,7 +262,9 @@ class PdfSummarizationGenerator:
     def _select_body_builder(self, rtype):
         rtype_norm = (rtype or "").strip().lower()
         if "kinh tế vĩ mô" in rtype_norm or "chính sách" in rtype_norm:
-            return self._build_macro_body
+            return self._build_macro_or_market_body
+        if "thị trường" in rtype_norm or "giao dịch" in rtype_norm: #Note: macro and market share the same body builder
+            return self._build_macro_or_market_body
         return self._build_business_body
 
     def build_html(self, date_str, rtype, items):

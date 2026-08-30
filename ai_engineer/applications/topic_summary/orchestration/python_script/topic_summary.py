@@ -4,6 +4,7 @@ from ai_engineer.applications.topic_summary.application.call_llm import CallLLMW
 from ai_engineer.applications.topic_summary.application.models import (
     TopicAnalysisOutput,
     MacroNewspaperSummaryOutput,
+    MarketNewspaperSummaryOutput,
 )
 from ai_engineer.applications.topic_summary.application.pdf_generator import PdfSummarizationGenerator
 from ai_engineer.applications.topic_summary.use_case.topic_summary import TopicSummaryUseCase
@@ -26,20 +27,27 @@ GCP_API_KEY_NAMES = [
 ]
 
 _TOPIC_CONFIG = {
-    "business": {
+    "business": { # Quản trị Doanh nghiệp & Tài chính Doanh nghiệp
         "report_type": "Báo cáo thông tin doanh nghiệp",
         "main_topic": "quản trị doanh nghiệp",
         "prompt_name": "topic_summary__business",
         "structure_output": TopicAnalysisOutput,
         "pdf_filename": "bao_cao_doanh_nghiep_{publish_date}.pdf",
     },
-    "macro": {
+    "macro": { # Kinh tế vĩ mô & chính sách
         "report_type": "Báo cáo kinh tế vĩ mô & chính sách",
         "main_topic": "kinh tế vĩ mô & chính sách",
         "prompt_name": "topic_summary__macro",
         "structure_output": MacroNewspaperSummaryOutput,
         "pdf_filename": "bao_cao_kinh_te_vi_mo_{publish_date}.pdf",
     },
+    "market": { # Thị trường & giao dịch
+        "report_type": "Báo cáo thị trường & giao dịch",
+        "main_topic": "thị trường & giao dịch",
+        "prompt_name": "topic_summary__market",
+        "structure_output": MarketNewspaperSummaryOutput,
+        "pdf_filename": "bao_cao_thi_truong_giao_dich_{publish_date}.pdf",
+    }
 }
 
 
