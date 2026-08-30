@@ -10,12 +10,12 @@ from ai_engineer.applications.topic_summary.orchestration.python_script.topic_su
 )
 
 
-def _pick_four_distinct_keys():
-    key_name_1, key_name_2, key_name_3, key_name_4 = random.sample(GCP_API_KEY_NAMES, 4)
-    return os.getenv(key_name_1), os.getenv(key_name_2), os.getenv(key_name_3), os.getenv(key_name_4)
+def _pick_five_distinct_keys():
+    key_name_1, key_name_2, key_name_3, key_name_4, key_name_5 = random.sample(GCP_API_KEY_NAMES, 5)
+    return os.getenv(key_name_1), os.getenv(key_name_2), os.getenv(key_name_3), os.getenv(key_name_4), os.getenv(key_name_5)
 
 
-_llm_key_business, _llm_key_macro, _llm_key_market, _llm_key_fund = _pick_four_distinct_keys()
+_llm_key_business, _llm_key_macro, _llm_key_market, _llm_key_fund, _llm_key_law = _pick_five_distinct_keys()
 
 
 _PUBLISH_DATE_TEMPLATE = (
@@ -80,6 +80,16 @@ with DAG(
             'publish_date': _PUBLISH_DATE_TEMPLATE,
             'topic_type': 'fund',
             'llm_api_key': _llm_key_fund,
+        },
+    )
+
+    topic_summary__law = PythonOperator(
+        task_id='topic_summary__law',
+        python_callable=topic_summary_main,
+        op_kwargs={
+            'publish_date': _PUBLISH_DATE_TEMPLATE,
+            'topic_type': 'law',
+            'llm_api_key': _llm_key_law,
         },
     )
 

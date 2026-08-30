@@ -260,7 +260,34 @@ class PdfSummarizationGenerator:
                     return str(v)
         return ""
 
+    @staticmethod
+    def _get_legal_documents_info(value_dict):
+        if not isinstance(value_dict, dict):
+            return ""
+        ld_val = value_dict.get("legal_documents_and_regulations")
+        if ld_val:
+            if isinstance(ld_val, list):
+                return ", ".join(str(x) for x in ld_val if x)
+            return str(ld_val)
+        ld_val2 = value_dict.get("legal_documents")
+        if ld_val2:
+            if isinstance(ld_val2, list):
+                return ", ".join(str(x) for x in ld_val2 if x)
+            return str(ld_val2)
+        for k in value_dict:
+            k_lower = k.lower()
+            if "văn bản" in k_lower or "quy định" in k_lower or "luật" in k_lower or "nghị định" in k_lower or "thông tư" in k_lower:
+                v = value_dict.get(k)
+                if v:
+                    if isinstance(v, list):
+                        return ", ".join(str(x) for x in v if x)
+                    return str(v)
+        return ""
+
     def _build_policy_line(self, policy_info):
+        """
+            Build policy line for market or market summary
+        """
         if not policy_info:
             return ""
         return (
@@ -268,7 +295,18 @@ class PdfSummarizationGenerator:
             f'<strong>Thông tư, chính sách:</strong> {self._escape_html(policy_info)}</p>'
         )
 
-    def _build_macro_or_market_body(self, items):
+    def _build_legal_documents_line(self, legal_documents_info):
+        """
+            Build legal documents line for market or market summary
+        """
+        if not legal_documents_info:
+            return ""
+        return (
+            f'<p style="font-size: 10pt; color: #555; margin-top: -8px; margin-bottom: 15px;">'
+            f'<strong>Văn bản hướng dẫn luật và quy định:</strong> {self._escape_html(legal_documents_info)}</p>'
+        )
+
+    def _build_macro_or_market_or_law_body(self, items):
         body_parts = []
         meta_keys = ("stocks_mention", "person_mention")
         for idx, item in enumerate(items):
@@ -288,11 +326,13 @@ class PdfSummarizationGenerator:
                     summary = value.get("summary", "")
                     sac_thai = value.get("sentiment_analysis", "")
                     policy_info = self._get_policy_info(value)
+                    legal_documents_info = self._get_legal_documents_info(value)
                 else:
                     topic_name = key
                     summary = str(value)
                     sac_thai = ""
                     policy_info = ""
+                    legal_documents_info = ""
                 if summary:
                     body_parts.append(self._build_topic_block(topic_name, summary, sac_thai))
                     if mention_person:
@@ -301,6 +341,9 @@ class PdfSummarizationGenerator:
                             f'<strong>Người liên quan:</strong> {self._escape_html(mention_person)}</p>'
                         )
                     policy_line = self._build_policy_line(policy_info)
+                    legal_documents_line = self._build_legal_documents_line(legal_documents_info)
+                    if legal_documents_line:
+                        body_parts.append(legal_documents_line)
                     if policy_line:
                         body_parts.append(policy_line)
 
@@ -312,9 +355,11 @@ class PdfSummarizationGenerator:
     def _select_body_builder(self, rtype):
         rtype_norm = (rtype or "").strip().lower()
         if "kinh tế vĩ mô" in rtype_norm or "chính sách" in rtype_norm:
-            return self._build_macro_or_market_body
+            return self._build_macro_or_market_or_law_body
         if "thị trường" in rtype_norm or "giao dịch" in rtype_norm:
-            return self._build_macro_or_market_body
+            return self._build_macro_or_market_or_law_body
+        if "pháp lý" in rtype_norm or "quản lý nhà nước" in rtype_norm:
+            return self._build_macro_or_market_or_law_body
         if "quỹ" in rtype_norm or "danh mục đầu tư" in rtype_norm:
             return self._build_fund_body
         return self._build_business_body

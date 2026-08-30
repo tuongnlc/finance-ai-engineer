@@ -74,6 +74,8 @@ class TopicSummaryUseCase:
                     self.pdf_generator.report_type == "Báo cáo kinh tế vĩ mô & chính sách" 
                         or 
                     self.pdf_generator.report_type == "Báo cáo thị trường & giao dịch"
+                        or 
+                    self.pdf_generator.report_type == "Báo cáo pháp lý & quản lý nhà nước"
                 ):
                 for row, response in zip(inputs, responses):
                     content_dict = {
