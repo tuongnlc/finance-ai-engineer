@@ -53,7 +53,10 @@ preprocess_user_input_template = [
             "   "
             "\n"
             "3. **Viết lại câu truy vấn (Query Rewriting):**\n"
-            "   - Chuyển đổi câu hỏi thông thường của user thành dạng truy vấn chuẩn hóa cho Vector DB liên quan tới thị trường chứng khoán / Keyword Search.\n"
+            "   - Chuyển đổi câu hỏi thông thường của user thành ba câu truy vấn có nghữ nghĩa liên quan tới thị trường chứng khoán.\n"
+            "   - Các từ khoá quan trọng xác định entity trong câu hỏi phải được giữ lại trong ba câu truy vấn.\n"
+            "   - Kết quả của phần này được ghi vào optimized_search_query trong JSON output.\n"
+            "\n"
             "\n"
             "---\n"
             "\n"
@@ -66,7 +69,7 @@ preprocess_user_input_template = [
             '  "stock_id": "...",\n'
             '  "target_year": "...",\n'
             '  "document_type": "...",\n'
-            '  "optimized_search_query": "..."\n'
+            '  "optimized_search_query": ["...", "...", "..."]\n'
             "}}\n"
         ),
     },
@@ -106,7 +109,7 @@ def strip_markdown_json(text: str) -> str:
     return text.strip()
 
 
-van_ban_khong_dau = 'Quy Dragon Capital lo bao nhieu %'
+van_ban_khong_dau = 'Ông Phạm Nhat vuong la ai'
 
 response = chain.invoke({
             "user_query": van_ban_khong_dau
