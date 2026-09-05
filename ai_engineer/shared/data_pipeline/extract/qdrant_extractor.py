@@ -4,7 +4,7 @@ from qdrant_client import QdrantClient
 from qdrant_client.models import DatetimeRange, Filter, FieldCondition, MatchAny, MatchValue, Range
 from typing import Optional
 import polars as pl
-
+from ai_engineer.helpers.build_payload_filter import build_payload_filter
 
 class QdrantExtractorWithPayloadFilter(BaseExtractor):
     """
@@ -49,62 +49,6 @@ class QdrantExtractorWithPayloadFilter(BaseExtractor):
             return True
         except ValueError:
             return False
-
-    def _build_payload_filter(
-        self
-    ) -> Filter:
-        """
-            Build payload filter from payload_filter
-
-            Returns:
-                Filter: Filter object with payload filter
-        """
-        must_conditions = []
-
-        for key, value in self.payload_filter.items():
-            if isinstance(value, dict) and any(k in value for k in ["gt", "gte", "lt", "lte"]):
-            # 1. CHECK IF ANY VALUE IS DATETIME STRING
-                if any(self.is_datetime_str(v) for v in value.values() if v is not None):
-                    must_conditions.append(
-                        FieldCondition(
-                            key=key,
-                            range=DatetimeRange(
-                                gte=value.get("gte"),
-                                gt=value.get("gt"),
-                                lte=value.get("lte"),
-                                lt=value.get("lt")
-                            )
-                        )
-                    )
-                else:
-                    # 2. USE RANGE IF VALUES ARE NUMERIC
-                    must_conditions.append(
-                        FieldCondition(
-                            key=key,
-                            range=Range(
-                                gte=value.get("gte"),
-                                gt=value.get("gt"),
-                                lte=value.get("lte"),
-                                lt=value.get("lt")
-                            )
-                        )
-                    )
-            elif isinstance(value, list):
-                must_conditions.append(
-                    FieldCondition(
-                        key=key,
-                        match=MatchAny(any=value),
-                    )
-                )
-            else:
-                must_conditions.append(
-                    FieldCondition(
-                        key=key,
-                        match=MatchValue(value=value),
-                    )
-                )
-
-        return Filter(must=must_conditions)
 
     def _extract_with_payload_filter(
         self,
@@ -172,7 +116,7 @@ class QdrantExtractorWithPayloadFilter(BaseExtractor):
             Returns:
                 polars.DataFrame: DataFrame containing the extracted data from qdrant database
         """
-        query_filter = self._build_payload_filter()
+        query_filter = build_payload_filter(self.payload_filter)
         print(f"Query to qdrant: {query_filter}")
         return self._extract_with_payload_filter(query_filter)
 
