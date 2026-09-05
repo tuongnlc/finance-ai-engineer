@@ -26,10 +26,4 @@ with DAG(
         python_callable=topic_tagging_task,
     )
 
-    # Task 3: Add tagging to newspaper embedded
-    # add_tagging_to_newspaper_embedded = PythonOperator(
-    #     task_id='add_tagging_to_newspaper_embedded_task',
-    #     python_callable=add_tagging_to_newspaper_embedded_task,
-    # )
-
     start_topic_tagging_dag >> topic_tagging  

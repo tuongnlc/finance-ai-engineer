@@ -39,7 +39,9 @@ class DropColumns(TransformStep):
         self.columns = columns
 
     def transform(self, df: pl.DataFrame) -> pl.DataFrame:
-        df = df.drop(self.columns)
+        existing_cols = [c for c in self.columns if c in df.columns]
+        if existing_cols:
+            df = df.drop(existing_cols)
         return df
 
 

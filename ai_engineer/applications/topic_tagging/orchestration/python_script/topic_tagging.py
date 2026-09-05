@@ -5,28 +5,41 @@ from ai_engineer.shared.data_pipeline.load.qdrant_loader import QdrantLoader
 
 
 def main():
-    # df = topic_tagging_use_case.run()
-    qdrant_extractor = QdrantExtractorWithPayloadFilter(
-    # qdrant_url="localhost:6333",
-    qdrant_url="http://qdrant:6333", #when run in docker composer
-    collection_name="newspaper",
-    payload_filter={
-        "is_topic_tagging": 0,
-    },
-    with_vectors=False,
-)
+    newspaper_extractor = QdrantExtractorWithPayloadFilter(
+        qdrant_url="http://qdrant:6333", #when run in docker composer
+        collection_name="newspaper",
+        payload_filter={
+            "is_topic_tagging": 0
+        },
+        with_vectors=False,
+    )
 
-    qdrant_loader = QdrantLoader(
-        # qdrant_url="localhost:6333",
+    newspaper_embedded_extractor = QdrantExtractorWithPayloadFilter(
+        qdrant_url="http://qdrant:6333", #when run in docker composer
+        collection_name="newspaper_embedded",
+        payload_filter={},
+        with_vectors=["bm25_sparse", "gemini_dense_vector"],
+    )
+
+    newspaper_loader = QdrantLoader(
         qdrant_url="http://qdrant:6333", #when run in docker composer
         destination_collection_name="newspaper",
     )
 
-    topic_tagging_use_case = TopicTaggingUseCase(
-        extractor=qdrant_extractor,
-        loader=qdrant_loader,
+    newspaper_embedded_loader = QdrantLoader(
+        qdrant_url="http://qdrant:6333", #when run in docker composer
+        destination_collection_name="newspaper_embedded",
     )
-    df = topic_tagging_use_case.run()
+
+    use_case = TopicTaggingUseCase(
+        newspaper_extractor=newspaper_extractor,
+        newspaper_embedded_extractor=newspaper_embedded_extractor,
+        newspaper_loader=newspaper_loader,
+        newspaper_embedded_loader=newspaper_embedded_loader,
+    )
+    df_ = use_case.run()
+    # print(df_)
+    
 
 if __name__ == "__main__":
     main()
