@@ -6,6 +6,8 @@ from ai_engineer.shared.llm.create_llm import create_gemini_embedding
 from fastembed import SparseTextEmbedding
 from underthesea import word_tokenize
 from fastembed import SparseTextEmbedding
+from ai_engineer.helpers.build_payload_filter import build_payload_filter
+
 
 
 class DocumentSearchService:
@@ -17,6 +19,7 @@ class DocumentSearchService:
             dense_vector_name: Optional[str] = None,
             sparse_model_name: Optional[str] = None,
             sparse_vector_name: Optional[str] = None,
+            query_filter: Optional[dict] = None,
         ):
         self.qdrant_client = qdrant_client
         self.collection_name = collection_name
@@ -26,6 +29,7 @@ class DocumentSearchService:
         if sparse_vector_name is not None:
             self.sparse_embedding: SparseTextEmbedding = SparseTextEmbedding(model_name="Qdrant/bm25",  disable_stemmer=True)
             self.sparse_vector_name = sparse_vector_name
+        self.query_filter = query_filter
         
     def embed_dense_query(self, query: str) -> list[float]:
         return self.dense_embedding.embed_query(query)
@@ -44,6 +48,8 @@ class DocumentSearchService:
             score_threshold: int = 0,
         ) -> list[str]:
         vector = self.embed_dense_query(query)
+        if self.query_filter is not None:
+            query_filter = build_payload_filter(self.query_filter)
         search_result = self.qdrant_client.query_points(
             collection_name=self.collection_name,
             query=vector,
@@ -52,6 +58,7 @@ class DocumentSearchService:
             with_payload=with_payload,
             with_vectors=with_vectors,
             score_threshold=score_threshold,
+            query_filter=query_filter,
         )
         return search_result
 

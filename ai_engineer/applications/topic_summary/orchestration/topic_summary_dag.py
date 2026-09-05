@@ -93,4 +93,4 @@ with DAG(
         },
     )
 
-    start_topic_dag >> [topic_summary__business, topic_summary__macro, topic_summary__market, topic_summary__fund]
+    start_topic_dag >> topic_summary__business >> topic_summary__macro >> topic_summary__market >> topic_summary__fund >> topic_summary__law

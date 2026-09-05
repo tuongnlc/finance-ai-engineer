@@ -1,5 +1,6 @@
 import random
 from pathlib import Path
+import time
 from ai_engineer.applications.topic_summary.application.call_llm import CallLLMWithStructuredOutput
 from ai_engineer.applications.topic_summary.application.models import (
     BusinessNewspaperSummaryOutput,
@@ -120,3 +121,4 @@ def build_use_case(publish_date: str, topic_type: str, llm_api_key: str) -> Topi
 def main(publish_date: str, topic_type: str, llm_api_key: str):
     use_case = build_use_case(publish_date, topic_type, llm_api_key)
     use_case.run()
+    time.sleep(60)

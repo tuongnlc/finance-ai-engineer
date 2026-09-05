@@ -13,11 +13,11 @@ load_dotenv()
 llm_api_key = os.getenv("LLM_CHAT_API_KEY_1")
 
 
-van_ban_khong_dau = 'Doanh thu ngan hang ACB'
+van_ban_khong_dau = 'Ông Phạm Nhat vuong la ai'
 
 llm = create_gemini_llm(
     api_key=llm_api_key,
-    model_name="gemini-3.1-flash-lite",
+    model_name="gemini-3.5-flash-lite",
     temperature=0,
 )
 
@@ -56,13 +56,15 @@ document_search_service = DocumentSearchService(
     sparse_vector_name="bm25_sparse",
     dense_model_name="gemini-embedding-2",
     dense_vector_name="gemini_dense_vector",
-    collection_name="stock_price_embedded",
+    collection_name="backup_newspaper_embeddded",
     dense_api_key=llm_api_key,
+    query_filter={'person_mention': "phạm nhật vượng"},
 )
 
-hydrid_hit = document_search_service.similar_search_with_hydrid_search(
+dense_hit = document_search_service.simlar_search_with_dense_vector(
     query=response,
-    limit=20
+    limit=20,
+    
 )
 
-print(hydrid_hit)
+print(dense_hit)
