@@ -1,3 +1,4 @@
+import uuid
 from ai_engineer.applications.topic_tagging.use_case.topic_tagging import TopicTaggingUseCase
 from ai_engineer.shared.data_pipeline.extract.qdrant_extractor import QdrantExtractorWithPayloadFilter
 # ReplaceCharInColumn
@@ -8,56 +9,47 @@ import polars as pl
 # TopicTaggingUseCase
 
 # Step 1: Extract newspaper data from Qdrant collection
-newspaper_extractor = QdrantExtractorWithPayloadFilter(
-    # qdrant_url="localhost:6333",
-    qdrant_url="http://localhost:6333", #when run in docker composer
-    collection_name="newspaper",
+qdrant_extractor = QdrantExtractorWithPayloadFilter(
+    qdrant_url='http://localhost:6333',
+    collection_name='newspaper_embedded',
     payload_filter={
-        "is_topic_tagging": 0
+        # "publish_date": "2026-07-19"
     },
-    with_vectors=False,
+    with_vectors=["bm25_sparse", "gemini_dense_vector"]
 )
 
-df_ = newspaper_extractor.extract()
-print(len(df_))
-# extracted_ids = df_.select(["id"])
+df_ = qdrant_extractor.extract()
+# df_ = df_.limit(10)
+# print(len(df_))
 
-# # extracted_ids_format = ReplaceCharInColumn("id", "-", "").transform(extracted_ids)
-# # extracted_ids_format = extracted_ids_format["id"].to_list()
-# extracted_ids_original = extracted_ids["id"].to_list()
-# print(extracted_ids_original)
-# extract_ids_full = extracted_ids_format + extracted_ids_original
-# print(extract_ids_full)
+# df_ = df_['document_id'].to_list()
+# print(df_[:5])
 
-# Step 2: Extract newspaper data from Qdrant collection
-# newspaper_embedded_extractor = QdrantExtractorWithPayloadFilter(
-#     # qdrant_url="localhost:6333",
-#     qdrant_url="http://localhost:6333", #when run in docker composer
-#     collection_name="backup_newspaper_embeddded",
-#     payload_filter={},
-#     with_vectors=["bm25_sparse", "gemini_dense_vector"],
-# )
+# for i in df_:
+#     print(i)
+#     print("")
+#     print(str(uuid.UUID(i)))
 
-# df_ = newspaper_embedded_extractor.extract()
-# print(df_.columns)
+df_newspaper = df_.with_columns(
+    pl.col("bm25_sparse").map_elements(lambda v: v.indices if v is not None else [], return_dtype=pl.List(pl.Int32)).alias("bm25_sparse_indices"),
+    pl.col("bm25_sparse").map_elements(lambda v: v.values if v is not None else [], return_dtype=pl.List(pl.Float64)).alias("bm25_sparse_values"),
+).drop("bm25_sparse")
 
-# # Step 3: Create loader
-# newspaper_loader = QdrantLoader(
-#     qdrant_url="http://localhost:6333", #when run in docker composer
-#     destination_collection_name="newspaper_backfill",
-# )
+df_newspaper = df_newspaper.with_columns(
+    pl.col("document_id").map_elements(lambda x: str(uuid.UUID(x)), return_dtype=pl.Utf8).alias("document_id"),
+)
 
-# newspaper_embedded_loader = QdrantLoader(
-#     qdrant_url="http://localhost:6333", #when run in docker composer
-#     destination_collection_name="backup_newspaper_embeddded",
-# )
 
-# use_case = TopicTaggingUseCase(
-#     newspaper_extractor=newspaper_extractor,
-#     newspaper_embedded_extractor=newspaper_embedded_extractor,
-#     newspaper_loader=newspaper_loader,
-#     newspaper_embedded_loader=newspaper_embedded_loader,
-# )
 
-# df_ = use_case.run()
-# print(df_)
+qdrant_loader = QdrantLoader(
+    qdrant_url="localhost:6333",
+    destination_collection_name="newspaper_embedded",
+)
+
+qdrant_loader.load(
+    df_newspaper, 
+    dense_vector_column="gemini_dense_vector",
+    sparse_vector_indices_column="bm25_sparse_indices",
+    sparse_vector_values_column="bm25_sparse_values",
+    # with_sparse_vector=True,
+)
