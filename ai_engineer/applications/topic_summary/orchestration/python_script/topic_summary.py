@@ -87,7 +87,7 @@ def build_use_case(publish_date: str, topic_type: str, llm_api_key: str) -> Topi
 
     llm = create_gemini_llm(
         api_key=llm_api_key,
-        model_name="gemini-3.5-flash-lite", #Update later
+        model_name="gemini-3.5-flash-lite", 
         temperature=0,
     )
 

@@ -316,6 +316,7 @@ class TopicTaggingUseCase:
     def run(self):
         try:
             df_newspaper, extract_ids_full = self.extract_newspaper()
+
             df_newspaper_embedded = self.extract_newspaper_embedded(document_ids=extract_ids_full)
             # print()
 

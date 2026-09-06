@@ -38,7 +38,6 @@ def main():
         newspaper_embedded_loader=newspaper_embedded_loader,
     )
     df_ = use_case.run()
-    # print(df_)
     
 
 if __name__ == "__main__":
