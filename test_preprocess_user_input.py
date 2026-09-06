@@ -55,7 +55,7 @@ preprocess_user_input_template = [
             "   "
             "\n"
             "3. **Viết lại câu truy vấn (Query Rewriting):**\n"
-            "   - Chuyển đổi câu hỏi thông thường của user thành ba câu truy vấn có nghữ nghĩa liên quan tới thị trường chứng khoán.\n"
+            "   - Chuyển đổi câu hỏi tiếng việt có dấu của user thành ba câu truy vấn có nghữ nghĩa liên quan tới thị trường chứng khoán.\n"
             "   - Các từ khoá quan trọng xác định entity trong câu hỏi phải được giữ lại trong ba câu truy vấn.\n"
             "   - Kết quả của phần này được ghi vào optimized_search_query trong JSON output.\n"
             "\n"
@@ -66,8 +66,9 @@ preprocess_user_input_template = [
             "CHỈ TRẢ VỀ JSON THUẦN TÚY, KHÔNG sử dụng markdown code block (không có ```json hay ``` bao bọc). Kết quả trả về là tiếng việt không viết hoa.\n"
             "{{\n"
             '  "original_query": "{{user_query}}",\n'
-            '  "query_classification": "...",\n'
-            '  "content_classification": "...",\n'
+            '  "vietnamese_with_diacritics": "...",\n'
+            '  "question_type": "...",\n'
+            '  "main_topic": "...",\n'
             '  "stock_id": "...",\n'
             '  "target_year": "...",\n'
             '  "document_type": "...",\n'
@@ -111,7 +112,7 @@ def strip_markdown_json(text: str) -> str:
     return text.strip()
 
 
-van_ban_khong_dau = 'Ông Phạm Nhat vuong la ai'
+van_ban_khong_dau = 'Loi nhuan cua ngan hang ACB'
 
 response = chain.invoke({
             "user_query": van_ban_khong_dau
@@ -127,27 +128,27 @@ print(result)
 
 # Step 2: Query qdrant with filter
 print("")
-main_topic = result["content_classification"]
+main_topic = result["main_topic"]
 print(main_topic)
 original_query = result["original_query"]
 print(original_query)
 
-qdrant_client = QdrantClient(url="http://localhost:6333", timeout=600)
+# qdrant_client = QdrantClient(url="http://localhost:6333", timeout=600)
 
-document_search_service = DocumentSearchService(
-    qdrant_client,
-    sparse_model_name="Qdrant/bm25",
-    sparse_vector_name="bm25_sparse",
-    dense_model_name="gemini-embedding-2",
-    dense_vector_name="gemini_dense_vector",
-    collection_name="backup_newspaper_embeddded",
-    dense_api_key=llm_api_key,
-    query_filter={'main_topic': main_topic},
-)
+# document_search_service = DocumentSearchService(
+#     qdrant_client,
+#     sparse_model_name="Qdrant/bm25",
+#     sparse_vector_name="bm25_sparse",
+#     dense_model_name="gemini-embedding-2",
+#     dense_vector_name="gemini_dense_vector",
+#     collection_name="newspaper_embedded",
+#     dense_api_key=llm_api_key,
+#     query_filter={'main_topic': main_topic},
+# )
 
-dense_hit = document_search_service.simlar_search_with_dense_vector(
-    query=original_query,
-    limit=20,
-)
+# dense_hit = document_search_service.simlar_search_with_dense_vector(
+#     query=original_query,
+#     limit=20,
+# )
 
-print(dense_hit)
+# print(dense_hit)
