@@ -9,7 +9,7 @@ from ai_engineer.helpers.migration.add_column_qdrant import add_column_qdrant
 
 qdrant_extractor = QdrantExtractorWithPayloadFilter(
     qdrant_url='http://localhost:6333',
-    collection_name='backup_newspaper_embeddded',
+    collection_name='newspaper_embedded',
     payload_filter={
     },
     with_vectors=["bm25_sparse", "gemini_dense_vector"]
@@ -25,10 +25,10 @@ print(df_newspaper.head())
 
 qdrant_loader = QdrantLoader(
     qdrant_url="localhost:6333",
-    destination_collection_name="backup_newspaper_embeddded",
+    destination_collection_name="newspaper_embedded",
 )
 
-# Add stock mention payload if not exists
+# Add main_topic payload if not exists
 add_column_qdrant(
     qdrant_loader=qdrant_loader,
     qdrant_extractor=qdrant_extractor,
@@ -41,7 +41,7 @@ add_column_qdrant(
     with_sparse_vector=True,
 )
 
-# # # Add topic_keywords payload if not exists
+# # # Add stocks_mention payload if not exists
 add_column_qdrant(
     qdrant_loader=qdrant_loader,
     qdrant_extractor=qdrant_extractor,

@@ -109,14 +109,19 @@ class QdrantExtractorWithPayloadFilter(BaseExtractor):
 
         return output_df
 
-    def extract(self) -> pl.DataFrame:
+    def extract(self, override_payload_filter: Optional[dict] = None) -> pl.DataFrame:
         """
             Extract data from qdrant database
+
+            Parameters:
+                override_payload_filter (Optional[dict]): If provided, use this filter dict
+                    instead of self.payload_filter to build the Qdrant query Filter.
 
             Returns:
                 polars.DataFrame: DataFrame containing the extracted data from qdrant database
         """
-        query_filter = build_payload_filter(self.payload_filter)
+        filter_dict = override_payload_filter if override_payload_filter is not None else self.payload_filter
+        query_filter = build_payload_filter(filter_dict)
         print(f"Query to qdrant: {query_filter}")
         return self._extract_with_payload_filter(query_filter)
 
