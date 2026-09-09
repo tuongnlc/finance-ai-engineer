@@ -227,10 +227,14 @@ class TopicTaggingUseCase:
 
             # Need to keep is_topic_tagging as 0 before loading data to newspaper_embedded collection finished
             newspaper_data_final = AddColumn("is_topic_tagging", 0).transform(newspaper_data_final)
-            self.newspaper_loader.load(newspaper_data_final)
+
         except Exception as e:
             print(f"Enrichment join failed, fallback to base columns only: {e}")
+            raise e
+        print("Enrichment join success")
         self.newspaper_loader.load(newspaper_data_final)  
+
+        return newspaper_data_final
 
     def load_data_to_newspaper_embedded_collection(self, 
             df_llm_output: pl.DataFrame, 
@@ -258,8 +262,6 @@ class TopicTaggingUseCase:
             newspaper_embedded_data_join = DropColumns(new_cols).transform(newspaper_embedded_df)
         else:
             newspaper_embedded_data_join = newspaper_embedded_df
-        print("Testing here")
-        print(newspaper_embedded_data_join)
 
         base_cols = [
             "id",
@@ -288,10 +290,6 @@ class TopicTaggingUseCase:
                     df_right=df_llm_output,
                 )
             newspaper_embedded_data_final = SelectColumns([*base_cols_after_sparse_parse, *new_cols]).transform(joined)
-
-            print("Data for newspaper embedded collection:")
-            print(newspaper_embedded_data_final)
-            print(newspaper_embedded_data_final.columns)
         except Exception as e:
             raise e
         
@@ -318,16 +316,15 @@ class TopicTaggingUseCase:
             df_newspaper, extract_ids_full = self.extract_newspaper()
 
             df_newspaper_embedded = self.extract_newspaper_embedded(document_ids=extract_ids_full)
-            # print()
 
-            df_newspaper = self.transform(df_newspaper)
+            df_newspaper_with_article = self.transform(df_newspaper)
             
             start_time = time.time()
-            llm_output = self.call_llm(df_newspaper)
+            llm_output = self.call_llm(df_newspaper_with_article)
             end_time = time.time()
             print(f"LLM inference time: {end_time - start_time}")
-
-            self.load_data_to_newspaper_collection(llm_output, df_newspaper)
+            
+            newspaper_data_final = self.load_data_to_newspaper_collection(llm_output, df_newspaper_with_article)
             self.load_data_to_newspaper_embedded_collection(
                 llm_output,
                 df_newspaper_embedded,
@@ -335,7 +332,7 @@ class TopicTaggingUseCase:
                 sparse_vector_indices_column="bm25_sparse_indices",
                 sparse_vector_values_column="bm25_sparse_values",
             )
-            self._update_is_topic_tagging_to_one(df_newspaper)
+            self._update_is_topic_tagging_to_one(newspaper_data_final)
 
         finally:
             self._close_clients()

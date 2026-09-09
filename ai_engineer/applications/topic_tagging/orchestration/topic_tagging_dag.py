@@ -3,7 +3,6 @@ from airflow.operators.bash import BashOperator
 from airflow.operators.python import PythonOperator
 from datetime import datetime
 from ai_engineer.applications.topic_tagging.orchestration.python_script.topic_tagging import main as topic_tagging_task
-# from ai_engineer.applications.topic_tagging.orchestration.python_script.add_tagging_to_newspaper_embedded import main as add_tagging_to_newspaper_embedded_task 
 
 # logical_data = {"ds"}
 
