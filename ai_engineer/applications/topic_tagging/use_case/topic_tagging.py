@@ -81,6 +81,7 @@ class TopicTaggingUseCase:
 
     def extract_newspaper(self):
         df_newspaper = self.newspaper_extractor.extract()
+        df_newspaper = df_newspaper.limit(45)
         extracted_ids = df_newspaper.select(["id"])
         extracted_ids_original = extracted_ids["id"].to_list()
 
