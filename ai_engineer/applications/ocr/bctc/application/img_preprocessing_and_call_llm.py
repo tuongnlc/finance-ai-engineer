@@ -1,3 +1,4 @@
+import json
 import os
 from pathlib import Path
 from PIL import Image
@@ -17,12 +18,11 @@ class OutputOCR(BaseModel):
     new_text: str
 
 class ImgOCRBCTCPreprocessing():
-    def __init__(self, llm, prefix_input_img_url: str, prefix_output_img_url: str, output_txt_dir: str, mapping_wrong_words: dict):
+    def __init__(self, llm, prefix_input_img_url: str, prefix_output_img_url: str, output_txt_dir: str):
         self.llm = llm
         self.prefix_input_img_url = prefix_input_img_url
         self.prefix_output_img_url = prefix_output_img_url
         self.output_txt_dir = output_txt_dir
-        self.mapping_wrong_words = mapping_wrong_words
 
     def _read_img(self, input_img_url: str):
         img = Image.open(input_img_url)
@@ -156,11 +156,11 @@ class ImgOCRBCTCPreprocessing():
         text = pytesseract.image_to_string(img, lang="vie+eng", config=config)
         return text
 
-    def _mapping_wrong_words(self, text: str, input_dict: dict):
+    def _mapping_wrong_words(self, text: str, mapping_wrong_words: dict):
         """
-            Dùng để mapping các từ trong text sang các từ trong input_dict
+            Dùng để mapping các từ trong text sang các từ trong mapping_wrong_words
         """
-        for keyword, replacement in input_dict.items():
+        for keyword, replacement in mapping_wrong_words.items():
             text = text.replace(keyword, replacement)
         return text
 
@@ -172,14 +172,30 @@ class ImgOCRBCTCPreprocessing():
                 "user",
                 "PERSONA Bạn là một chuyên gia tài chính, hiểu rõ các thuật ngữ tài chính, kinh tế.\n\n"
                 + "[TASK]Nhiệm vụ của bạn là đoc đoạn văn tôi gửi và tiến hành những điều sau.\n"
-                + "Bước 1: Đọc đoạn văn tôi gửi và cho tôi biết văn bản thường hay dạng bảng (type_of_document) với các thông số tài chính."
-                + "Bước 2: Phân loại nội dung đoạn văn bản (type_of_content). Lựa chọn một trong các chủ đề sau: thông tin của doanh nghiệp, chỉ số tài chính, thuyết minh diễn giải.\n"
-                + "Bước 3: Chuyển các từ đang bị sai chính tả, thiếu dấu thành tiếng việt có nghĩa\n"
+                + "Bước 1: Đọc đoạn văn tôi gửi và cho tôi biết đoạn văn này thuộc phần nào của báo cáo tài chính.(type_of_document)\n"
+                + "Chọn một trong những lựa chọn sau:\n"
+                + "- thong_tin_chung. Chọn khi văn bản này chứa thông tin chung của doanh nghiệp.\n"
+                + "- bang_can_doi_ke_toan_mau_b01. Chọn khi văn bản này chứa thông tin bảng cân đối kế toán (Mẫu B 01).\n"
+                + "- bao_cao_ket_qua_hoat_dong_kinh_doanh_mau_b02. Chọn khi văn bản này chứa thông tin báo cáo kết quả hoạt động kinh doanh (Mẫu B 02).\n"
+                + "- bao_cao_luu_chuyen_tien_te_mau_b03. Chọn khi văn bản này chứa thông tin báo cáo lưu chuyển tiền tệ (Mẫu B 03).\n"
+                + "- thuyet_minh_bao_cao_tai_chinh_mau_b09. Chọn khi văn bản này chứa thông tin thuyết minh báo cáo tài chính (Mẫu B 09).\n"
+                + "Bước 2: Dựa trên type_of_document, cho tôi biết văn bản này có nội dung chính là gì.(type_of_content)\n"
+                + "Nếu output bước 1 là thong_tin_chung, thì văn bản này có nội dung chính là thong_tin_chung của doanh nghiệp.\n"
+                + "Nếu output bước 1 là bang_can_doi_ke_toan_mau_b01, thì chọn một trong những lựa chọn sau: tai_san_ngan_han, tai_san_dai_han, no_phai_tra_va_von_chu_so_huu \n"
+                + "Nếu output bước 1 là bao_cao_ket_qua_hoat_dong_kinh_doanh_mau_b02, thì chọn một trong những lựa chọn sau: bao_cao_ket_qua_hoat_dong_kinh_doanh \n"
+                + "Nếu output bước 1 là bao_cao_luu_chuyen_tien_te_mau_b03, thì chọn một trong những lựa chọn sau: bao_cao_luu_chuyen_tien_te \n"
+                + "Nếu output bước 1 là thuyet_minh_bao_cao_tai_chinh_mau_b09, thì chọn một trong những lựa chọn sau: \n"
+                + "thong_tin_doanh_nghiep. Chọn khi đoạn văn nói về các mốc thời gian hình thành doanh nghiệp, hoạt động chính, cấu trúc tập đoàn"
+                + "chuan_muc_ke_toan. Chọn khi đoạn văn nói về các chuẩn mực kế toán được áp dụng không chứa thông tin tài chính doanh nghiệp"
+                + "chinh_sach_ke_toan. Chọn khi đoạn văn nói về các chính sách kế toán được sử dụng để lập báo cáo không chứa thông tin tài chính doanh nghiệp.\n"
+                + "thong_tin_bo_sung_tinh_hinh_tai_chinh_hop_nhat. Chọn khi đoạn văn nói về các khoản mục liên quan tới bảng cân đối kế toán.\n"
+                + "thong_tin_bo_sung_bao_cao_ket_qua_hoat_dong_kinh_doanh. Chọn khi đoạn văn nói về các khoản mục liên quan tới báo cáo kết quả hoạt động kinh doanh.\n"
+                + "nhung_thong_tin_khac. Chọn khi đoạn văn nói về các thông tin khác không thuộc vào các mục trên.\n"
+                + "Bước 3: Chuyển các từ đang bị sai chính tả, thiếu dấu thành tiếng việt có nghĩa. Nếu là con số đã rõ ràng thì không thay đổi giá trị gốc bao đầu\n"
                 + "Bước 4: Cho tôi danh sách các từ đã chuyển thành tiếng việt có nghĩa dưới dạng json\n"
                 + "Bước 5: Cho tôi đoạn văn đã chuyển thành tiếng việt có nghĩa (new_text). Output bắt buộc là dạng text.\n"
                 + "[CONTEXT] Tuỳ thuộc vào phần nội dung ở bước 1 phía trên mà tiến hành\n" 
                 + "Nếu văn bản thường: Chỉ cần chuyển các từ đang bị sai chính tả, thiếu dấu thành tiếng việt có nghĩa\n"
-                + "Nếu văn bản dạng bảng: Đảm bảo các con số là chính xác.\n"
                 + "Nếu văn bản có chứa bảng, Mỗi dòng văn bản là một hàng trong bảng. Luôn luôn giữ lại thông tin các con số (chỉ số tài chính). Cố gắng output đầu ra dễ dàng dựng lại thành bảng tài liệu\n"
                 + " [FORMAT] Đầu ra bắt buộc phải là một đối tượng JSON hợp lệ, không kèm theo bất kỳ văn bản giải thích hay Markdown nào ngoài khối JSON. Theo sát EXAMPLE OUTPUT phía dưới {format_instructions}\n"
                 + "--- START OF EXAMPLE ---\n"
@@ -188,8 +204,8 @@ class ImgOCRBCTCPreprocessing():
                 + "\n"
                 + "[EXAMPLE OUTPUT]\n"
                 + "{{\n"
-                + "    \"type_of_document\": \"table\",\n"
-                + "    \"type_of_content\": \"thông tin của doanh nghiệp\",\n"
+                + "    \"type_of_document\": \"bang_can_doi_ke_toan_mau_b01\",\n"
+                + "    \"type_of_content\": \"tai_san_ngan_han\",\n"
                 + "\"wrong_word\": {{\n"
                 + "    \"Cổ tc\": \"Cổ tức\",\n"
                 + "    \"Cổ tuc\": \"Cổ tức\",\n"
@@ -207,9 +223,8 @@ class ImgOCRBCTCPreprocessing():
         structured_llm = self.llm.with_structured_output(OutputOCR)
         chain = prompt_ | structured_llm
         result: OutputOCR = chain.invoke({"text": text})
-        print(result.model_dump_json(indent=4))
-
-        return result.new_text
+        
+        return result.new_text, result.wrong_word,  result.type_of_document, result.type_of_content
 
     def _save_as_txt_file(self, text: str, output_file_name: str, output_dir=None):
         #output_dir = '/Users/tuongnguyen/Desktop/projects/finance_ai_platform/finance-ai-engineer/ai_engineer/test_ocr/output_text'
@@ -220,7 +235,8 @@ class ImgOCRBCTCPreprocessing():
             f.write(text)
 
     def run(self, pdf_len: int):
-        for i in range (1, pdf_len + 1):
+        for i in range (2, pdf_len + 1):
+        # for i in range (1, 2):
             input_img_url = f"{self.prefix_input_img_url}/page__{i}.png"
             output_img_url = f"{self.prefix_output_img_url}/page__{i}.png"
             start_time = time.time()
@@ -229,11 +245,14 @@ class ImgOCRBCTCPreprocessing():
             print(f"Preprocess img time: {end_time - start_time}")
 
             text = self._img_to_text(img)
-            text = self._mapping_wrong_words(text, self.mapping_wrong_words)
+            print("Text before mapping and send to llm: ")
+            print(text)
 
             start_time = time.time()
-            text = self._call_llm(text)
+            new_text, wrong_word, type_of_document, type_of_content = self._call_llm(text)
+            # print("Text after mapping and llm process: ")
+            # print(text)
             end_time = time.time()
             print(f"Call LLM time: {end_time - start_time}")
 
-            self._save_as_txt_file(text, output_file_name=f"ocr_result__page__{i}.txt", output_dir=self.output_txt_dir)
+            self._save_as_txt_file(new_text, output_file_name=f"page_{i}__{type_of_document}__{type_of_content}.txt", output_dir=self.output_txt_dir)

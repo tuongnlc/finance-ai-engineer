@@ -4,6 +4,8 @@ from ai_engineer.applications.ocr.bctc.application.pdf_to_img import PDFToImg
 from ai_engineer.applications.ocr.bctc.application.img_preprocessing_and_call_llm import ImgOCRBCTCPreprocessing
 from ai_engineer.shared.llm.create_llm import create_gemini_llm
 import time
+import json
+
 
 
 from dotenv import load_dotenv
@@ -58,7 +60,8 @@ class OCRBCTCUseCase:
         print("Done preprocess img")
 
 pdf_splititer = PDFSplititer(
-    input_pdf_path="/Users/tuongnguyen/Desktop/projects/finance_ai_platform/finance-ai-engineer/ai_engineer/applications/ocr/bctc/input_resources/test_2_bctc_hpg.pdf",
+    # input_pdf_path="/Users/tuongnguyen/Desktop/projects/finance_ai_platform/finance-ai-engineer/ai_engineer/applications/ocr/bctc/input_resources/test_2_bctc_hpg.pdf",
+    input_pdf_path="/Users/tuongnguyen/Desktop/projects/finance_ai_platform/finance-ai-engineer/ai_engineer/applications/ocr/bctc/input_resources/bctc_vnm.pdf",
     output_dir="/Users/tuongnguyen/Desktop/projects/finance_ai_platform/finance-ai-engineer/ai_engineer/applications/ocr/bctc/preprocessing_resources/split_pdf",
 )
 
@@ -67,39 +70,6 @@ pdf_to_img = PDFToImg(
     output_prefix_img_path="page_",
     output_dir="/Users/tuongnguyen/Desktop/projects/finance_ai_platform/finance-ai-engineer/ai_engineer/applications/ocr/bctc/preprocessing_resources/pdf_to_img",
 )
-
-mapping_wrong_words = {
-        'Cô phân': 'Cổ phần',
-        'thang': 'tháng',
-        'NGUON VON': 'NGUỒN VỐN',
-        'NO PHAI TRA': 'NỢ PHẢI TRẢ',
-        'Nợ ngắn han': 'Nợ ngắn hạn',
-        'Phải tra cÔ tức:': 'Phải trả cổ tức',
-        'phân bô': 'phân bổ',
-        'Phai tra ngan han khac': 'Phải trả ngắn hạn khác',
-        'ngăn hạn': 'ngắn hạn',
-        'No dai han': 'Nợ dài hạn',
-        'Phai tra dai han khac': 'Phải trả dài hạn khác',
-        'VON CHU SO HUU': 'VỐN CHỦ SỞ HỮU',
-        'Vốn cô phan': 'Vốn cổ phần',
-        'Thang dư vốn cỗ phan': 'Thặng dư vốn cổ phần',
-        'phân phôi': 'phân phối',
-        'lũy kế': 'lũy kế',
-        'cudi': 'cuối',
-        'TONG NGUÒN VON': 'TỔNG NGUỒN VỐN',
-        'cuyệt:': 'duyệt',
-        'Giam đốc Điêu hành Tài chỉnh': 'Giám đốc Điều hành Tài chính',
-        'Tông Giam doc': 'Tổng Giám đốc',
-        'bdo cáo': 'Báo cáo',
-        'LƯU CHUYEN TIEN TỪ HOẠT ĐỘNG KINH DOANH': 'LƯU CHUYỂN TIỀN TỪ HOẠT ĐỘNG KINH DOANH',
-        'kê toán': 'kế toán',
-        'cô tức / lã¡': 'cổ tức / lãi',
-        'vẫn lưu động': 'vốn lưu động',
-        'LUU CHUYEN TIEN TU HOAT DONG DAU TU': 'LƯU CHUYỂN TIỀN TỪ HOẠT ĐỘNG ĐẦU TƯ',
-        'Tiên thu / thanh ly': 'Tiền thu / thanh ly',
-        'ky han / tiên gửi': 'kỳ hạn / tiền gửi',
-        '=': ''
-    }
 
 llm = create_gemini_llm(
     api_key=api_key,
@@ -111,8 +81,7 @@ preprocessing_img = ImgOCRBCTCPreprocessing(
     llm=llm,
     prefix_input_img_url="/Users/tuongnguyen/Desktop/projects/finance_ai_platform/finance-ai-engineer/ai_engineer/applications/ocr/bctc/preprocessing_resources/pdf_to_img",
     prefix_output_img_url="/Users/tuongnguyen/Desktop/projects/finance_ai_platform/finance-ai-engineer/ai_engineer/applications/ocr/bctc/preprocessing_resources/img_preprocessing",
-    output_txt_dir="/Users/tuongnguyen/Desktop/projects/finance_ai_platform/finance-ai-engineer/ai_engineer/applications/ocr/bctc/output_resources",
-    mapping_wrong_words={}
+    output_txt_dir="/Users/tuongnguyen/Desktop/projects/finance_ai_platform/finance-ai-engineer/ai_engineer/applications/ocr/bctc/output_resources/vnm",
 )
 
 ocr_bctc_use_case = OCRBCTCUseCase(
