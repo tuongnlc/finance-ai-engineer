@@ -30,11 +30,12 @@ list_of_api_keys = [
 ]
 
 api_key = random.choice(list_of_api_keys)
+print("Picking api key:", api_key)
 
 topic_tagging_api_key = os.getenv(api_key)
 topic_tagging_model = os.getenv("TOPIC_TAGGING_MODEL")
 BATCH_SIZE = 15
-BATCH_SLEEP_SECONDS = 60
+BATCH_SLEEP_SECONDS = 75
 
 class TopicTaggingUseCase:
     """

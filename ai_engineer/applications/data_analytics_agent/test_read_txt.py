@@ -21,15 +21,15 @@ txt_urls_bctc = [
 ]
 
 txt_urls_bcdkt = [
-    '/Users/tuongnguyen/Desktop/projects/finance_ai_platform/finance-ai-engineer/ai_engineer/applications/ocr/bctc/output_resources/page_7__bang_can_doi_ke_toan_mau_b01.txt',
-    '/Users/tuongnguyen/Desktop/projects/finance_ai_platform/finance-ai-engineer/ai_engineer/applications/ocr/bctc/output_resources/page_8__bang_can_doi_ke_toan_mau_b01.txt',
-    '/Users/tuongnguyen/Desktop/projects/finance_ai_platform/finance-ai-engineer/ai_engineer/applications/ocr/bctc/output_resources/page_9__bang_can_doi_ke_toan_mau_b01.txt',
-    '/Users/tuongnguyen/Desktop/projects/finance_ai_platform/finance-ai-engineer/ai_engineer/applications/ocr/bctc/output_resources/page_10__bang_can_doi_ke_toan_mau_b01.txt',
+    '/Users/tuongnguyen/Desktop/projects/finance_ai_platform/finance-ai-engineer/ai_engineer/applications/ocr/bctc/output_resources/vnm/page_7__bang_can_doi_ke_toan_mau_b01__tai_san_ngan_han.txt',
+    '/Users/tuongnguyen/Desktop/projects/finance_ai_platform/finance-ai-engineer/ai_engineer/applications/ocr/bctc/output_resources/vnm/page_8__bang_can_doi_ke_toan_mau_b01__tai_san_dai_han.txt',
+    '/Users/tuongnguyen/Desktop/projects/finance_ai_platform/finance-ai-engineer/ai_engineer/applications/ocr/bctc/output_resources/vnm/page_9__bang_can_doi_ke_toan_mau_b01__tai_san_dai_han.txt',
+    '/Users/tuongnguyen/Desktop/projects/finance_ai_platform/finance-ai-engineer/ai_engineer/applications/ocr/bctc/output_resources/vnm/page_10__bang_can_doi_ke_toan_mau_b01__no_phai_tra_va_von_chu_so_huu.txt'
 ]
 
 output_list = []
 
-for txt_url in txt_urls_thong_tin_chung:
+for txt_url in txt_urls_bcdkt:
     with open(txt_url, "r") as file:
         content = file.read()
         output_list.append(
