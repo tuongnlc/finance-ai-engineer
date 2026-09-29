@@ -31,7 +31,7 @@ def draw_pie_chart(
     data_preview = []
 
     legend_rows = 1 if set_legend else 0
-    fig, axes = plt.subplots(1, n_dates, figsize=(10 * n_dates, 6+ legend_rows *0.1))
+    fig, axes = plt.subplots(1, n_dates, figsize=(10 * n_dates, 6+ legend_rows *0.1)) #Update here to change background size
     if n_dates == 1:
         axes = [axes]
 
