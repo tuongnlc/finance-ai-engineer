@@ -1,5 +1,5 @@
 
-from ai_engineer.applications.chatbot.applications.prompt.prompt_template import chatbot_template, vietnam_language_format_prompt
+from ai_engineer.applications.chatbot.applications.prompt.prompt_template import chatbot_template, vietnam_language_format_prompt, query_preprocessing_prompt
 
 from ai_engineer.helpers.prompt.prompt_registry.prompt_register import PromptRegister
 
@@ -12,11 +12,18 @@ if __name__ == "__main__":
 
     prompt_register.register_prompt(
         prompt_name='chatbot_prompt', 
-        prompt_template=chatbot_template
+        prompt_template=chatbot_template,
+        enable=False
     )
 
     prompt_register.register_prompt(
         prompt_name='vietnam_language_format_prompt', 
-        prompt_template=vietnam_language_format_prompt
+        prompt_template=vietnam_language_format_prompt,
+        enable=False
     )
 
+    prompt_register.register_prompt(
+        prompt_name='query_preprocessing_prompt', 
+        prompt_template=query_preprocessing_prompt,
+        enable=False
+    )
