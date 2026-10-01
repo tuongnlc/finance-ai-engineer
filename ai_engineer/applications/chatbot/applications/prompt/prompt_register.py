@@ -20,13 +20,7 @@ if __name__ == "__main__":
     )
 
     prompt_register.register_prompt(
-        prompt_name='vietnam_language_format_prompt', 
-        prompt_template=vietnam_language_format_prompt,
-        enable=False
-    )
-
-    prompt_register.register_prompt(
         prompt_name='query_understand_prompt', 
         prompt_template=query_understand_prompt,
-        enable=True
+        enable=False
     )
