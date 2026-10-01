@@ -2,25 +2,26 @@ from fastmcp import FastMCP
 
 mcp = FastMCP("My Simple Server")
 
+@mcp.tool()
+def search_internet(query: str) -> str:
+    """Search the internet for a given query."""
+    return f"Searching the internet for {query}."
 
 @mcp.tool()
-def calculate_sum(a: int, b: int) -> int:
-    """Calculate the sum of two numbers."""
-    return a + b
-
+def get_news_from_db(query: str) -> str:
+    """Get news from the database."""
+    return f"Retrieving news from the database for {query}."
 
 @mcp.tool()
-def get_current_weather(location: str) -> str:
-    """Get the current weather for a given location."""
-    if "tokyo" in location.lower():
-        return "The weather in Tokyo is 15°C and sunny."
-    return f"The weather in {location} is 22°C and partly cloudy."
-
+def get_financial_data(stock_id: str) -> str:
+    """Get financial data from the database."""
+    return f"Retrieving financial data from the database for {stock_id}."
 
 @mcp.resource("greeting://{name}")
 def get_greeting(name: str) -> str:
     """Return a personalized greeting resource."""
     return f"Hello, {name}! Welcome to your local MCP server."
+
 
 
 if __name__ == "__main__":
