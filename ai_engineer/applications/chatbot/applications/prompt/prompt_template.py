@@ -49,11 +49,11 @@ vietnam_language_format_prompt = [
     }
 ]
 
-query_preprocessing_prompt = [
+query_understand_prompt = [
     {
         "role": "system",
         "content": (
-            "Role: Bạn là bộ tiền xử lý câu hỏi (Query Preprocessing Agent) cho hệ thống RAG tài chính. "
+            "Role: Bạn là bộ tiền xử lý câu hỏi (Query Understand Agent) cho hệ thống RAG tài chính. "
             "Nhiệm vụ của bạn là chuyển user query thành tiếng việt có dấu, "
             "sau đó phân tích input của người dùng để trích xuất các thực thể và định hướng truy xuất dữ liệu.\n"
             "\n"
@@ -96,7 +96,7 @@ query_preprocessing_prompt = [
             "### Định dạng trả về (JSON Format):\n"
             "CHỈ TRẢ VỀ JSON THUẦN TÚY, KHÔNG sử dụng markdown code block (không có ```json hay ``` bao bọc). Kết quả trả về là tiếng việt không viết hoa.\n"
             "{{\n"
-            '  "original_query": "{{user_query}}",\n'
+            '  "original_query": "{{question}}",\n'
             '  "vietnamese_with_diacritics": "...",\n'
             '  "question_type": "...",\n'
             '  "main_topic": "...",\n'
@@ -111,7 +111,8 @@ query_preprocessing_prompt = [
         "role": "user",
         "content": (
             "Phân tích câu hỏi người dùng sau đây:\n\n"
-            f"Câu hỏi: {{user_query}}\n"
+            f"Câu hỏi: {{question}}\n"
+            f"question_context: {{question_context}}\n"
         ),
     },
 ]

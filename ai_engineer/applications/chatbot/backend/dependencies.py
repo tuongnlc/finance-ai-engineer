@@ -6,6 +6,7 @@ from fastapi import Depends
 from qdrant_client import QdrantClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from ai_engineer.applications.chatbot.applications.io_schemas import QueryUnderstandOutput
 from ai_engineer.applications.chatbot.service.conversation_service import ConversationService
 from ai_engineer.applications.chatbot.service.llm_caller_service import LLMCallerService
 from ai_engineer.applications.chatbot.service.llm_response_service import LLMResponseService
@@ -56,6 +57,17 @@ def get_llm_caller_service_vietnam_language_format_prompt() -> LLMCallerService:
         temperature=0,
         prompt_name='vietnam_language_format_prompt',
         add_parser=False
+    )
+
+@lru_cache
+def get_llm_caller_service_query_understand() -> LLMCallerService:
+    return LLMCallerService(
+        api_key=os.getenv("LLM_CHAT_API_KEY_1"),
+        model_name=os.getenv("LLM_CHAT_MODEL"),
+        temperature=0,
+        prompt_name='query_understand_prompt',
+        add_parser=True,
+        pydantic_object=QueryUnderstandOutput,
     )
 
 @lru_cache

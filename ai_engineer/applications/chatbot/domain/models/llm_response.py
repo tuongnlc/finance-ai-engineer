@@ -14,4 +14,6 @@ class LLMResponse:
     content_type: str = "TEXT"
     attachments: Optional[list[dict[str, Any]]] = None
     created_at: date = field(default_factory=date.today)
-    
+
+
+

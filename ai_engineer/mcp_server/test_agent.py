@@ -13,6 +13,8 @@ from dotenv import load_dotenv
 import os
 import mlflow
 
+from ai_engineer.helpers.prompt.prompt_registry.prompt_register import PromptRegister
+
 mlflow.langchain.autolog()
 mlflow.set_tracking_uri("http://localhost:5000")
 mlflow.set_experiment("tracing_agent")
@@ -35,8 +37,7 @@ prompt_template = [
             "   - question_type là 'câu hỏi không liên quan' → gọi tool `search_internet`\n"
             "2. Đọc kỹ SCHEMA (tham số) của tool đã chọn, CHỈ truyền những tham số mà tool định nghĩa, đúng tên field và đúng kiểu dữ liệu. Tuyệt đối không tự thêm tham số tool không có.\n"
             "Ví dụ nếu tool định nghĩa tham số là stock_id thì truyền args là stock_id. \n"
-            "Ví dụ nếu tool định nghĩa tham số là query và stock_id thì truyền args là query và stock_id. \n"
-            
+            "Ví dụ nếu tool định nghĩa tham số là query và stock_id thì truyền args là query và stock_id. \n"   
         ),
     },
     {
@@ -71,6 +72,18 @@ async def _connect_tool(adapter: MCPAdapter):
     all_tools = await adapter.list_tools()
     tool_map = {t.name: t for t in all_tools}
     return all_tools, tool_map
+
+async def query_transformation(user_query: str):
+    """
+    Transform user query to JSON format.
+    """
+    prompt_register = PromptRegister()
+    prompt_template = prompt_register.load_and_parse_prompt('query_preprocessing_prompt')
+    chain = prompt_template | model
+    response = chain.invoke({
+            "user_query": user_query
+        })
+    return response.content[0].get("text")
 
 async def main():
     async with MCPAdapter("http://127.0.0.1:8000/sse") as adapter:
