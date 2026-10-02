@@ -1,8 +1,9 @@
 from typing import Annotated
 from fastapi import APIRouter, Depends
 
-from ai_engineer.applications.chatbot.backend.dependencies import get_llm_caller_service, get_llm_caller_service_query_understand, get_llm_caller_service_vietnam_language_format_prompt
-from ai_engineer.applications.chatbot.backend.schemas.llm_caller import LLMCallerRequest, LLMCallerResponse, LLMCallerWithoutContextRequest
+from ai_engineer.applications.chatbot.backend.dependencies import get_llm_caller_service, get_llm_caller_service_query_understand, get_llm_caller_service_tool_calling, get_llm_caller_service_vietnam_language_format_prompt
+from ai_engineer.applications.chatbot.backend.schemas.llm_caller import LLMCallerRequest, LLMCallerResponse, ToolCallingRequest, ToolCallingResponse
+from ai_engineer.applications.chatbot.service.agent_caller_service import AgentCallerService
 from ai_engineer.applications.chatbot.service.llm_caller_service import LLMCallerService
 
 
@@ -49,4 +50,20 @@ async def query_understand(
     return LLMCallerResponse(
         id=request.id,
         response=response
+    )
+
+@router.post("/tool_calling/", status_code=200)
+async def tool_calling(
+        request: ToolCallingRequest,
+        llm_service: Annotated[AgentCallerService, Depends(get_llm_caller_service_tool_calling)],
+    ) -> ToolCallingResponse:
+    response = await llm_service.call_agent(
+        preprocessed_query=request.vietnamese_with_diacritics,
+    )
+    print(response)
+    return ToolCallingResponse(
+        id=request.id,
+        tool_output=response["tool_output"],
+        tool_name=response["tool_name"],
+        input_message=response["input_message"],
     )

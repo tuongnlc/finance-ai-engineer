@@ -6,9 +6,10 @@ from fastapi import Depends
 from qdrant_client import QdrantClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ai_engineer.applications.chatbot.applications.io_schemas import QueryUnderstandOutput
+from ai_engineer.applications.chatbot.applications.io_schemas import QueryUnderstandOutput, ToolCallingOutput
 from ai_engineer.applications.chatbot.service.conversation_service import ConversationService
 from ai_engineer.applications.chatbot.service.llm_caller_service import LLMCallerService
+from ai_engineer.applications.chatbot.service.agent_caller_service import AgentCallerService
 from ai_engineer.applications.chatbot.service.llm_response_service import LLMResponseService
 from ai_engineer.applications.chatbot.service.message_service import MessageService
 from ai_engineer.applications.chatbot.service.rag_service import DocumentSearchService
@@ -68,6 +69,16 @@ def get_llm_caller_service_query_understand() -> LLMCallerService:
         prompt_name='query_understand_prompt',
         add_parser=True,
         pydantic_object=QueryUnderstandOutput,
+    )
+
+@lru_cache
+def get_llm_caller_service_tool_calling() -> AgentCallerService:
+    return AgentCallerService(
+        api_key=os.getenv("LLM_CHAT_API_KEY_1"),
+        model_name=os.getenv("LLM_CHAT_MODEL"),
+        temperature=0,
+        prompt_name='tool_calling_prompt_v1',
+        pydantic_object=ToolCallingOutput,
     )
 
 @lru_cache

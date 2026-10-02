@@ -5,20 +5,18 @@ from newspaper import Article
 
 
 def search_internet(query: str) -> list[dict]:
-    results = DDGS().news(query, max_results=5, safesearch = "off", region="vn-vi")
+    results = DDGS().news(query, max_results=20, safesearch = "off", region="vn-vi")
     rank_search_results = similar_compare_with_tfidf(query, results)
 
     output_text = []
     for item in rank_search_results:
         result = extract_from_newspaper(item["url"])
-        
 
         if len(result) > 1000:  
             output_text.append({
                 "url": item["url"],
                 "content": result
             })
-            
 
         if len(output_text) >= 3:
             break

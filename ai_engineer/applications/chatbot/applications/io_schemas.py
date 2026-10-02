@@ -32,3 +32,21 @@ class QueryUnderstandOutput(BaseModel):
     target_year: str
     document_type: str
     optimized_search_query: list[str]
+
+
+class ToolCallingOutput(BaseModel):
+    """
+        ToolCallingOutput is a response from LLM.
+        
+        LLM will call the tool and return the response in this format.
+
+        {
+            'function_call': {
+                'name': 'get_stock_price',
+                'arguments': '{"stock_id": "ACB", "target_year": "2026"}'
+            }
+        }
+    """
+    tool_output: str
+    tool_name: str
+    input_message: str
