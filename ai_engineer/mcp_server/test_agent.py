@@ -46,10 +46,11 @@ prompt_template = [
             "   - question_type là 'tài chính doanh nghiệp' → gọi tool `get_financial_data`\n"
             "   - question_type là 'câu hỏi không liên quan' → gọi tool `search_internet`\n"
             "2. Đọc kỹ SCHEMA (tham số) của tool đã chọn, CHỈ truyền những tham số mà tool định nghĩa, đúng tên field và đúng kiểu dữ liệu. Tuyệt đối không tự thêm tham số tool không có.\n"
+            "Ví dụ nếu tool định nghĩa tham số là query thì truyền args là vietnamese_with_diacritics trong input. \n"
             "Ví dụ nếu tool định nghĩa tham số là stock_id thì truyền args là stock_id. \n"
             "Ví dụ nếu tool định nghĩa tham số là query và stock_id thì truyền args là query và stock_id. \n"
             "3. Gọi tool đã chọn. Đợi tool hoàn thành và ghi nhớ kết quả.\n"
-            "4. Trả về kết quả dưới dạng sau: " 
+            "4. Trả về kết quả dưới dạng sau: Phần value cuả tool_output là kết quả của tool đã goi. Giữ nguyên không thay đổi gì cả" 
             "{{"
                 '"tool_output": "Hello! Welcome to your local MCP server",'
                 '"tool_name": "get_greeting",'
@@ -197,8 +198,13 @@ async def call_agent(preprocessed_query: str):
                     raise RuntimeError(f"call_agent failed: {content}")
 
 async def main():
-    content = "Ngan Hang ACB"
+    content = "Thanh pho Ho Chi Minh ngap sau o dau"
     preprocessed_query = await query_transformation(content)
+    print(preprocessed_query)
+#     preprocessed_query = {
+#   "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+#   "response": "original_query='Thanh pho Ho Chi Minh ngap sau o dau' vietnamese_with_diacritics='Thành phố Hồ Chí Minh ngập sâu ở đâu' question_type='câu hỏi không liên quan' main_topic='not relevant' stock_id='none' target_year='2026' document_type='other' optimized_search_query=['thành phố hồ chí minh ngập sâu ở đâu', 'tình trạng ngập lụt tại thành phố hồ chí minh', 'các điểm ngập nước ở thành phố hồ chí minh']"
+# }
     response = await call_agent(preprocessed_query)
     print(response)
 
