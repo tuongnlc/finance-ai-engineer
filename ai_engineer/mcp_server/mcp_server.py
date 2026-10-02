@@ -22,7 +22,5 @@ def get_greeting(name: str) -> str:
     """Return a personalized greeting resource."""
     return f"Hello, {name}! Welcome to your local MCP server."
 
-
-
 if __name__ == "__main__":
-    mcp.run(transport="sse", host="127.0.0.1", port=8000)
+    mcp.run(transport="sse", host="127.0.0.1", port=7000)
