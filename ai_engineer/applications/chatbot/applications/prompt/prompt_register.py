@@ -1,6 +1,7 @@
 
 from ai_engineer.applications.chatbot.applications.prompt.prompt_template import (
-    chatbot_template, 
+    chatbot_template,
+    tool_calling_v1, 
     vietnam_language_format_prompt, 
     query_understand_prompt
 )
@@ -23,4 +24,10 @@ if __name__ == "__main__":
         prompt_name='query_understand_prompt', 
         prompt_template=query_understand_prompt,
         enable=False
+    )
+
+    prompt_register.register_prompt(
+        prompt_name='tool_calling_prompt_v1', 
+        prompt_template=tool_calling_v1,
+        enable=True
     )

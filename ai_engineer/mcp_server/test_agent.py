@@ -1,3 +1,4 @@
+import json
 import operator
 import asyncio
 import sys
@@ -5,7 +6,8 @@ import warnings
 import logging
 from pathlib import Path
 from typing import Annotated, Literal, TypedDict
-from langchain_core.messages import BaseMessage, ToolMessage, convert_to_messages
+from pydantic import BaseModel
+from langchain_core.messages import BaseMessage, ToolMessage, AIMessage, HumanMessage, convert_to_messages
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langgraph.graph import END, START, StateGraph
@@ -15,6 +17,7 @@ import os
 import mlflow
 import requests
 
+from ai_engineer.applications.chatbot.applications.prompt.prompt_loading import ChatbotPromptLoading
 from ai_engineer.helpers.prompt.prompt_registry.prompt_register import PromptRegister
 
 warnings.filterwarnings("ignore", message="Key 'additionalProperties' is not supported in schema, ignoring")
@@ -29,43 +32,8 @@ mlflow.langchain.autolog()
 mlflow.set_tracking_uri("http://localhost:5000")
 mlflow.set_experiment("tracing_agent_new")
 
-
-prompt_template = [
-    {
-        "role": "system",
-        "content": (
-            "Role: Bạn là bộ suy luận của AI Agent cho hệ thống chatbot tài chính. "
-            "Nhiệm vụ của bạn là đọc nội dung đầu vào dạng JSON và gọi chính xác 1 tool phù hợp. "
-            "\n"
-            "---\n"
-            "\n"
-            "### QUY TẮC BẮT BUỘC:\n"
-            "1. Dựa trên `question_type` trong input để chọn tool:\n"
-            "   - question_type là 'tin tức thị trường' → gọi tool `get_news_from_db`\n"
-            "   - question_type là 'tin tức doanh nghiệp' → gọi tool `get_news_from_db`\n"
-            "   - question_type là 'tài chính doanh nghiệp' → gọi tool `get_financial_data`\n"
-            "   - question_type là 'câu hỏi không liên quan' → gọi tool `search_internet`\n"
-            "2. Đọc kỹ SCHEMA (tham số) của tool đã chọn, CHỈ truyền những tham số mà tool định nghĩa, đúng tên field và đúng kiểu dữ liệu. Tuyệt đối không tự thêm tham số tool không có.\n"
-            "Ví dụ nếu tool định nghĩa tham số là query thì truyền args là vietnamese_with_diacritics trong input. \n"
-            "Ví dụ nếu tool định nghĩa tham số là stock_id thì truyền args là stock_id. \n"
-            "Ví dụ nếu tool định nghĩa tham số là query và stock_id thì truyền args là query và stock_id. \n"
-            "3. Gọi tool đã chọn. Đợi tool hoàn thành và ghi nhớ kết quả.\n"
-            "4. Trả về kết quả dưới dạng sau: Phần value cuả tool_output là kết quả của tool đã goi. Giữ nguyên không thay đổi gì cả" 
-            "{{"
-                '"tool_output": "Hello! Welcome to your local MCP server",'
-                '"tool_name": "get_greeting",'
-                '"input_message": {input}'
-            "}}"  
-        ),
-    },
-    {
-        "role": "user",
-        "content": (
-            "Nội dung đầu vào: {input}\n"
-            "Gọi tool phù hợp với dữ liệu trên, đúng schema tham số của tool."
-        ),
-    },
-]
+prompt_register = PromptRegister()
+prompt_template = prompt_register.load_and_parse_prompt('tool_calling_prompt_v1')
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
@@ -78,6 +46,10 @@ api_key = os.getenv("GCP_PROJECT_1")
 class AgentState(TypedDict):
     messages: Annotated[list[BaseMessage], operator.add]
 
+class ToolOutput(BaseModel):
+    tool_output: str
+    tool_name: str
+    input_message: str
 
 model = ChatGoogleGenerativeAI(
     model="gemini-3.1-flash-lite",
@@ -111,26 +83,33 @@ async def query_transformation(content: str):
 
     if response.status_code == 200:
         data = response.json()
-        return str(data.get("response", data))
+        preprocessed_query = data.get("response", data)
+
+        print(data)
+
     else:
         raise RuntimeError(f"query_transformation failed: {response.status_code}")
-    
+    return preprocessed_query
+
+
 
 async def call_agent(preprocessed_query: str):
     async with MCPAdapter("http://127.0.0.1:7000/sse") as adapter:
         tools, tool_map = await _connect_tool(adapter)
 
         model_with_tools = model.bind_tools(tools)
+        model_structured = model.with_structured_output(ToolOutput)
 
         async def call_model(state: AgentState):
             msgs = convert_to_messages(state["messages"])
             user_msg = [m for m in msgs if m.type == "human"][-1]
-            messages = ChatPromptTemplate.from_messages(prompt_template).format_messages(input=user_msg.content)
+            has_tool_msg = any(m.type == "tool" for m in msgs)
+            messages = prompt_template.format_messages(input=user_msg.content)
             messages += [m for m in msgs if m.type != "human"]
 
-            print("Here is message: ")
-            print(messages)
-
+            if has_tool_msg:
+                response_obj = await model_structured.ainvoke(messages)
+                return {"messages": [AIMessage(content=response_obj.model_dump_json())]}
             response = await model_with_tools.ainvoke(messages)
             return {"messages": [response]}
 
@@ -178,33 +157,22 @@ async def call_agent(preprocessed_query: str):
         app = workflow.compile()
 
         output = await app.ainvoke({"messages": [{"role": "user", "content": preprocessed_query}]})
-        print("Here is output")
-        print(output)
-        print("")
-        # return output
 
-        #extract final output
-        messages = output.get("messages", [])
+        messages = convert_to_messages(output.get("messages", []))
         for msg in reversed(messages):
-            msg_type = getattr(msg, "type", None) or (isinstance(msg, dict) and msg.get("role"))
-            if msg_type == "ai":
-                content = msg.content if hasattr(msg, "content") else (isinstance(msg, dict) and msg.get("content", ""))
-                if isinstance(content, list):
-                    for block in content:
-                        if isinstance(block, dict) and block.get("type") == "text":
-                            print("--- Text Content ---")
-                            return block["text"]
-                else:
-                    raise RuntimeError(f"call_agent failed: {content}")
+            if msg.type == "ai" and isinstance(msg.content, str):
+                import json as _json
+                try:
+                    parsed = _json.loads(msg.content)
+                    return ToolOutput(**parsed).model_dump()
+                except Exception:
+                    raise RuntimeError(f"call_agent failed to parse output: {msg.content}")
+        raise RuntimeError("call_agent failed: no AI response found")
 
 async def main():
     content = "Thanh pho Ho Chi Minh ngap sau o dau"
     preprocessed_query = await query_transformation(content)
-    print(preprocessed_query)
-#     preprocessed_query = {
-#   "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-#   "response": "original_query='Thanh pho Ho Chi Minh ngap sau o dau' vietnamese_with_diacritics='Thành phố Hồ Chí Minh ngập sâu ở đâu' question_type='câu hỏi không liên quan' main_topic='not relevant' stock_id='none' target_year='2026' document_type='other' optimized_search_query=['thành phố hồ chí minh ngập sâu ở đâu', 'tình trạng ngập lụt tại thành phố hồ chí minh', 'các điểm ngập nước ở thành phố hồ chí minh']"
-# }
+    # print(preprocessed_query)
     response = await call_agent(preprocessed_query)
     print(response)
 
