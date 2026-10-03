@@ -64,7 +64,6 @@ document_search_service = DocumentSearchService(
 dense_hit = document_search_service.simlar_search_with_dense_vector(
     query=response,
     limit=20,
-    
 )
 
 print(dense_hit)
