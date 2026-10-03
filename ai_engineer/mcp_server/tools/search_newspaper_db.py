@@ -9,9 +9,16 @@ from fastembed import SparseTextEmbedding
 from ai_engineer.helpers.build_payload_filter import build_payload_filter
 
 
-class DocumentSearchService:
+class SearchNewsPaperDB:
+    """
+        Receive input from query_understand endpoint. 
+
+        Then do search with information
+        + query: optimized_search_query # Update query to do multiple search with optimized_search_query
+        + filter: main_topic and stock_id
+    """
     def __init__(self, 
-            qdrant_client: QdrantClient, 
+            # qdrant_client: QdrantClient, 
             collection_name: str, 
             dense_api_key: Optional[str] = None,
             dense_model_name: Optional[str] = None,
@@ -20,7 +27,7 @@ class DocumentSearchService:
             sparse_vector_name: Optional[str] = None,
             query_filter: Optional[dict] = None,
         ):
-        self.qdrant_client = qdrant_client
+        self.qdrant_client = QdrantClient(url="http://localhost:6333", timeout=600)
         self.collection_name = collection_name
         if dense_model_name is not None:
             self.dense_embedding: GoogleGenerativeAIEmbeddings = create_gemini_embedding(dense_api_key, dense_model_name, output_dimensionality=768)
@@ -147,72 +154,38 @@ class DocumentSearchService:
             limit,
         )
 
-        document_ids_for_financial_data = []
         document_ids_for_newspaper = []
         seen = set()
 
         for point in search_results.points:
             payload = point.payload or {}
             doc_id = payload.get("document_id")
+            
+            doc_id = str(doc_id)
+            if doc_id in seen:
+                continue
+            seen.add(doc_id)
+            if len(document_ids_for_newspaper) < top_k:
+                document_ids_for_newspaper.append(doc_id)
 
-            if doc_id is None:
-                if len(document_ids_for_financial_data) < top_k:
-                    document_ids_for_financial_data.append(point.id)
-            else:
-                doc_id = str(doc_id)
-                if doc_id in seen:
-                    continue
-                seen.add(doc_id)
-                if len(document_ids_for_newspaper) < top_k:
-                    document_ids_for_newspaper.append(doc_id)
-
-            if len(document_ids_for_financial_data) >= top_k and len(document_ids_for_newspaper) >= top_k:
-                break
-
-        async def retrieve_newspaper():
-            if not document_ids_for_newspaper:
-                return []
-            return await asyncio.to_thread(
-                self.qdrant_client.retrieve,
-                "newspaper",
-                document_ids_for_newspaper,
-                True,
-                False,
-            )
-
-        async def retrieve_financial():
-            if not document_ids_for_financial_data:
-                return []
-            return await asyncio.to_thread(
-                self.qdrant_client.retrieve,
-                "stock_price_embedded",
-                document_ids_for_financial_data,
-                True,
-                False,
-            )
-
-        newspaper_points, financial_points = await asyncio.gather(
-            retrieve_newspaper(),
-            retrieve_financial(),
+        documents = self.qdrant_client.retrieve(
+            "newspaper",
+            document_ids_for_newspaper,
+            True,
+            False,
         )
+        documents = self.order_document_by_publish_date(documents)
+        
+        output_text = []
+        for doc in documents:
+            output_text.append({
+                "newspaper_title": doc.payload.get("newspaper_title"),
+                "publish_date": doc.payload.get("publish_date"),
+                "newspaper_content": doc.payload.get("newspaper_content"),
+            })
 
-        output_documents = []
-        for point in newspaper_points:
-            payload = point.payload or {}
-            output_documents.append(
-                {
-                    "title": payload.get("newspaper_title"),
-                    "content": payload.get("newspaper_content"),
-                }
-            )
+        return output_text
 
-        for point in financial_points:
-            payload = point.payload or {}
-            output_documents.append(
-                {
-                    "title": payload.get("stock_id") or "market_information",
-                    "content": payload.get("chunk_content"),
-                }
-            )
-
-        return output_documents
+    def order_document_by_publish_date(self, documents):
+        documents.sort(key=lambda x: (x.payload or {}).get("publish_date", ""), reverse=True)
+        return documents

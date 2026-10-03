@@ -91,8 +91,6 @@ async def query_transformation(content: str):
         raise RuntimeError(f"query_transformation failed: {response.status_code}")
     return preprocessed_query
 
-
-
 async def call_agent(preprocessed_query: str):
     async with MCPAdapter("http://127.0.0.1:7000/sse") as adapter:
         tools, tool_map = await _connect_tool(adapter)
@@ -170,7 +168,7 @@ async def call_agent(preprocessed_query: str):
         raise RuntimeError("call_agent failed: no AI response found")
 
 async def main():
-    content = "Thanh pho Ho Chi Minh ngap sau o dau"
+    content = "Tin tuc thi truong gan day ve ngan hang ACB"
     preprocessed_query = await query_transformation(content)
     # print(preprocessed_query)
     response = await call_agent(preprocessed_query)
