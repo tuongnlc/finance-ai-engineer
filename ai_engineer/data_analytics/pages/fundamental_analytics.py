@@ -1,6 +1,15 @@
 import pandas as pd
 import streamlit as st
 
+st.markdown(
+    """
+    <style>
+        [data-testid="stSidebarNav"] {display: none;}
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
 from ai_engineer.data_analytics.components.table_chart import TableChart
 from ai_engineer.data_analytics.components.line_chart import LineChartComponent
 from ai_engineer.data_analytics.infrastructure.db import load_data_from_postgres_polars
@@ -51,3 +60,5 @@ def render():
         chart.render(vnm_df)
     else:
         st.info("Không có dữ liệu doanh thu VNM từ CSDL.")
+
+render()
