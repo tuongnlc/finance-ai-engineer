@@ -1,17 +1,8 @@
 import pandas as pd
 import streamlit as st
 
-st.markdown(
-    """
-    <style>
-        [data-testid="stSidebarNav"] {display: none;}
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
-
-from ai_engineer.data_analytics.components.table_chart import TableChart
-from ai_engineer.data_analytics.components.line_chart import LineChartComponent
+from ai_engineer.data_analytics.components.chart.table_chart import TableChart
+from ai_engineer.data_analytics.components.chart.line_chart import LineChartComponent
 from ai_engineer.data_analytics.infrastructure.db import load_data_from_postgres_polars
 
 VNM_REVENUE_QUERY = """
@@ -25,21 +16,15 @@ VNM_REVENUE_QUERY = """
     """
 
 
-def render():
+def fundamental_analytics():
     st.title("Phân Tích Cơ Bản")
 
-    # data = pd.DataFrame(
-    #     {
-    #         "Mã CK": ["TCB", "MBB", "VCB", "BID", "STB"],
-    #         "P/E": [8.5, 7.2, 10.1, 9.3, 6.8],
-    #         "P/B": [1.2, 1.0, 1.8, 1.5, 0.9],
-    #         "ROE (%)": [22.3, 19.5, 25.1, 21.0, 18.2],
-    #         "EPS (VND)": [3200, 2800, 4500, 3900, 2100],
-    #     }
-    # )
-
-    # table = TableChart(title="Chỉ Số Cơ Bản Ngân Hàng")
-    # table.render(data)
+    st.sidebar.selectbox("Lựa chọn doanh nghiệp để phân tích", 
+        [
+            "VNM", 
+            "ACB"
+        ]
+    )
 
     st.divider()
 
@@ -49,7 +34,9 @@ def render():
     if not vnm_df.empty:
         vnm_df["period"] = vnm_df["year"].astype(str) + " Q" + vnm_df["quarter"].astype(str)
 
-        table_vnm = TableChart(title="Doanh Thu Gộp VNM (từ DB)")
+        st.write("Phân tích khả năng sinh lợi")
+
+        table_vnm = TableChart(title="Doanh Thu Gộp VNM")
         table_vnm.render(vnm_df[["period", "gross_revenue"]])
 
         chart = LineChartComponent(
@@ -61,4 +48,6 @@ def render():
     else:
         st.info("Không có dữ liệu doanh thu VNM từ CSDL.")
 
-render()
+
+if __name__ in {"__main__", "__page__"}:
+    fundamental_analytics()
