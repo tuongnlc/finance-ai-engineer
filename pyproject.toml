@@ -31,4 +31,5 @@ dependencies = [
     "newspaper3k>=0.2.8",
     "lxml-html-clean>=0.4.5",
     "streamlit>=1.65.0",
+    "adbc-driver-postgresql>=1.12.0",
 ]

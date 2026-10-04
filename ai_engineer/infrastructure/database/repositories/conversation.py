@@ -4,7 +4,6 @@ from ai_engineer.applications.chatbot.domain.models.conversation import Conversa
 from ai_engineer.infrastructure.database.orm_models.conversation import ConversationORM
 
 
-
 class PostgresConversationRepository:
     def __init__(self, session: AsyncSession):
         self._session = session

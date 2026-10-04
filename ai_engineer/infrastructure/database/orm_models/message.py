@@ -5,11 +5,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 from datetime import date
 from sqlalchemy import BigInteger
-
-from sqlalchemy.orm import DeclarativeBase
-
 from ai_engineer.infrastructure.database.orm_models.base import Base
-
 
 
 class MessageORM(Base):
