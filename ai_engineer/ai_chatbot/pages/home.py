@@ -7,20 +7,23 @@ def render_home():
     with st.container():
         if "chat_messages" not in st.session_state:
             st.session_state["chat_messages"] = [
-                {"role": "assistant", "content": "Xin chào! Tôi là trợ lý AI phân tích tài chính. Bạn cần hỗ trợ gì hôm nay?"}
+                {"role": "assistant", "chat_content": "Xin chào! Tôi là trợ lý AI phân tích tài chính. Bạn cần hỗ trợ gì hôm nay?"}
             ]
 
         for msg in st.session_state["chat_messages"]:
             with st.chat_message(msg["role"]):
-                st.write(msg["content"])
+                st.write(msg["chat_content"])
 
         prompt = st.chat_input("Nhập câu hỏi của bạn...")
         if prompt:
-            st.session_state["chat_messages"].append({"role": "user", "content": prompt})
+            st.session_state["chat_messages"].append({"role": "user", "chat_content": prompt})
 
             reply = "Đây là phản hồi mẫu cho câu hỏi của bạn."
-            st.session_state["chat_messages"].append({"role": "assistant", "content": reply})
+            st.session_state["chat_messages"].append({"role": "assistant", "chat_content": reply})
+            print(st.session_state["chat_messages"])
             st.rerun()
+
+
 
     st.divider()
     st.write("Hoặc lựa chọn các chức năng dưới đây: ")
