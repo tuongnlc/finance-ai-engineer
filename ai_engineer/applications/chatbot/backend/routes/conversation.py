@@ -13,6 +13,9 @@ from ai_engineer.applications.chatbot.backend.dependencies import get_conversati
 router = APIRouter(prefix="/conversation", tags=["Conversation"])
 
 
+@router.post("/create_session", status_code=201)
+
+
 @router.post("/create_conversation", status_code=201)
 async def create_conversation(
         request: CreateConversationRequest,

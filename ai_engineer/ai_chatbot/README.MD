@@ -30,8 +30,6 @@ erDiagram
     SESSION {
         UUID id PK
         UUID user_id FK
-        VARCHAR title
-        VARCHAR status
         TIMESTAMPTZ created_at
         TIMESTAMPTZ updated_at
     }
@@ -39,6 +37,7 @@ erDiagram
     CONVERSATION {
         UUID id PK
         UUID session_id FK
+        TEXT title
         VARCHAR role
         TEXT content
         VARCHAR tool_name
