@@ -4,6 +4,7 @@ import streamlit as st
 from ai_engineer.data_analytics.components.chart.table_chart import TableChart
 from ai_engineer.data_analytics.components.chart.line_chart import LineChartComponent
 from ai_engineer.data_analytics.infrastructure.db import load_data_from_postgres_polars
+from ai_engineer.data_analytics.components.chart.kpi_cart_chart import KpiCardChart
 
 VNM_REVENUE_QUERY = """
         SELECT 
@@ -13,7 +14,8 @@ VNM_REVENUE_QUERY = """
             gross_profit,
             net_operating_profit,
             total_accounting_profit_before_tax,
-            net_profit_after_corporate_income_tax
+            net_profit_after_corporate_income_tax,
+            ROUND((net_profit_after_corporate_income_tax::numeric / net_revenue::numeric) * 100, 1) AS net_profit_margin
         FROM public.fs_income_statement_type_one
         WHERE stock_id = 'VNM'
         ORDER BY year DESC, quarter DESC
@@ -28,7 +30,9 @@ VNM_ASSETS_QUERY = """
             cash_and_cash_equivalents,
             short_term_financial_investments,
             short_term_receivables,
-            inventories
+            inventories,
+            ROUND((current_assets::numeric / current_liabilities::numeric),2) as current_ratio,
+            ROUND((total_assets::numeric / total_liabilities::numeric),2) as equity_multiplier
         FROM public.fs_balance_sheet_type_one
         WHERE stock_id = 'VNM'
         ORDER BY year DESC, quarter DESC
@@ -43,7 +47,8 @@ VNM_CASH_FLOW = """
             net_cash_flows_from_financing_activities,
             net_cash_flows_from_investing_activities,
             net_change_in_cash,
-            cash_and_cash_equivalents_at_end_of_period
+            cash_and_cash_equivalents_at_end_of_period,
+            (net_cash_flows_from_operating_activities - net_cash_flows_from_investing_activities)/1000 AS free_cash_flow
         FROM 
             public.fs_cash_flow_statement_type_one
         WHERE stock_id = 'VNM'  
@@ -52,22 +57,27 @@ VNM_CASH_FLOW = """
     """
 
 
+
 def fundamental_analytics():
+    vnm_df = load_data_from_postgres_polars(VNM_REVENUE_QUERY)
+    table_ts = load_data_from_postgres_polars(VNM_ASSETS_QUERY)
+    table_cash_flow = load_data_from_postgres_polars(VNM_CASH_FLOW)
+    
     st.set_page_config(
         page_title="Fundamental Analytics",
         layout="wide"  # Mặc định là "centered", đổi thành "wide" để tràn viền
     )
 
-    st.markdown(
-        """
-        <p style='font-size: 30px; font-weight: bold;color: #1583b4;'>PHÂN TÍCH CƠ BẢN</p>
-        """,
-        unsafe_allow_html=True,
-    )
+    # st.markdown(
+    #     """
+    #     <p style='font-size: 30px; font-weight: bold;color: #1583b4;'>PHÂN TÍCH CƠ BẢN</p>
+    #     """,
+    #     unsafe_allow_html=True,
+    # )
 
     st.sidebar.markdown(
         """
-        <p style='font-size: 24px; font-weight: bold;color: #1583b4;'>### Chọn doanh nghiệp</p>
+        <p style='font-size: 20px; font-weight: bold;color: #c77f44;'>Chọn doanh nghiệp</p>
         """,
         unsafe_allow_html=True,
     )
@@ -87,7 +97,7 @@ def fundamental_analytics():
         ]
     )
 
-    st.divider()
+    # st.divider()
     st.markdown(
         """
         <p style='font-size: 24px; font-weight: bold;color: #1583b4;'>CÁC CHỈ SỐ CƠ BẢN</p>
@@ -95,9 +105,29 @@ def fundamental_analytics():
         unsafe_allow_html=True,
     )
 
+    col1, col2, col3, col4 = st.columns(4)
+    # latest = vnm_df.row(0, named=True)
+
+    with col1:
+        latest_current_ratio = table_ts.row(0, named=True)["current_ratio"]
+        KpiCardChart(label="Chỉ số thanh toán ngắn hạn", suffix="", format="{:.2f}").render(latest_current_ratio)
+    with col2:
+        latest_net_profit_margin = vnm_df.row(0, named=True)["net_profit_margin"]
+        KpiCardChart(label="Biên lợi nhuận thuần", suffix="%", format="{}").render(latest_net_profit_margin)
+    with col3:
+        latest_equity_multiplier = table_ts.row(0, named=True)["equity_multiplier"]
+        KpiCardChart(label="Hệ số vốn", suffix="", format="{:,.0f}").render(
+            latest_equity_multiplier
+        )
+    with col4:
+        latest_free_cash_flow = table_cash_flow.row(0, named=True)["free_cash_flow"]
+        KpiCardChart(label="Dòng tiền tự do", suffix=" tỷ", format="{:,.0f}").render(
+            latest_free_cash_flow
+        )
+
 
     st.divider()
-    vnm_df = load_data_from_postgres_polars(VNM_REVENUE_QUERY)
+    
 
     if not vnm_df.is_empty():
         vnm_df = vnm_df.with_columns(
@@ -162,7 +192,7 @@ def fundamental_analytics():
             "<p style='font-size: 24px; font-weight: bold;color: #1583b4;'>TÀI SẢN NGẮN HẠN</p>",
             unsafe_allow_html=True,
         )
-    table_ts = load_data_from_postgres_polars(VNM_ASSETS_QUERY)
+    
     table_ts = table_ts.with_columns(
         (pl.col("year").cast(pl.Utf8) + pl.lit("__") + pl.col("quarter").cast(pl.Utf8)).alias("period")
     )
@@ -225,7 +255,7 @@ def fundamental_analytics():
             unsafe_allow_html=True,
     )
 
-    table_cash_flow = load_data_from_postgres_polars(VNM_CASH_FLOW)
+    
     table_cash_flow = table_cash_flow.with_columns(
         (pl.col("year").cast(pl.Utf8) + pl.lit("__") + pl.col("quarter").cast(pl.Utf8)).alias("period")
     )
