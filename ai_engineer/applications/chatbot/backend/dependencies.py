@@ -17,7 +17,16 @@ from ai_engineer.infrastructure.database.repositories.conversation import Postgr
 from ai_engineer.infrastructure.database.repositories.llm_response import PostgresLLMResponseRepository
 from ai_engineer.infrastructure.database.repositories.message import PostgresMessageRepository
 from ai_engineer.infrastructure.database.session import get_session
+from ai_engineer.applications.chatbot.service.session_service import SessionService
+from ai_engineer.infrastructure.database.repositories.session import PostgresSessionRepository
 
+
+
+def get_session_service(
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> SessionService:
+    session_repository = PostgresSessionRepository(session)
+    return SessionService(session_repository)
 
 def get_conversation_service(
     session: Annotated[AsyncSession, Depends(get_session)],

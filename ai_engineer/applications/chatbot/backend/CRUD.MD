@@ -1,6 +1,4 @@
 # CRUD Architecture - Tương ứng giữa các file & Cách viết code
-
-
 ---
 ## 1. Checklist khi viết 1 CRUD hoàn chỉnh
 
@@ -92,7 +90,7 @@ class UserRepository(Protocol):
     # async def get_by_email(self, email: str) -> User | None: pass
 ```
 
-Quy tắc: Sử dụng `typing.Protocol` (không ABC). Service phụ thuộc vào Protocol này → **lỏng耦合** với Postgres impl.
+Quy tắc: Sử dụng `typing.Protocol` (không ABC). Service phụ thuộc vào Protocol này
 
 ---
 

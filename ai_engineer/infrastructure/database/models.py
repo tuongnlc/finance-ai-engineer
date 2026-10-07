@@ -26,7 +26,10 @@ class Session(Base):
         primary_key=True,
         default=uuid.uuid4,
     )
-    user_id: Mapped[str] = mapped_column(String(255), nullable=True)
+    conversation_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        nullable=False,
+    )
     created_timestamp: Mapped[int] = mapped_column(BigInteger, nullable=False)
 
 
