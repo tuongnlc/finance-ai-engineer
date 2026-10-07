@@ -1,9 +1,6 @@
 from fastapi import FastAPI
-
 from ai_engineer.shared.observability.mlflow_config import setup_mlflow
-
-from .routes import conversation, health, llm_response, message, rag, ai_chat
-
+from .routes import conversation, health, llm_response, message, rag, ai_chat, session
 
 
 def create_chatbot_api():
@@ -15,12 +12,14 @@ def create_chatbot_api():
         contact={"name": "Tuong Nguyen"},
         license={"name": "MIT License"},
     )
+    app.include_router(session.router)
     app.include_router(health.router)
     app.include_router(conversation.router)
     app.include_router(message.router)
     app.include_router(llm_response.router)
     app.include_router(rag.router)
     app.include_router(ai_chat.router)
+    
     return app
 
 

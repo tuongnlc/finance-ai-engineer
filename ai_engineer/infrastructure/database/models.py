@@ -14,6 +14,25 @@ class Base(DeclarativeBase):
     pass
 
 
+class Session(Base):
+    """
+        Saving session data in chatbot application
+
+        Each time user start a new conversation, it will be saved as one session.
+    """
+    __tablename__ = 'session'
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+    )
+    conversation_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        nullable=False,
+    )
+    created_timestamp: Mapped[int] = mapped_column(BigInteger, nullable=False)
+
+
 class Conversation(Base):
     """
         Saving conversation data in chatbot application
