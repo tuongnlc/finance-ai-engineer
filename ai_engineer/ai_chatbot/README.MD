@@ -18,3 +18,34 @@ sequenceDiagram
     Note over CreateSession,CreateConversation: Step 3: Assign session ID to conversation
     CreateSession->>CreateSession: Assign session ID to conversation
 ```
+
+## ERD - Entity Relationship Diagram
+
+### Schema Proposal
+
+
+
+```mermaid
+erDiagram
+    SESSION {
+        UUID id PK
+        UUID user_id FK
+        VARCHAR title
+        VARCHAR status
+        TIMESTAMPTZ created_at
+        TIMESTAMPTZ updated_at
+    }
+
+    CONVERSATION {
+        UUID id PK
+        UUID session_id FK
+        VARCHAR role
+        TEXT content
+        VARCHAR tool_name
+        JSONB metadata
+        TIMESTAMPTZ created_at
+        TIMESTAMPTZ updated_at
+    }
+
+    SESSION ||--o{ CONVERSATION : "has 1..N messages"
+```
