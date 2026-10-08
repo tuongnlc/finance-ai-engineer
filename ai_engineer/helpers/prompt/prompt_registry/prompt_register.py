@@ -10,7 +10,7 @@ RESERVED_PROMPT_ALIASES = {"latest"}
 
 class PromptRegister:
     def __init__(self):
-        tracking_uri = os.getenv("MLFLOW_TRACKING_URI", "http://localhost:5000")
+        tracking_uri = os.getenv("MLFLOW_TRACKING_URI", "http://localhost:5001")
         mlflow.set_tracking_uri(tracking_uri)
         mlflow.set_registry_uri(tracking_uri)
 

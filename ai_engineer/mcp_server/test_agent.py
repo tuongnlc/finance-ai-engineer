@@ -29,7 +29,7 @@ _e = sys.stderr.write
 sys.stderr.write = lambda s, _orig=_e: _orig(s) if "additionalProperties" not in s else None
 
 mlflow.langchain.autolog()
-mlflow.set_tracking_uri("http://localhost:5000")
+mlflow.set_tracking_uri("http://localhost:5001")
 mlflow.set_experiment("tracing_agent_new")
 
 prompt_register = PromptRegister()

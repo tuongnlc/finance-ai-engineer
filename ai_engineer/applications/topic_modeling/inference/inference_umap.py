@@ -46,8 +46,8 @@ class InferenceUmap:
         """
         
         self._configure_mlflow_http_timeout()
-        # mlflow.set_tracking_uri("http://localhost:5000")
-        mlflow.set_tracking_uri("http://mlflow-server:5000") #When run in docker
+        # mlflow.set_tracking_uri("http://localhost:5001")
+        mlflow.set_tracking_uri("http://mlflow-server:5001") #When run in docker
         
         mlflow.set_experiment("umap_model_inference")
         with mlflow.start_run():
