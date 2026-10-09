@@ -38,7 +38,7 @@ class AgentCallerService:
         self.mcp_server_url = mcp_server_url
         self._pydantic_object = pydantic_object
         mlflow.langchain.autolog()
-        mlflow.set_tracking_uri("http://localhost:5000")
+        mlflow.set_tracking_uri("http://localhost:5001")
         mlflow.set_experiment("tracing_agent_new")
 
     def _get_prompt(self):

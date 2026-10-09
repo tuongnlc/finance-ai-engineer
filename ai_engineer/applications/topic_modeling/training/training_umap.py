@@ -76,13 +76,13 @@ class TrainingUmap:
             Train the UMAP model on the input DataFrame.
         """
         self._configure_mlflow_http_timeout()
-        # mlflow.set_tracking_uri("http://localhost:5000")
-        mlflow.set_tracking_uri("http://mlflow-server:5000") #When run in docker
+        # mlflow.set_tracking_uri("http://localhost:5001")
+        mlflow.set_tracking_uri("http://mlflow-server:5001") #When run in docker
         
         mlflow.set_experiment("umap_model_training")
         with mlflow.start_run():
-            # mlflow_client = MlflowClient(tracking_uri="http://localhost:5000")
-            mlflow_client = MlflowClient(tracking_uri="http://mlflow-server:5000")
+            # mlflow_client = MlflowClient(tracking_uri="http://localhost:5001")
+            mlflow_client = MlflowClient(tracking_uri="http://mlflow-server:5001")
             self._log_params()
             model = self._build_model()
             reduced_embeddings = model.fit_transform(X_train)

@@ -26,12 +26,19 @@ profitability_ratio_page = st.Page(
     icon="📊",
 )
 
-
+# IMAGE RENDER PAGE
+img_render_page = st.Page(
+    "pages/img_render.py",
+    title="Render ảnh",
+    icon="🖼",
+    default=False,
+)
 
 pg = st.navigation({
     "Chatbot tài chính": [home_page],
     "PHÂN TÍCH CƠ BẢN": [fundamental_page, profitability_ratio_page,],
     "Phân tích kỹ thuật": [],
+    "Render ảnh": [img_render_page],
 }, position="sidebar")
 
 pg.run()
