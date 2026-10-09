@@ -12,7 +12,6 @@ class SessionContext(BaseModel):
     session_id: uuid.UUID
     conversation_id: uuid.UUID
 
-
 class SessionService:
     """
     Orchestrates session creation for the chatbot UI.

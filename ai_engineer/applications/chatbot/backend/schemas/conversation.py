@@ -19,7 +19,6 @@ class CreateConversationRequest(BaseModel):
     user_id: Optional[str] = None
     space_id: Optional[str] = None
     created_timestamp: int
-    content: str
     created_at: date = Field(default_factory=date.today)
 
 

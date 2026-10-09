@@ -11,13 +11,13 @@ class ConversationApi:
     """
         Communicate directly with back-end service
     """
-    async def create_conversation(self, content: str, user_id: str | None, space_id: str | None):
+    async def create_conversation(self, title: str | None, user_id: str | None, space_id: str | None):
         payload = {
             "id": str(uuid.uuid4()),
             "user_id": user_id,
             "space_id": space_id,
             "created_timestamp": int(time.time()),
-            "content": content,
+            "title": title,
         }
         async with httpx.AsyncClient(timeout=30.0, follow_redirects=True) as client:
             resp = await client.post(
