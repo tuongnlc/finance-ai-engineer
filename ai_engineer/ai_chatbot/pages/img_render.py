@@ -2,15 +2,13 @@ from __future__ import annotations
 
 import base64
 import io
-import json
 import mimetypes
 import random
 import shutil
-import urllib.request
 from pathlib import Path
 
 import streamlit as st
-from PIL import Image, ImageEnhance, ImageFilter
+from PIL import Image
 from ai_engineer.ai_chatbot.config import get_secret
 
 PICTURE_FOLDER = Path(get_secret("PICTURE_DIR", "."))
@@ -111,7 +109,7 @@ def delete_picture() -> None:
             st.session_state.pop("last_image", None)
             st.session_state.pop("last_bg_image", None)
             st.session_state.pop("image_to_delete", None)
-            st.toast(f"Da xoa anh: {image_path.name}", icon="🗑️")
+            st.toast(f"Da xoa anh: {image_path.name} tai folder {image_path.parent.name}", icon="🗑️")
         else:
             st.warning(f"File khong ton tai: {image_path}")
     except Exception as exc:
@@ -191,6 +189,17 @@ st.markdown(
         border-color: #15803d !important;
         color: #ffffff !important;
     }
+    .btn-refresh-image button[kind="secondary"] {
+        background-color: #f59e0b !important;
+        color: #ffffff !important;
+        border-color: #d97706 !important;
+        font-weight: 600;
+    }
+    .btn-refresh-image button[kind="secondary"]:hover {
+        background-color: #d97706 !important;
+        border-color: #b45309 !important;
+        color: #ffffff !important;
+    }
     .btn-delete-folder button[kind="secondary"] {
         background-color: #0ea5e9 !important;
         color: #ffffff !important;
@@ -213,7 +222,7 @@ except Exception:
     pass
 
 def render_delete_buttons() -> None:
-    _, col_img, col_folder, _ = st.columns([1, 2, 2, 1], gap="large")
+    _, col_img, col_refresh, col_folder, _ = st.columns([1, 2, 2, 2, 1], gap="large")
     with col_img:
         with st.container():
             st.markdown("<div class='btn-delete-image'>", unsafe_allow_html=True)
@@ -224,11 +233,19 @@ def render_delete_buttons() -> None:
             st.markdown("<div class='btn-delete-folder'>", unsafe_allow_html=True)
             confirm_del_folder = st.button("Xoá folder ảnh ", key="delete_folder_btn", use_container_width=True, help="Xoá thư mục chứa ảnh hiện tại")
             st.markdown("</div>", unsafe_allow_html=True)
+    with col_refresh:
+        with st.container():
+            st.markdown("<div class='btn-refresh-image'>", unsafe_allow_html=True)
+            refresh_image = st.button("Xem ảnh khác", key="refresh_image_btn", use_container_width=True, help="Tải lại trang để chọn ảnh khác")
+            st.markdown("</div>", unsafe_allow_html=True)
+    
+    if refresh_image:
+        st.rerun()
+
 
     if confirm_del_img:
         cur_img = st.session_state.get("current_image")
         if cur_img:
-            st.session_state["image_to_delete"] = cur_img
             delete_picture()
             st.rerun()
 
