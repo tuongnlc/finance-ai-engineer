@@ -43,6 +43,11 @@ class Conversation(Base):
         primary_key=True,
         default=uuid.uuid4,
     )
+    session_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        nullable=False,
+    )
+    title: Mapped[str] = mapped_column(String(255), nullable=True)
     space_id: Mapped[str] = mapped_column(String(255), nullable=True)
     user_id: Mapped[str] = mapped_column(String(255), nullable=True)
     created_timestamp: Mapped[int] = mapped_column(BigInteger, nullable=False)

@@ -11,6 +11,8 @@ class ConversationService:
     async def create_conversation(self, request) -> Conversation:
         conversation = Conversation(
             id = request.id,
+            session_id = request.session_id,
+            title = request.title,
             space_id = request.space_id,
             user_id = request.user_id,
             created_timestamp = request.created_timestamp,

@@ -33,15 +33,3 @@ class SessionClient:
         )
         response.raise_for_status()
         return CreateSessionResponse.model_validate(response.json())
-
-
-if __name__ == "__main__":
-    client = SessionClient()
-    result = client.create_session(
-        CreateSessionRequest(
-            id=uuid.uuid4(),
-            conversation_id="3fa85f64-5717-4562-b3fc-2c963f66afa6",
-            created_timestamp=create_int_timestamp(),
-        )
-    )
-    print(result)

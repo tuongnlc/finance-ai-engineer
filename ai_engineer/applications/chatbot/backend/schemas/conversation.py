@@ -14,6 +14,8 @@ class ConversationStatus(str, Enum):
 
 class CreateConversationRequest(BaseModel):
     id: UUID
+    session_id: UUID
+    title: Optional[str] = None
     user_id: Optional[str] = None
     space_id: Optional[str] = None
     created_timestamp: int
@@ -23,13 +25,15 @@ class CreateConversationRequest(BaseModel):
 
 class CreateConversationResponse(BaseModel):
     id: UUID
+    title: Optional[str] = None
+
+class GetConversationResponse(BaseModel):
+    id: UUID
+    session_id: UUID
+    title: Optional[str] = None
     user_id: Optional[str] = None
     space_id: Optional[str] = None
     created_timestamp: int
-    status: Optional[ConversationStatus] = None
-    created_at: date = Field(default_factory=date.today)
-
-class GetConversationResponse(CreateConversationResponse):
-    pass
-
+    status: ConversationStatus
+    created_at: date
 
