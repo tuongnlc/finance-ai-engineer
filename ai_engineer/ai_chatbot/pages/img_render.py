@@ -19,36 +19,6 @@ REFRESH_SECONDS = 5
 IMAGE_LIST_TTL_SECONDS = 60
 IMAGE_CACHE_ENTRIES = 32
 
-
-def _debug_event(hypothesis_id: str, location: str, msg: str, data: dict | None = None) -> None:
-    payload = {
-        "sessionId": "img-render-missing",
-        "runId": "post-fix",
-        "hypothesisId": hypothesis_id,
-        "location": location,
-        "msg": f"[DEBUG] {msg}",
-        "data": data or {},
-    }
-    debug_url = "http://127.0.0.1:7777/event"
-    env_path = Path(".dbg/img-render-missing.env")
-    try:
-        if env_path.is_file():
-            for line in env_path.read_text().splitlines():
-                if line.startswith("DEBUG_SERVER_URL="):
-                    debug_url = line.split("=", 1)[1].strip()
-    except Exception:
-        pass
-    try:
-        request = urllib.request.Request(
-            debug_url,
-            data=json.dumps(payload).encode(),
-            headers={"Content-Type": "application/json"},
-        )
-        urllib.request.urlopen(request, timeout=1).read()
-    except Exception:
-        pass
-
-
 @st.cache_data(show_spinner=False, ttl=IMAGE_LIST_TTL_SECONDS)
 def load_images() -> list[Path]:
     images = sorted(
@@ -56,9 +26,6 @@ def load_images() -> list[Path]:
         for path in PICTURE_FOLDER.rglob("*")
         if path.is_file() and path.suffix.lower() in IMAGE_EXTENSIONS
     )
-    # #region debug-point A:load-images
-    _debug_event("A", "img_render.py:24", "load_images completed", {"count": len(images), "picture_dir": str(PICTURE_FOLDER)})
-    # #endregion
     return images
 
 
@@ -84,14 +51,9 @@ def build_image_data_url(image_path: Path, modified_time_ns: int) -> str:
         mime_type, _ = mimetypes.guess_type(image_path.name)
         mime_type = mime_type or "application/octet-stream"
         encoded = base64.b64encode(image_path.read_bytes()).decode("ascii")
-        # #region debug-point B:image-data-url
-        _debug_event("B", "img_render.py:58", "build_image_data_url completed", {"image": str(image_path), "mime_type": mime_type, "encoded_len": len(encoded)})
-        # #endregion
+
         return f"data:{mime_type};base64,{encoded}"
     except Exception as exc:
-        # #region debug-point B:image-data-url-error
-        _debug_event("B", "img_render.py:62", "build_image_data_url failed", {"image": str(image_path), "error": repr(exc)})
-        # #endregion
         raise
 
 
@@ -113,18 +75,12 @@ def get_background_url() -> str | None:
     images = load_images()
     bg_image = pick_random_image(images, session_key="last_bg_image")
     if bg_image is None:
-        # #region debug-point D:bg-fallback
-        _debug_event("D", "img_render.py:70", "background fallback selected", {"reason": "no-image"})
-        # #endregion
         return None
-    # #region debug-point D:bg-selected
-    _debug_event("D", "img_render.py:73", "background image selected", {"image": str(bg_image)})
-    # #endregion
     return build_blurred_background_data_url(bg_image, bg_image.stat().st_mtime_ns)
 
 
 def build_background_style(bg_url: str | None) -> str:
-    background_image = f'linear-gradient(rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.18)), url("{bg_url}")' if bg_url else "none"
+    background_image = f'url("{bg_url}")' if bg_url else "none"
     return f"""
     <style>
     html, body, .stApp, [data-testid="stAppViewContainer"] {{
@@ -255,55 +211,48 @@ try:
 except Exception:
     pass
 
-_, col_img, col_folder, _ = st.columns([1, 2, 2, 1], gap="large")
-with col_img:
-    with st.container():
-        st.markdown("<div class='btn-delete-image'>", unsafe_allow_html=True)
-        confirm_del_img = st.button("Xoá ảnh", key="delete_image_btn", use_container_width=True, help="Xoá file ảnh hiện tại khỏi ổ cứng")
-        st.markdown("</div>", unsafe_allow_html=True)
-with col_folder:
-    with st.container():
-        st.markdown("<div class='btn-delete-folder'>", unsafe_allow_html=True)
-        confirm_del_folder = st.button("Xoá folder ảnh ", key="delete_folder_btn", use_container_width=True, help="Xoá thư mục chứa ảnh hiện tại")
-        st.markdown("</div>", unsafe_allow_html=True)
+def render_delete_buttons() -> None:
+    _, col_img, col_folder, _ = st.columns([1, 2, 2, 1], gap="large")
+    with col_img:
+        with st.container():
+            st.markdown("<div class='btn-delete-image'>", unsafe_allow_html=True)
+            confirm_del_img = st.button("Xoá ảnh", key="delete_image_btn", use_container_width=True, help="Xoá file ảnh hiện tại khỏi ổ cứng")
+            st.markdown("</div>", unsafe_allow_html=True)
+    with col_folder:
+        with st.container():
+            st.markdown("<div class='btn-delete-folder'>", unsafe_allow_html=True)
+            confirm_del_folder = st.button("Xoá folder ảnh ", key="delete_folder_btn", use_container_width=True, help="Xoá thư mục chứa ảnh hiện tại")
+            st.markdown("</div>", unsafe_allow_html=True)
 
-if confirm_del_img:
-    cur_img = st.session_state.get("current_image")
-    if cur_img:
-        st.session_state["image_to_delete"] = cur_img
-        delete_picture()
-        st.rerun()
+    if confirm_del_img:
+        cur_img = st.session_state.get("current_image")
+        if cur_img:
+            st.session_state["image_to_delete"] = cur_img
+            delete_picture()
+            st.rerun()
 
-if confirm_del_folder:
-    cur_img = st.session_state.get("current_image")
-    if cur_img:
-        st.session_state["folder_to_delete"] = cur_img
-        delete_folder()
-        st.rerun()
+    if confirm_del_folder:
+        cur_img = st.session_state.get("current_image")
+        if cur_img:
+            st.session_state["folder_to_delete"] = cur_img
+            delete_folder()
+            st.rerun()
 
 
 @st.fragment(run_every=f"{REFRESH_SECONDS}s")
-def render_image_viewer() -> None:
-    # #region debug-point D:fragment-start
-    _debug_event("D", "img_render.py:238", "render_image_viewer start", {"last_image": st.session_state.get("last_image"), "last_bg_image": st.session_state.get("last_bg_image")})
-    # #endregion
+def render_image_viewer(enable_img_center: bool = True) -> None:
+
     images = load_images()
     current_image = pick_random_image(images)
 
-    if not images or current_image is None:
-        # #region debug-point A:viewer-no-image
-        _debug_event("A", "img_render.py:244", "viewer has no image to render", {"count": len(images)})
-        # #endregion
-        st.warning(f"Khong tim thay anh trong {PICTURE_FOLDER}")
-    else:
+    if enable_img_center:
+        render_delete_buttons()
         st.session_state["current_image"] = str(current_image)
         image_url = build_image_data_url(
             current_image,
             current_image.stat().st_mtime_ns,
         )
-        # #region debug-point C:viewer-selected
-        _debug_event("C", "img_render.py:252", "viewer image selected", {"image": str(current_image), "image_url_prefix": image_url[:32]})
-        # #endregion
+
         st.markdown(
             f'<div class="viewer-frame"><img src="{image_url}" alt="{current_image.name}"></div>',
             unsafe_allow_html=True,
@@ -314,14 +263,11 @@ def render_image_viewer() -> None:
 
     try:
         st.markdown(build_background_style(get_background_url()), unsafe_allow_html=True)
-        # #region debug-point C:bg-layer-rendered
-        _debug_event("C", "img_render.py:262", "background layer rendered", {})
-        # #endregion
+
     except Exception as exc:
-        # #region debug-point D:bg-layer-error
-        _debug_event("D", "img_render.py:266", "background layer render failed", {"error": repr(exc)})
-        # #endregion
         pass
 
 
-render_image_viewer()
+render_image_viewer(
+    enable_img_center=True,
+)
