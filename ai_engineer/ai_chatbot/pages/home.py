@@ -1,15 +1,16 @@
 import streamlit as st
 
+from ai_engineer.ai_chatbot.services.session_service import SessionService
+from ai_engineer.ai_chatbot.state.home_state import initialize_chat_messages, initialize_home_session
+
 
 def render_home():
+    initialize_home_session()
+    initialize_chat_messages()
+
     st.title("Trang Chủ")
 
     with st.container():
-        if "chat_messages" not in st.session_state:
-            st.session_state["chat_messages"] = [
-                {"role": "assistant", "chat_content": "Xin chào! Tôi là trợ lý AI phân tích tài chính. Bạn cần hỗ trợ gì hôm nay?"}
-            ]
-
         for msg in st.session_state["chat_messages"]:
             with st.chat_message(msg["role"]):
                 st.write(msg["chat_content"])
@@ -22,8 +23,6 @@ def render_home():
             st.session_state["chat_messages"].append({"role": "assistant", "chat_content": reply})
             print(st.session_state["chat_messages"])
             st.rerun()
-
-
 
     st.divider()
     st.write("Hoặc lựa chọn các chức năng dưới đây: ")
