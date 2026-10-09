@@ -17,8 +17,10 @@ class ConversationStatus(str, Enum):
 @dataclass
 class Conversation:
     id: uuid.UUID
+    session_id: uuid.UUID
     created_timestamp: int
-    user_id: Optional[str] = None
+    title: Optional[str] = None
     space_id: Optional[str] = None
+    user_id: Optional[str] = None
     status: Optional[ConversationStatus] = None
     created_at: date = field(default_factory=date.today)

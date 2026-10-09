@@ -19,16 +19,10 @@ async def create_conversation(
         chat_service: Annotated[ConversationService, Depends(get_conversation_service)],
     ) -> CreateConversationResponse:
     conversation = await chat_service.create_conversation(request)
-    status = 'PENDING' #Updated later
     return CreateConversationResponse(
         id=conversation.id,
-        space_id=request.space_id,
-        user_id=request.user_id,
-        created_timestamp=conversation.created_timestamp,
-        status=status,
-        created_at=conversation.created_at,
+        title=conversation.title,
     )
-
 
 @router.get("/conversation/{conversation_id}", status_code=200)
 async def get_conversation(
@@ -38,6 +32,8 @@ async def get_conversation(
     conversation = await conversation_service.get_by_id(conversation_id)
     return GetConversationResponse(
         id=conversation.id,
+        session_id=conversation.session_id,
+        title=conversation.title,
         space_id=conversation.space_id,
         user_id=conversation.user_id,
         created_timestamp=conversation.created_timestamp,

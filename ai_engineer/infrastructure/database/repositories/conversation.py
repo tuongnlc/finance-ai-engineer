@@ -28,6 +28,8 @@ class PostgresConversationRepository:
     def _to_orm(self, conversation: Conversation) -> ConversationORM:
         return ConversationORM(
             id=conversation.id,
+            session_id=conversation.session_id,
+            title=conversation.title,
             space_id=conversation.space_id,
             user_id=conversation.user_id,
             created_timestamp=conversation.created_timestamp,
@@ -38,6 +40,8 @@ class PostgresConversationRepository:
     def _to_domain(self, conversation: ConversationORM) -> Conversation:
         return Conversation(
             id=conversation.id,
+            session_id=conversation.session_id,
+            title=conversation.title,
             space_id=conversation.space_id,
             user_id=conversation.user_id,
             created_timestamp=conversation.created_timestamp,
