@@ -4,7 +4,6 @@ import base64
 import io
 import mimetypes
 import random
-import shutil
 from pathlib import Path
 
 import streamlit as st
@@ -130,21 +129,30 @@ def delete_folder() -> None:
             st.warning(f"Folder khong ton tai: {target_folder}")
             return
         if target_resolved == pic_root_resolved:
-            st.warning("Khong the xoa folder goc PICTURE_DIR. Chi xoa folder con chua anh.")
+            st.warning("Khong ap dung voi folder goc PICTURE_DIR. Chi xoa anh trong folder con.")
             return
         if pic_root_resolved not in target_resolved.parents:
             st.warning(f"Folder {target_folder} nam ngoai PICTURE_DIR, tu choi xoa.")
             return
-        shutil.rmtree(target_folder)
+        deleted_count = 0
+        for image_file in target_folder.rglob("*"):
+            if image_file.is_file() and image_file.suffix.lower() in IMAGE_EXTENSIONS:
+                image_file.unlink()
+                deleted_count += 1
+
         load_images.clear()
         build_image_data_url.clear()
+        build_blurred_background_data_url.clear()
         st.session_state.pop("current_image", None)
         st.session_state.pop("last_image", None)
         st.session_state.pop("last_bg_image", None)
         st.session_state.pop("folder_to_delete", None)
-        st.toast(f"Da xoa folder: {target_folder.name}", icon="🗂️")
+        if deleted_count:
+            st.toast(f"Da xoa {deleted_count} anh trong folder: {target_folder.name}", icon="🗂️")
+        else:
+            st.toast(f"Folder {target_folder.name} khong co anh de xoa", icon="🗂️")
     except Exception as exc:
-        st.error(f"Loi khi xoa folder: {exc}")
+        st.error(f"Loi khi xoa anh trong folder: {exc}")
 
 st.set_page_config(page_title="Random Image Viewer", layout="wide")
 
@@ -231,7 +239,7 @@ def render_delete_buttons() -> None:
     with col_folder:
         with st.container():
             st.markdown("<div class='btn-delete-folder'>", unsafe_allow_html=True)
-            confirm_del_folder = st.button("Xoá folder ảnh ", key="delete_folder_btn", use_container_width=True, help="Xoá thư mục chứa ảnh hiện tại")
+            confirm_del_folder = st.button("Xoá ảnh trong folder", key="delete_folder_btn", use_container_width=True, help="Xoá toàn bộ file ảnh trong thư mục chứa ảnh hiện tại, nhưng giữ lại thư mục")
             st.markdown("</div>", unsafe_allow_html=True)
     with col_refresh:
         with st.container():
