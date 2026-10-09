@@ -11,11 +11,12 @@ from pathlib import Path
 
 import streamlit as st
 from PIL import Image, ImageEnhance, ImageFilter
+from ai_engineer.ai_chatbot.config import get_secret
 
-PICTURE_FOLDER = Path(st.secrets.get("PICTURE_DIR"))
+PICTURE_FOLDER = Path(get_secret("PICTURE_DIR", "."))
 
 IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".gif", ".webp", ".bmp"}
-REFRESH_SECONDS = 5
+REFRESH_SECONDS = 10
 IMAGE_LIST_TTL_SECONDS = 60
 IMAGE_CACHE_ENTRIES = 32
 
