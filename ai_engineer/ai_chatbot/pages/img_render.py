@@ -30,6 +30,20 @@ def load_images() -> list[Path]:
     return images
 
 
+def load_images_from_folder(folder: Path) -> list[Path]:
+    """
+        Load all images from a specific folder (non-recursive, only direct children)
+    """
+    if not folder.is_dir():
+        return []
+    images = sorted(
+        path
+        for path in folder.iterdir()
+        if path.is_file() and path.suffix.lower() in IMAGE_EXTENSIONS
+    )
+    return images
+
+
 def pick_random_image(images: list[Path], session_key: str = "last_image") -> Path | None:
     """
         Pick a random image from the list of images
@@ -228,6 +242,17 @@ st.markdown(
         border-color: #0369a1 !important;
         color: #ffffff !important;
     }
+    .btn-refresh-same-folder button[kind="secondary"] {
+        background-color: #8b5cf6 !important;
+        color: #ffffff !important;
+        border-color: #7c3aed !important;
+        font-weight: 600;
+    }
+    .btn-refresh-same-folder button[kind="secondary"]:hover {
+        background-color: #7c3aed !important;
+        border-color: #6d28d9 !important;
+        color: #ffffff !important;
+    }
     </style>
     """,
     unsafe_allow_html=True,
@@ -239,7 +264,7 @@ except Exception:
     pass
 
 def render_delete_buttons() -> None:
-    _, col_img, col_refresh, col_folder, _ = st.columns([1, 2, 2, 2, 1], gap="large")
+    _, col_img, col_refresh, col_same_folder, col_folder, _ = st.columns([1, 2, 2, 2, 2, 1], gap="large")
     with col_img:
         with st.container():
             st.markdown("<div class='btn-delete-image'>", unsafe_allow_html=True)
@@ -253,12 +278,21 @@ def render_delete_buttons() -> None:
     with col_refresh:
         with st.container():
             st.markdown("<div class='btn-refresh-image'>", unsafe_allow_html=True)
-            refresh_image = st.button("Xem ảnh khác", key="refresh_image_btn", use_container_width=True, help="Tải lại trang để chọn ảnh khác")
+            refresh_image = st.button("Xem ảnh khác", key="refresh_image_btn", use_container_width=True, help="Chọn ảnh ngẫu nhiên khác từ toàn bộ thư mục")
             st.markdown("</div>", unsafe_allow_html=True)
-    
+    with col_same_folder:
+        with st.container():
+            st.markdown("<div class='btn-refresh-same-folder'>", unsafe_allow_html=True)
+            refresh_same_folder = st.button("Xem ảnh cùng thư mục", key="refresh_same_folder_btn", use_container_width=True, help="Chọn ảnh ngẫu nhiên khác từ cùng thư mục với ảnh hiện tại")
+            st.markdown("</div>", unsafe_allow_html=True)
+
     if refresh_image:
+        st.session_state.pop("same_folder_next", None)
         st.rerun()
 
+    if refresh_same_folder:
+        st.session_state["same_folder_next"] = True
+        st.rerun()
 
     if confirm_del_img:
         cur_img = st.session_state.get("current_image")
@@ -277,8 +311,24 @@ def render_delete_buttons() -> None:
 @st.fragment(run_every=f"{REFRESH_SECONDS}s")
 def render_image_viewer(enable_img_center: bool = True) -> None:
 
-    images = load_images()
-    current_image = pick_random_image(images)
+    same_folder_next = st.session_state.pop("same_folder_next", False)
+    current_img_str = st.session_state.get("current_image")
+
+    if same_folder_next and current_img_str:
+        current_img_path = Path(current_img_str)
+        same_folder = current_img_path.parent
+        folder_images = load_images_from_folder(same_folder)
+        if folder_images:
+            current_image = pick_random_image(folder_images)
+            if current_image is None:
+                images = load_images()
+                current_image = pick_random_image(images)
+        else:
+            images = load_images()
+            current_image = pick_random_image(images)
+    else:
+        images = load_images()
+        current_image = pick_random_image(images)
 
     if enable_img_center:
         render_delete_buttons()
