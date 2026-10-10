@@ -19,6 +19,9 @@ IMAGE_CACHE_ENTRIES = 32
 
 @st.cache_data(show_spinner=False, ttl=IMAGE_LIST_TTL_SECONDS)
 def load_images() -> list[Path]:
+    """
+        Load all images from the PICTURE_FOLDER
+    """
     images = sorted(
         path
         for path in PICTURE_FOLDER.rglob("*")
@@ -28,6 +31,9 @@ def load_images() -> list[Path]:
 
 
 def pick_random_image(images: list[Path], session_key: str = "last_image") -> Path | None:
+    """
+        Pick a random image from the list of images
+    """
     if not images:
         return None
 
@@ -44,6 +50,9 @@ def pick_random_image(images: list[Path], session_key: str = "last_image") -> Pa
 
 @st.cache_data(show_spinner=False, max_entries=IMAGE_CACHE_ENTRIES)
 def build_image_data_url(image_path: Path, modified_time_ns: int) -> str:
+    """
+        Build a data URL for the image at the given path
+    """
     try:
         del modified_time_ns
         mime_type, _ = mimetypes.guess_type(image_path.name)
