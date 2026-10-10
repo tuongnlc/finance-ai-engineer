@@ -9,8 +9,8 @@ from ai_engineer.ai_chatbot.state.home_state import (
 
 
 def render_home():
-    initialize_home_session()
-    initialize_chat_messages()
+    initialize_home_session() # Initialize home session - When we start home we will create a new session
+    initialize_chat_messages() # Initialize chat messages
 
     st.title("Trang Chủ")
 
@@ -21,7 +21,7 @@ def render_home():
 
         prompt = st.chat_input("Nhập câu hỏi của bạn...")
         if prompt:
-            # initialize_conversation_session()
+            initialize_conversation_session() # When we start conversation we will create a new conversation
 
             st.session_state["chat_messages"].append({"role": "user", "chat_content": prompt})
 
