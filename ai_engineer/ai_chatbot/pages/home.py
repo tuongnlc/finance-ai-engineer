@@ -1,12 +1,16 @@
 import streamlit as st
 
 from ai_engineer.ai_chatbot.services.session_service import SessionService
-from ai_engineer.ai_chatbot.state.home_state import initialize_chat_messages, initialize_home_session
+from ai_engineer.ai_chatbot.state.home_state import (
+    initialize_chat_messages,
+    initialize_conversation_session,
+    initialize_home_session,
+)
 
 
 def render_home():
-    initialize_home_session()
-    initialize_chat_messages()
+    initialize_home_session() # Initialize home session - When we start home we will create a new session
+    initialize_chat_messages() # Initialize chat messages
 
     st.title("Trang Chủ")
 
@@ -17,6 +21,8 @@ def render_home():
 
         prompt = st.chat_input("Nhập câu hỏi của bạn...")
         if prompt:
+            initialize_conversation_session() # When we start conversation we will create a new conversation
+
             st.session_state["chat_messages"].append({"role": "user", "chat_content": prompt})
 
             reply = "Đây là phản hồi mẫu cho câu hỏi của bạn."
