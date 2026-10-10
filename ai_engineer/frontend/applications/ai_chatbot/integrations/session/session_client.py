@@ -1,13 +1,9 @@
 from __future__ import annotations
 
 import uuid
-
 import requests
-from ai_engineer.helpers.timestamp import create_int_timestamp
-from ai_engineer.ai_chatbot.config import get_backend_base_url
-
+from ai_engineer.frontend.config import get_backend_base_url
 from ai_engineer.applications.chatbot.backend.schemas.session import CreateSessionRequest, CreateSessionResponse
-
 class SessionClient:
     """
         Client for Session API

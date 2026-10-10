@@ -1,8 +1,6 @@
 from __future__ import annotations
-
 import uuid
-
-from ai_engineer.ai_chatbot.integrations.session.session_client import SessionClient
+from ai_engineer.frontend.applications.ai_chatbot.integrations.session.session_client import SessionClient
 from ai_engineer.applications.chatbot.backend.schemas.session import CreateSessionRequest
 from ai_engineer.helpers.timestamp import create_int_timestamp
 from pydantic import BaseModel

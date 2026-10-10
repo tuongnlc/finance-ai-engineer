@@ -2,10 +2,11 @@
 import uuid
 
 import streamlit as st
-from ai_engineer.ai_chatbot.services.conversation_service import (
+from ai_engineer.frontend.applications.ai_chatbot.services.conversation_service import (
     ConversationService,
 )
-from ai_engineer.ai_chatbot.services.session_service import SessionService
+from ai_engineer.frontend.applications.ai_chatbot.services.session_service import SessionService
+
 
 WELCOME_MESSAGE = {
     "role": "assistant",

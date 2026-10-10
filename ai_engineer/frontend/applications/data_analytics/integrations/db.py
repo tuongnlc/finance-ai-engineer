@@ -1,7 +1,6 @@
 import polars as pl
 import streamlit as st
-
-from ai_engineer.ai_chatbot.config import get_secret_section
+from ai_engineer.frontend.config import get_secret_section
 
 
 @st.cache_data(ttl=600) 
@@ -9,7 +8,6 @@ def load_data_from_postgres_polars(query: str):
   """Hàm kết nối PostgreSQL và trả về Polars DataFrame"""
   try:
     db_config = get_secret_section("postgres")
-
 
     uri = f"postgresql://{db_config['user']}:{db_config['password']}@{db_config['host']}:{db_config['port']}/{db_config['database']}"
 

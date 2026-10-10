@@ -1,7 +1,6 @@
 import streamlit as st
-
-from ai_engineer.ai_chatbot.services.session_service import SessionService
-from ai_engineer.ai_chatbot.state.home_state import (
+from ai_engineer.frontend.applications.ai_chatbot.services.session_service import SessionService
+from ai_engineer.frontend.state.home_state import (
     initialize_chat_messages,
     initialize_conversation_session,
     initialize_home_session,
