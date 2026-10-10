@@ -1,12 +1,13 @@
 from __future__ import annotations
 
+from collections.abc import Mapping
 from pathlib import Path
 import tomllib
 from typing import Any
-
 import streamlit as st
 
-LOCAL_SECRETS_FILE = Path(__file__).resolve().parent / ".streamlit" / "secrets.toml"
+
+LOCAL_SECRETS_FILE = Path(__file__).resolve().parents[2] / ".streamlit" / "secrets.toml"
 
 
 def _load_local_secrets() -> dict[str, Any]:
@@ -36,8 +37,7 @@ def get_secret(key: str, default: Any = None) -> Any:
 
 def get_secret_section(section: str) -> dict[str, Any]:
     value = get_secrets().get(section, {})
-    return value if isinstance(value, dict) else {}
-
+    return dict(value) if isinstance(value, Mapping) else {}
 
 def get_backend_base_url(default: str = "http://localhost:8000") -> str:
     backend_config = get_secret_section("backend")

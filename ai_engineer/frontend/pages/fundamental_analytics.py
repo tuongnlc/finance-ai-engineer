@@ -1,10 +1,10 @@
 import polars as pl
 import streamlit as st
+from ai_engineer.frontend.components.chart.table_chart import TableChart
+from ai_engineer.frontend.components.chart.line_chart import LineChartComponent
+from ai_engineer.frontend.components.chart.kpi_cart_chart import KpiCardChart
+from ai_engineer.frontend.applications.data_analytics.integrations.db import load_data_from_postgres_polars
 
-from ai_engineer.data_analytics.components.chart.table_chart import TableChart
-from ai_engineer.data_analytics.components.chart.line_chart import LineChartComponent
-from ai_engineer.data_analytics.infrastructure.db import load_data_from_postgres_polars
-from ai_engineer.data_analytics.components.chart.kpi_cart_chart import KpiCardChart
 
 VNM_REVENUE_QUERY = """
         SELECT 
@@ -55,8 +55,6 @@ VNM_CASH_FLOW = """
         ORDER BY year DESC, quarter DESC
         LIMIT 4
     """
-
-
 
 def fundamental_analytics():
     vnm_df = load_data_from_postgres_polars(VNM_REVENUE_QUERY)

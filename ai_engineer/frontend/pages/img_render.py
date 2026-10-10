@@ -8,7 +8,7 @@ from pathlib import Path
 
 import streamlit as st
 from PIL import Image
-from ai_engineer.ai_chatbot.config import get_secret
+from ai_engineer.frontend.config import get_secret
 
 PICTURE_FOLDER = Path(get_secret("PICTURE_DIR", "."))
 

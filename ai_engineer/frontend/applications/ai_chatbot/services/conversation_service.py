@@ -1,6 +1,9 @@
 import uuid
 from typing import Optional, List, Dict, Any
 from pydantic import BaseModel, Field
+from ai_engineer.frontend.applications.ai_chatbot.integrations.conversation.conversation_client import ConversationClient
+
+
 
 class Message(BaseModel):
     role: str  # 'user', 'assistant', 'system', 'tool'
@@ -23,10 +26,6 @@ class ConversationService:
 
     def __init__(self, client=None) -> None:
         if client is None:
-            from ai_engineer.ai_chatbot.integrations.conversation.conversation_client import (
-                ConversationClient,
-            )
-
             client = ConversationClient()
 
         self.client = client
