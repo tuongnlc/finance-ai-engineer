@@ -21,7 +21,7 @@ def render_home():
 
         prompt = st.chat_input("Nhập câu hỏi của bạn...")
         if prompt:
-            initialize_conversation_session()
+            # initialize_conversation_session()
 
             st.session_state["chat_messages"].append({"role": "user", "chat_content": prompt})
 

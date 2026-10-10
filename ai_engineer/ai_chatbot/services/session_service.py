@@ -10,7 +10,7 @@ from pydantic import BaseModel
 
 class SessionContext(BaseModel):
     session_id: uuid.UUID
-    conversation_id: uuid.UUID
+    # conversation_id: uuid.UUID | None = None
 
 class SessionService:
     """
@@ -29,7 +29,7 @@ class SessionService:
         conversation_id: uuid.UUID | None = None,
         session_id: uuid.UUID | None = None,
     ) -> SessionContext:
-        conversation_id = conversation_id or uuid.uuid4()
+        conversation_id = conversation_id 
         session_id = session_id or uuid.uuid4()
 
         response = self.client.create_session(

@@ -2,6 +2,9 @@
     SQLAlchemy declarative models to do migration for postgresql
 
 """
+from uuid import UUID
+
+
 import uuid
 from sqlalchemy import String, Text
 from sqlalchemy.dialects.postgresql import UUID
@@ -27,8 +30,8 @@ class Session(Base):
         default=uuid.uuid4,
     )
     conversation_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True),
-        nullable=False,
+        UUID[UUID](as_uuid=True),
+        nullable=True,
     )
     created_timestamp: Mapped[int] = mapped_column(BigInteger, nullable=False)
 

@@ -19,7 +19,7 @@ def initialize_home_session() -> None:
 
     session_context = SessionService().start_new_session()
     st.session_state["session_id"] = str(session_context.session_id)
-    st.session_state["conversation_id"] = str(session_context.conversation_id)
+    st.session_state["conversation_id"] = None
     st.session_state["home_session_initialized"] = True
 
 
