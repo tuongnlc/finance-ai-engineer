@@ -1,12 +1,18 @@
 import streamlit as st
-from ai_engineer.frontend.applications.data_analytics.query.profitability_analytics import profit_margin_cascade
+from ai_engineer.frontend.applications.data_analytics.query.profitability_analytics import (
+    profit_margin_cascade,
+    capital_efficiency
+)
 from ai_engineer.frontend.components.chart.kpi_cart_chart import KpiCardChart
 from ai_engineer.frontend.components.markdown.markdown import MarkDown
-from ai_engineer.frontend.applications.data_analytics.integrations.db import load_data_from_postgres_polars
+from ai_engineer.frontend.applications.data_analytics.integrations.db import (
+    load_data_from_postgres_polars,
+)
 
 def profitability_ratio():
     #Prepare data
     df_profit_margin = load_data_from_postgres_polars(profit_margin_cascade)
+    df_capital_efficiency = load_data_from_postgres_polars(capital_efficiency)
 
 
 
@@ -57,6 +63,28 @@ def profitability_ratio():
             suffix="", format="{:.0f}"
             ).render(latest_net_operating_profit)
 
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        latest_roa = df_capital_efficiency.row(0, named=True)["roa"]
+        KpiCardChart(
+            label="Tỷ suất sinh lời trên tổng tài sản - ROA", 
+            suffix="%", format="{:.0f}"
+            ).render(latest_roa)
+    with col2:
+        latest_roe = df_capital_efficiency.row(0, named=True)["roe"]
+        KpiCardChart(
+            label="Tỷ suất sinh lời trên vốn chủ sở hữu - ROE", 
+            suffix="%", format="{:.0f}"
+        ).render(latest_roe)
+    with col3:
+        latest_roic = df_capital_efficiency.row(0, named=True)["roic"]
+        KpiCardChart(
+            label="Tỷ suất sinh lời trên vốn đầu tư - ROIC", 
+            suffix="%", format="{:.0f}"
+        ).render(latest_roic)
+    st.divider()
+
+    # Step 2: So sánh doanh thu, lợi nhuận, 
 
 if __name__ in {"__main__", "__page__"}:
     profitability_ratio()
