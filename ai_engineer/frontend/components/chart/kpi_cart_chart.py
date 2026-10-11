@@ -39,4 +39,31 @@ class KpiCardChart:
                 except (ValueError, TypeError):
                     display_value = str(value)
 
-        st.metric(label=self.label, value=f"{self.prefix}{display_value}{self.suffix}")
+        st.markdown(
+            f"""
+            <div style="
+                border: none;
+                border-radius: none;
+                padding: 16px 20px;
+                background-color: transparent;
+                height: 100%;
+            ">
+                <div style="
+                    font-size: 14px;
+                    color: #31333F;
+                    font-weight: 600;
+                    line-height: 1.4;
+                    margin-bottom: 8px;
+                    white-space: pre-wrap;
+                    word-break: break-word;
+                ">{self.label}</div>
+                <div style="
+                    font-size: 28px;
+                    font-weight: 700;
+                    color: #262730;
+                    line-height: 1.2;
+                ">{self.prefix}{display_value}{self.suffix}</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
