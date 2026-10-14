@@ -19,6 +19,15 @@ class ConversationContext(BaseModel):
     context: Optional[Dict[str, Any]] = Field(default_factory=dict)
 
 
+class Conversation(BaseModel):
+    conversation_id: uuid.UUID
+    user_id: Optional[str] = None
+    title: Optional[str] = None
+
+class ConversationHistory(BaseModel):
+    user_id: Optional[str]
+    conversations: List[Conversation] = Field(default_factory=list)
+
 class ConversationService:
     """
     Orchestrates conversation creation and retrieval for the chatbot UI.
@@ -77,3 +86,18 @@ class ConversationService:
             title=response.title,
             context=context or {},
         )
+
+    def list_conversations(
+        self,
+        user_id: Optional[str] = None,
+    ) -> List[Conversation]:
+        response = self.client.list_conversations(user_id)
+
+        return [
+            Conversation(
+                conversation_id=item.id,
+                user_id=item.user_id,
+                title=item.title,
+            )
+            for item in response
+        ]
