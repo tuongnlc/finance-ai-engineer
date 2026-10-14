@@ -4,12 +4,25 @@ from ai_engineer.frontend.state.home_state import (
     initialize_chat_messages,
     initialize_conversation_session,
     initialize_home_session,
+    reset_chat,
 )
+
+CHAT_INPUT_KEY = "new_chat_prompt"
+RERUN_FLAG = "_new_chat_just_rerun_from_message"
 
 
 def render_home():
-    initialize_home_session() # Initialize home session - When we start home we will create a new session
-    initialize_chat_messages() # Initialize chat messages
+    # Khi user submit một tin nhắn, giá trị được lưu vào st.session_state[key]
+    # ngay từ đầu lần rerun (trước khi st.chat_input được gọi).
+    # Dùng nó để phân biệt "navigation mới" với "rerun sau khi gửi tin".
+    pending_prompt = st.session_state.get(CHAT_INPUT_KEY)
+    just_rerun = st.session_state.pop(RERUN_FLAG, False)
+
+    # Chỉ reset khi là navigation mới (không có prompt đang chờ, không phải rerun sau gửi tin)
+    if pending_prompt is None and not just_rerun:
+        reset_chat()
+        initialize_home_session()
+        initialize_chat_messages()
 
     st.title("Trang Chủ")
 
@@ -18,7 +31,7 @@ def render_home():
             with st.chat_message(msg["role"]):
                 st.write(msg["chat_content"])
 
-        prompt = st.chat_input("Nhập câu hỏi của bạn...")
+        prompt = st.chat_input("Nhập câu hỏi của bạn...", key=CHAT_INPUT_KEY)
         if prompt:
             initialize_conversation_session() # When we start conversation we will create a new conversation
 
@@ -27,19 +40,10 @@ def render_home():
             reply = "Đây là phản hồi mẫu cho câu hỏi của bạn."
             st.session_state["chat_messages"].append({"role": "assistant", "chat_content": reply})
             print(st.session_state["chat_messages"])
+            st.session_state[RERUN_FLAG] = True
             st.rerun()
 
     st.divider()
-    st.write("Hoặc lựa chọn các chức năng dưới đây: ")
-
-    st.page_link(
-        "pages/fundamental_analytics.py",
-        label="Phân tích cơ bản - Fundamental Analytics",
-        icon="📊",
-    )
-    st.write("- Thông tin thị trường đáng chú ý")
-    st.write("- Phân tích dự đoán")
-
 
 if __name__ in {"__main__", "__page__"}:
     render_home()

@@ -27,7 +27,7 @@ class ConversationClient:
         body = request.model_dump(mode="json")
 
         response = requests.post(
-            f"{self.base_url}/conversation/create_conversation",
+            f"{self.base_url}/conversations",
             headers={
                 "accept": "*/*",
                 "Content-Type": "application/json",
