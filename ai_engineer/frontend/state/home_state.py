@@ -24,7 +24,6 @@ def initialize_home_session() -> None:
     st.session_state["home_session_initialized"] = True
     st.session_state["user_id"] = random.choice(["tuong_nlc", "tuong_nlc_1", "tuong_nlc_2", "tuong_nlc_3", "tuong_nlc_4", "tuong_nlc_5"])
 
-
 def initialize_chat_messages() -> None:
     if "chat_messages" not in st.session_state:
         st.session_state["chat_messages"] = [WELCOME_MESSAGE]
