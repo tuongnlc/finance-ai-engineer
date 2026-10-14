@@ -50,3 +50,8 @@ class ConversationClient:
         )
         response.raise_for_status()
         return GetConversationResponse.model_validate(response.json())
+
+    def get_conversatioon_by_user_id(
+
+    ):
+        pass

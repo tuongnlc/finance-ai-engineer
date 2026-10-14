@@ -36,3 +36,8 @@ class GetConversationResponse(BaseModel):
     status: ConversationStatus
     created_at: date
 
+
+class ConversationFilter(BaseModel):
+    user_id: Optional[str] = None
+    status: Optional[ConversationStatus] = None
+
