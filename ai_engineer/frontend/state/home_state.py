@@ -22,6 +22,7 @@ def initialize_home_session() -> None:
     st.session_state["session_id"] = str(session_context.session_id)
     st.session_state["conversation_id"] = None
     st.session_state["home_session_initialized"] = True
+    st.session_state["user_id"] = random.choice(["tuong_nlc", "tuong_nlc_1", "tuong_nlc_2", "tuong_nlc_3", "tuong_nlc_4", "tuong_nlc_5"])
 
 
 def initialize_chat_messages() -> None:
