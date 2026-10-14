@@ -1,4 +1,7 @@
 import streamlit as st
+from ai_engineer.frontend.applications.ai_chatbot.services.message_service import (
+    MessageService,
+)
 from ai_engineer.frontend.applications.ai_chatbot.services.session_service import SessionService
 from ai_engineer.frontend.state.home_state import (
     initialize_chat_messages,
@@ -6,6 +9,7 @@ from ai_engineer.frontend.state.home_state import (
     initialize_home_session,
     reset_chat,
 )
+from ai_engineer.helpers.timestamp import create_int_timestamp
 
 CHAT_INPUT_KEY = "new_chat_prompt"
 RERUN_FLAG = "_new_chat_just_rerun_from_message"
@@ -37,7 +41,15 @@ def render_home():
 
             st.session_state["chat_messages"].append({"role": "user", "chat_content": prompt})
 
-            reply = "Đây là phản hồi mẫu cho câu hỏi của bạn."
+            # Write message (prompt) to backend
+            MessageService().create_message(
+                conversation_id=st.session_state["conversation_id"],
+                user_id=st.session_state["user_id"],
+                created_timestamp=create_int_timestamp(),
+                content=prompt,
+            )
+
+            reply = f"Đây là phản hồi mẫu cho câu hỏi của bạn. {prompt}"
             st.session_state["chat_messages"].append({"role": "assistant", "chat_content": reply})
             print(st.session_state["chat_messages"])
             st.session_state[RERUN_FLAG] = True
