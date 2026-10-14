@@ -1,3 +1,5 @@
+from typing import Optional
+from uuid import UUID
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from ai_engineer.applications.chatbot.domain.models.message import Message
@@ -26,12 +28,19 @@ class PostgresMessageRepository:
             return None
         return self._to_domain(message_orm)
 
-    async def get_messages_by_conversation_id(self, conversation_id: str) -> list[Message]:
-        result = await self._session.execute(
-            select(MessageORM).where(MessageORM.conversation_id == conversation_id)
-        )
-        messages_orm = result.scalars().all()
-        return [self._to_domain(message_orm) for message_orm in messages_orm]
+    async def list(
+        self,
+        conversation_id: Optional[UUID] = None,
+        user_id: Optional[str] = None,
+    ) -> list[Message]:
+        stmt = select(MessageORM)
+        if conversation_id is not None:
+            stmt = stmt.where(MessageORM.conversation_id == conversation_id)
+        if user_id is not None:
+            stmt = stmt.where(MessageORM.user_id == user_id)
+        result = await self._session.execute(stmt)
+        messages = result.scalars().all()
+        return [self._to_domain(message) for message in messages]
 
     def _to_orm(self, message: Message) -> MessageORM:
         return MessageORM(

@@ -14,8 +14,11 @@ class MessageRepository(Protocol):
     async def update(self, message: Message) -> Message:
         pass
 
-    async def delete(self, conversation_id: uuid.UUID) -> None:
+    async def list(
+        self,
+        conversation_id: uuid.UUID,
+    ) -> list[Message]:
         pass
 
-    async def get_messages_by_conversation_id(self, conversation_id: uuid.UUID) -> list[Message]:
+    async def delete(self, conversation_id: uuid.UUID) -> None:
         pass

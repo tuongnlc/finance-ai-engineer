@@ -1,16 +1,12 @@
-from typing import Annotated
+from typing import Annotated, Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends
 
 from ai_engineer.applications.chatbot.backend.dependencies import (
-    get_llm_caller_service,
     get_message_service,
 )
-from ai_engineer.applications.chatbot.backend.schemas.llm_caller import (
-    LLMCallerRequest,
-    LLMCallerResponse,
-)
+
 from ai_engineer.applications.chatbot.backend.schemas.message import (
     CreateMessageRequest,
     CreateMessageResponse,
@@ -21,7 +17,7 @@ from ai_engineer.applications.chatbot.service.message_service import MessageServ
 
 router = APIRouter(prefix="/message", tags=["Message"])
 
-@router.post("/create_message", status_code=201)
+@router.post("/", status_code=201)
 async def create_message(
         request: CreateMessageRequest,
         message_service: Annotated[MessageService, Depends(get_message_service)],
@@ -41,7 +37,7 @@ async def create_message(
     )
 
 
-@router.get("/message/{message_id}", status_code=200)
+@router.get("/{message_id}", status_code=200)
 async def get_message(
         message_id: UUID,
         message_service: Annotated[MessageService, Depends(get_message_service)],
@@ -60,25 +56,24 @@ async def get_message(
         created_at=message.created_at,
     )
 
-@router.get("/conversation/{conversation_id}", status_code=200)
-async def get_messages_by_conversation_id(
-        conversation_id: UUID,
+@router.get("/", status_code=200)
+async def list_messages(
         message_service: Annotated[MessageService, Depends(get_message_service)],
+        conversation_id: Optional[UUID] = None,
+        user_id: Optional[str] = None,
+        
     ) -> list[GetMessageResponse]:
-    messages = await message_service.get_messages_by_conversation_id(conversation_id)
-    return messages
-
-
-# @router.post("/chat_with_llm/", status_code=200)
-# async def chat_with_llm(
-#         request: LLMCallerRequest,
-#         llm_service: Annotated[LLMCallerService, Depends(get_llm_caller_service)],
-#     ) -> LLMCallerResponse:
-#     response = llm_service.call_llm(
-#         user_question=request.content,
-#         question_context=request.question_context,
-#     )
-#     return LLMCallerResponse(
-#         id=request.id,
-#         response=response
-#     )
+    messages = await message_service.list_messages(
+        conversation_id=conversation_id,
+        user_id=user_id,
+    )
+    return [
+        GetMessageResponse(
+            id=message.id,
+            user_id=message.user_id,
+            conversation_id=message.conversation_id,
+            content=message.content,
+        )
+        for message in messages
+    ]
+        

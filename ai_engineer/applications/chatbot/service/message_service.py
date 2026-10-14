@@ -1,3 +1,4 @@
+from typing import Optional
 import uuid
 from ai_engineer.applications.chatbot.domain.repositories.message import MessageRepository
 from ai_engineer.applications.chatbot.domain.models.message import Message
@@ -26,5 +27,13 @@ class MessageService:
     async def get_by_id(self, message_id: uuid.UUID) -> Message:
         return await self._message_repository.get_by_id(message_id)
 
-    async def get_messages_by_conversation_id(self, conversation_id: uuid.UUID) -> list[Message]:
-        return await self._message_repository.get_messages_by_conversation_id(str(conversation_id))
+    async def list_messages(
+            self, 
+            conversation_id: Optional[uuid.UUID] = None, 
+            user_id: Optional[str] = None
+        ) -> list[Message]:
+        return await self._message_repository.list(
+            conversation_id=conversation_id, 
+            user_id=user_id
+        )
+
