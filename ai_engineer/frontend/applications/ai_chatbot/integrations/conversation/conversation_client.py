@@ -51,7 +51,16 @@ class ConversationClient:
         response.raise_for_status()
         return GetConversationResponse.model_validate(response.json())
 
-    def get_conversatioon_by_user_id(
-
-    ):
-        pass
+    def list_conversations(
+        self, user_id: str
+    ) -> list[GetConversationResponse]:
+        response = requests.get(
+            f"{self.base_url}/conversations/",
+            params={"user_id": user_id},
+            headers={
+                "accept": "*/*",
+            },
+            timeout=self.timeout,
+        )
+        response.raise_for_status()
+        return [GetConversationResponse.model_validate(item) for item in response.json()]
