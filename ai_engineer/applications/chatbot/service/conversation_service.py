@@ -28,7 +28,6 @@ class ConversationService:
     async def list_conversations(
         self,
         user_id: Optional[str] = None,
-
         status: Optional[str] = None,
     ) -> list[Conversation]:
         return await self._conversation_repository.list(

@@ -35,5 +35,8 @@ class CreateMessageResponse(BaseModel):
     created_at: date = Field(default_factory=date.today)
 
 
-class GetMessageResponse(CreateMessageResponse):
-    pass
+class GetMessageResponse(BaseModel):
+    id: UUID
+    user_id: Optional[str] = None
+    conversation_id: UUID = None
+    content: str
