@@ -1,4 +1,5 @@
 import uuid
+from typing import Optional
 from ai_engineer.applications.chatbot.domain.repositories.conversation import ConversationRepository
 from ai_engineer.applications.chatbot.domain.models.conversation import Conversation
 from datetime import date
@@ -23,3 +24,14 @@ class ConversationService:
 
     async def get_by_id(self, conversation_id: uuid.UUID) -> Conversation:
         return await self._conversation_repository.get_by_id(conversation_id)
+
+    async def list_conversations(
+        self,
+        user_id: Optional[str] = None,
+
+        status: Optional[str] = None,
+    ) -> list[Conversation]:
+        return await self._conversation_repository.list(
+            user_id=user_id,
+            status=status,
+        )

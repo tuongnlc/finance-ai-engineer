@@ -1,3 +1,4 @@
+from typing import Optional
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from ai_engineer.applications.chatbot.domain.models.conversation import Conversation
@@ -24,6 +25,20 @@ class PostgresConversationRepository:
         if conversation_orm is None:
             return None
         return self._to_domain(conversation_orm)
+
+    async def list(
+        self,
+        user_id: Optional[str] = None,
+        status: Optional[str] = None,
+    ) -> list[Conversation]:
+        stmt = select(ConversationORM)
+        if user_id is not None:
+            stmt = stmt.where(ConversationORM.user_id == user_id)
+        if status is not None:
+            stmt = stmt.where(ConversationORM.status == status)
+        result = await self._session.execute(stmt)
+        conversations = result.scalars().all()
+        return [self._to_domain(conversation) for conversation in conversations]
 
     def _to_orm(self, conversation: Conversation) -> ConversationORM:
         return ConversationORM(

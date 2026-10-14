@@ -1,4 +1,4 @@
-from typing import Protocol
+from typing import Protocol, Optional
 import uuid
 
 from ai_engineer.applications.chatbot.domain.models.conversation import Conversation
@@ -9,6 +9,13 @@ class ConversationRepository(Protocol):
         pass
 
     async def get_by_id(self, conversation_id: uuid.UUID) -> Conversation:
+        pass
+
+    async def list(
+        self,
+        user_id: Optional[str] = None,
+        status: Optional[str] = None,
+    ) -> list[Conversation]:
         pass
 
     async def update(self, conversation: Conversation) -> Conversation:
