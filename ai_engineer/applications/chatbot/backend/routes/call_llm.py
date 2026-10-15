@@ -7,7 +7,7 @@ from ai_engineer.applications.chatbot.service.agent_caller_service import AgentC
 from ai_engineer.applications.chatbot.service.llm_caller_service import LLMCallerService
 
 
-router = APIRouter(prefix="/ai_chat", tags=["AI Chat"])
+router = APIRouter(prefix="/call_llm", tags=["AI Chat"])
 
 
 @router.post("/chat_with_llm/", status_code=200)
@@ -24,19 +24,6 @@ async def chat_with_llm(
         response=response
     )
 
-@router.post("/normalize_vietnam_sentence/", status_code=200)
-async def normalize_vietnam_sentence(
-        request: LLMCallerRequest,
-        llm_service: Annotated[LLMCallerService, Depends(get_llm_caller_service_vietnam_language_format_prompt)],
-    ) -> LLMCallerResponse:
-    response = llm_service.call_llm(
-        user_question=request.content,
-        question_context=None
-    )
-    return LLMCallerResponse(
-        id=request.id,
-        response=response
-    )
 
 @router.post("/query_understand/", status_code=200)
 async def query_understand(
@@ -51,6 +38,7 @@ async def query_understand(
         id=request.id,
         response=response
     )
+
 
 @router.post("/tool_calling/", status_code=200)
 async def tool_calling(

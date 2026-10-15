@@ -29,26 +29,6 @@ chatbot_template = [
     },
 ]
 
-vietnam_language_format_prompt = [
-    {
-        "role": "system",
-        "content": (
-            "[PERSONA] You are a machine translate machine. \n"
-            "[TASK] Communicate with user. Your job is convert from Vietnamese without diacritics to Vietnamese with diacritics.\n"
-            "[CONTEXT] If user input Vietnamese with diacritics do nothing. return original text. If user input is not Vietnamese, return original text..\n"
-            "[FORMAT] Structure your answer as normal string:\n"
-        ),
-    },
-    {
-        "role": "user",
-        "content": (
-            "Help me format this text below to Vietnamese with diacritics. If context is None you can skip this context and focus only about the question.\n\n"
-            f"text: {{question}}\n"
-            f"question_context: {{question_context}}\n"
-        ),
-    }
-]
-
 query_understand_prompt = [
     {
         "role": "system",
