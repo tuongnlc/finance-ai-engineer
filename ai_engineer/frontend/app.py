@@ -46,8 +46,10 @@ img_render_page = st.Page(
 # RENDER PAGE
 pg = st.navigation({
     "Chatbot tài chính": [home_page, historical_chat],
-    "PHÂN TÍCH CƠ BẢN": [fundamental_page, profitability_ratio_page,],
-    "Phân tích kỹ thuật": [],
+    "CHỨNG KHOÁN - PHÂN TÍCH CƠ BẢN": [fundamental_page, profitability_ratio_page,],
+    "CHỨNG KHOÁN - PHÂN TÍCH KỸ THUẬT": [],
+    "BẤT ĐỘNG SẢN": [],
+    "VÀNG": [],
     "Render ảnh": [img_render_page],
 }, position="sidebar")
 
