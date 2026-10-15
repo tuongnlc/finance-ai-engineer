@@ -34,6 +34,14 @@ profitability_ratio_page = st.Page(
     icon="📊",
 )
 
+liquidity_ratio_page = st.Page(
+    "pages/liquidity_ratio.py",
+    title="Chỉ số thanh khoản",
+    icon="📊",
+)
+
+
+
 # IMAGE RENDER PAGE
 img_render_page = st.Page(
     "pages/img_render.py",
@@ -46,7 +54,7 @@ img_render_page = st.Page(
 # RENDER PAGE
 pg = st.navigation({
     "Chatbot tài chính": [home_page, historical_chat],
-    "CHỨNG KHOÁN - PHÂN TÍCH CƠ BẢN": [fundamental_page, profitability_ratio_page,],
+    "CHỨNG KHOÁN - PHÂN TÍCH CƠ BẢN": [fundamental_page, profitability_ratio_page, liquidity_ratio_page],
     "CHỨNG KHOÁN - PHÂN TÍCH KỸ THUẬT": [],
     "BẤT ĐỘNG SẢN": [],
     "VÀNG": [],
