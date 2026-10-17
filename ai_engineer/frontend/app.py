@@ -40,7 +40,11 @@ liquidity_ratio_page = st.Page(
     icon="📊",
 )
 
-
+debt_management_ratio_page = st.Page(
+    "pages/debt_management_ratio.py",
+    title="Khả năng quản trị nợ",
+    icon="📊",
+)
 
 # IMAGE RENDER PAGE
 img_render_page = st.Page(
@@ -54,7 +58,12 @@ img_render_page = st.Page(
 # RENDER PAGE
 pg = st.navigation({
     "Chatbot tài chính": [home_page, historical_chat],
-    "CHỨNG KHOÁN - PHÂN TÍCH CƠ BẢN": [fundamental_page, profitability_ratio_page, liquidity_ratio_page],
+    "CHỨNG KHOÁN - PHÂN TÍCH CƠ BẢN": [
+        fundamental_page, 
+        profitability_ratio_page, 
+        liquidity_ratio_page, 
+        debt_management_ratio_page
+    ],
     "CHỨNG KHOÁN - PHÂN TÍCH KỸ THUẬT": [],
     "BẤT ĐỘNG SẢN": [],
     "VÀNG": [],

@@ -4,18 +4,24 @@ from ai_engineer.frontend.applications.data_analytics.query.profitability_analyt
     profit_margin_cascade,
     capital_efficiency,
     operating_asset_turnover_query,
-    equity_multiplier_query
+    equity_multiplier_query,
+    roe_query
 )
 from ai_engineer.frontend.components.chart.kpi_cart_chart import KpiCardChart
 from ai_engineer.frontend.components.chart.line_chart import LineChartComponent
+from ai_engineer.frontend.components.chart.table_chart import TableChart
 from ai_engineer.frontend.components.markdown.markdown import MarkDown
 from ai_engineer.frontend.applications.data_analytics.integrations.db import (
     load_data_from_postgres_polars,
 )
 import polars as pl
 
-
 def profitability_ratio():
+    df_roe = load_data_from_postgres_polars(roe_query)
+    df_roe = df_roe.with_columns(
+        (pl.col("year").cast(pl.Utf8) + pl.lit("__") + pl.col("quarter").cast(pl.Utf8)).alias("period")
+    )
+
     df_profit_margin = load_data_from_postgres_polars(profit_margin_cascade)
     df_capital_efficiency = load_data_from_postgres_polars(capital_efficiency)
     df_operating_margin = load_data_from_postgres_polars(operating_margin_query)  
@@ -101,7 +107,47 @@ def profitability_ratio():
         ).render(latest_roic)
     st.divider()
 
-    # Step 2: Kiểm tra khả năng sinh lợi từ hoạt động kinh doanh cốt lõi
+    # Step 2: Phân tích ROE
+    operating_margin_title = MarkDown(
+        font_size="24px",    
+        text="KHẢ NĂNG SINH LỢI TRÊN VỐN CHỦ SỠ HỮU - ROE (TTM)"
+    ).render()
+
+    st.write(
+        """
+            ROE là một trong những financial ratio được nhà đầu tư quan tâm nhiều nhất
+
+            Theo phương trình DUPONT. ROE gồm 3 thành phần:
+            - 1: Biên lợi nhuận ròng: Đo lường khả năng quản lý chi phí và biến doanh thu thành lợi nhuận
+            - 2: Vòng quay tài sản: Đo lường hiệu quả quản lý và khai thác tài sản để tạo ra doanh thu
+            - 3: Đòn bẩy tài chính: Mức độ doanh nghiệp sử dụng nợ vay để tài trợ cho tài sản.
+        """
+    )
+
+    operating_margin_title = MarkDown(
+        font_size="18px",    
+        text="1: Chi tiết các chỉ số cấu tạo nên ROE",
+        color="#006b1c",
+    ).render()
+    TableChart().render(df_roe)
+
+    operating_margin_title = MarkDown(
+        font_size="18px",    
+        text="2: Thay đổi của ROE theo năm",
+        color="#006b1c",
+    ).render()
+    line_chart = LineChartComponent(
+                title="Thay đổi của ROE theo năm",
+                x_col="period",
+                y_cols=["roe"],
+                y_min=25,
+                y_max=31,
+            )
+    line_chart.render(df_roe)
+
+    st.divider()
+
+    # Step 3: Kiểm tra khả năng sinh lợi từ hoạt động kinh doanh cốt lõi
     # EBIT / Doanh thu thuần về bán hàng và cung cấp dịch vụ
     operating_margin_title = MarkDown(
         font_size="24px",    
@@ -130,7 +176,7 @@ def profitability_ratio():
 
     operating_asset_turnover_title = MarkDown(
         font_size="24px",    
-        text="VÒNG QUAY TÀI SẢN VẬN HÀNH - Asset Turnover"
+        text="VÒNG QUAY TÀI SẢN VẬN HÀNH - Operating Asset Turnover"
     ).render()
 
     st.write(
@@ -139,7 +185,7 @@ def profitability_ratio():
             của doanh nghiệp để tạo ra doanh thu.
 
             Chỉ số này là tỉ lệ giữa doanh thu thuần (net_revenue) và tài sản vận hành. 
-            Trong đó tài sản vận hành được tính bằng cách:
+            Trong đó tài sản vận hành là tổng của các loại tài sản sau:
             + Tiền mặt vận hành (Khoảng 2% doanh thu thuần)
             + Các khoản phải thu
             + Hàng tồn kho
@@ -180,21 +226,6 @@ def profitability_ratio():
     line_chart.render(df_equity_multiplier)
 
     st.divider()
-    equity_multiplier_title = MarkDown(
-        font_size="24px",    
-        text="RNOA - Tỷ suất sinh lợi trên tài sản hoạt động"
-    ).render()
-    st.write(
-        """
-            Dựa vào chỉ số phía trên chúng ta có thể tính được RNOA.
-
-            RNOA = Operating Margin * Asset Turnover * Equity Multiplier 
-            
-            Chỉ số này giúp phản ánh chính xác hiệu quả sinh lời của riêng 
-            hoạt động kinh doanh cốt lõi, hoàn toàn loại bỏ ảnh hưởng từ 
-            cấu trúc vốn (vay nợ/lãi vay) và các khoản đầu tư tài chính ngoài ngành.
-        """
-    )
     
 
 
