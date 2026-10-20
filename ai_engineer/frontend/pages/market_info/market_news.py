@@ -2,6 +2,7 @@ import polars as pl
 import streamlit as st
 from datetime import date, timedelta
 from ai_engineer.frontend.components.filter.date_filter import DateFilter
+from ai_engineer.frontend.components.markdown.markdown import MarkDown
 from ai_engineer.shared.data_pipeline.extract.qdrant_extractor import QdrantExtractorWithPayloadFilter
 from ai_engineer.frontend.components.filter.multi_select_dropdown_filter import MultiSelectDropdownFilter
 
@@ -60,18 +61,23 @@ def market_news():
     cascading_filters = [
         ("Công ty liên quan", "stocks_mention"),
         ("Trạng thái", "sentiment_analysis"),
+        ("Chủ đề", "main_topic"),
     ]
-    for filter_name, column in cascading_filters:
-        with col_right:
+    filter_cols = st.columns(len(cascading_filters))
+    for (filter_name, column), filter_col in zip(cascading_filters, filter_cols):
+        with filter_col:
             selected_values = MultiSelectDropdownFilter(
                 filter_name=filter_name,
                 options=_unique_options(news, column),
             ).render()
         news = _filter_by_values(news, column, selected_values)
 
-    # st.write(news_type)
+    st.divider()
 
-    st.title("Tin tức thị trường")
+    MarkDown(
+        font_size="28px",    
+        text="TIN TỨC THỊ TRƯỜNG"
+    ).render()
     st.write(f"Xem tin tức thị trường đáng chú ý ngày: {start_date} đến {end_date}")
 
     news = news.to_dicts()
