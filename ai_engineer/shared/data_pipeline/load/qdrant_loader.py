@@ -1,8 +1,7 @@
 """
     Receive data from postgresql database and load to qdrant database
 """
-from qdrant_client import QdrantClient
-from pydantic import BaseModel
+from qdrant_client import QdrantClient, models
 import polars as pl
 from qdrant_client.models import PointStruct, SparseVector
 
@@ -29,6 +28,22 @@ class QdrantLoader(BaseLoader):
         self.destination_collection_name = destination_collection_name
         self.qdrant_payload_for_source_table = qdrant_payload_for_source_table
         self.payload_filter_for_source_table = payload_filter_for_source_table
+
+    def delete_before_load(self, loading_date: str | None = None, ):
+        """
+            Delete all points in qdrant collection that publish_date equals loading_date
+        """
+        self.qdrant_client.delete(
+            collection_name=self.destination_collection_name,
+            points_selector=models.FilterSelector(
+                filter=models.Filter(
+                    must=[models.FieldCondition(
+                            key="publish_date",
+                            match=models.MatchValue(value=loading_date)
+                        )]
+                    )
+                )
+            )
 
     def load(self, 
             records: pl.DataFrame, 

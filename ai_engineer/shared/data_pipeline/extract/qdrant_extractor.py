@@ -6,6 +6,7 @@ from typing import Optional
 import polars as pl
 from ai_engineer.helpers.build_payload_filter import build_payload_filter
 
+
 class QdrantExtractorWithPayloadFilter(BaseExtractor):
     """
         Extract data from qdrant database with payload filter

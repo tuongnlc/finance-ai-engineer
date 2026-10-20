@@ -14,6 +14,7 @@ from ai_engineer.applications.topic_summary.use_case.topic_summary import TopicS
 from ai_engineer.shared.data_pipeline.extract.qdrant_extractor import QdrantExtractorWithPayloadFilter
 from dotenv import load_dotenv
 import os
+from ai_engineer.shared.data_pipeline.load.qdrant_loader import QdrantLoader
 from ai_engineer.shared.llm.create_llm import create_gemini_llm
 
 load_dotenv()
@@ -35,35 +36,30 @@ _TOPIC_CONFIG = {
         "main_topic": "quản trị doanh nghiệp",
         "prompt_name": "topic_summary__business",
         "structure_output": BusinessNewspaperSummaryOutput,
-        "pdf_filename": "bao_cao_doanh_nghiep_{publish_date}.pdf",
     },
     "macro": { # Kinh tế vĩ mô & chính sách
         "report_type": "Báo cáo kinh tế vĩ mô & chính sách",
         "main_topic": "kinh tế vĩ mô & chính sách",
         "prompt_name": "topic_summary__macro",
         "structure_output": MacroNewspaperSummaryOutput,
-        "pdf_filename": "bao_cao_kinh_te_vi_mo_{publish_date}.pdf",
     },
     "market": { # Thị trường & giao dịch
         "report_type": "Báo cáo thị trường & giao dịch",
         "main_topic": "thị trường & giao dịch",
         "prompt_name": "topic_summary__market",
         "structure_output": MarketNewspaperSummaryOutput,
-        "pdf_filename": "bao_cao_thi_truong_giao_dich_{publish_date}.pdf",
     },
     "fund": { # Quỹ & Danh mục đầu tư
         "report_type": "Báo cáo quỹ & danh mục đầu tư",
         "main_topic": "quỹ & danh mục đầu tư",
         "prompt_name": "topic_summary__fund",
         "structure_output": FundNewspaperSummaryOutput,
-        "pdf_filename": "bao_cao_quy_{publish_date}.pdf",
     },
     "law": { # Pháp lý & quản lý nhà nước
         "report_type": "Báo cáo pháp lý & quản lý nhà nước",
         "main_topic": "pháp lý & quản lý nhà nước",
         "prompt_name": "topic_summary__law",
         "structure_output": LawNewspaperSummaryOutput,
-        "pdf_filename": "bao_cao_phap_ly_quan_ly_nha_nuoc_{publish_date}.pdf",
     },
 }
 
@@ -98,27 +94,19 @@ def build_use_case(publish_date: str, topic_type: str, llm_api_key: str) -> Topi
         structure_output=cfg["structure_output"],
     )
 
-    _orchestration_dir = Path(__file__).resolve().parent.parent
-    font_path = str(_orchestration_dir / "resources" / "Arial Unicode.ttf")
-
-    _output_dir = _orchestration_dir / "resources" / "pdf_generator"
-    output_pdf_path = str(_output_dir / cfg["pdf_filename"].format(publish_date=publish_date))
-
-    pdf_generator = PdfSummarizationGenerator(
-        font_path=font_path,
-        report_date=publish_date,
-        report_type=report_type,
-        output_pdf_path=output_pdf_path,
+    loader = QdrantLoader(
+        qdrant_url="http://qdrant:6333",
+        destination_collection_name="newspaper_summary",
     )
 
     return TopicSummaryUseCase(
         extractor=extractor,
         llm_caller=llm_caller,
-        pdf_generator=pdf_generator,
+        loader=loader,
     )
 
 
 def main(publish_date: str, topic_type: str, llm_api_key: str):
     use_case = build_use_case(publish_date, topic_type, llm_api_key)
-    use_case.run()
+    use_case.run(publish_date)
     time.sleep(60)

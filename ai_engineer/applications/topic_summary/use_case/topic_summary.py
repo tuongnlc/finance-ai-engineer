@@ -1,11 +1,16 @@
+from json import load
 import random
 import time
+import uuid
 from dotenv import load_dotenv
 import os
 
 from ai_engineer.applications.topic_summary.application.call_llm import CallLLMWithStructuredOutput
 from ai_engineer.applications.topic_summary.application.pdf_generator import PdfSummarizationGenerator
 from ai_engineer.shared.data_pipeline.extract.qdrant_extractor import QdrantExtractorWithPayloadFilter
+from ai_engineer.shared.data_pipeline.load.qdrant_loader import QdrantLoader
+import polars as pl
+from qdrant_client import QdrantClient, models
 
 load_dotenv()
 
@@ -33,71 +38,58 @@ class TopicSummaryUseCase:
             self,
             extractor: QdrantExtractorWithPayloadFilter,
             llm_caller: CallLLMWithStructuredOutput,
-            pdf_generator: PdfSummarizationGenerator,
+            loader: QdrantLoader,
         ):
         self.extractor = extractor
         self.llm_caller = llm_caller
-        self.pdf_generator = pdf_generator
+        self.loader = loader
 
     def extract(self):
         df = self.extractor.extract()
+        return df
+
+    def transform(self, df: pl.DataFrame) -> pl.DataFrame:
+        # return df
+        inputs = df.to_dicts()
+        responses = self.llm_caller.call_llm_in_batch(
+                inputs=inputs,
+            )
+        rows = []
+        for item in responses:
+            for news_type, summary in item["response"].root.items():
+                rows.append({
+                    "id": uuid.uuid4(),
+                    "document_id": item["document_id"],
+                    "publish_date": item["publish_date"],
+                    "stocks_mention": item["stocks_mention"],
+                    "person_mention": item["person_mention"],
+                    "news_type": news_type,
+                    "news_summary": summary.summary,
+                    "sentiment_analysis": summary.sentiment_analysis,
+                    "circular_and_policy": getattr(summary, "circular_and_policy", []),
+                    "legal_documents_and_regulations": getattr(summary, "legal_documents_and_regulations", []),
+                    "fund_name": getattr(summary, "fund_name", []),
+                })
+        df = pl.DataFrame(rows)
         return df
 
     def _close_clients(self):
         if hasattr(self.extractor, "close"):
             self.extractor.close()
 
-    def run(self):
+    def run(self, loading_date: str):
         try:
-            df = self.extract()
-
-            inputs = df.to_dicts()
-
-            #call_llm for summarization task
-            responses = self.llm_caller.call_llm_in_batch(
-                inputs=inputs,
-            )
-            print(responses)
-            #combine inputs and responses
-            output_list_call_llm = []
-
-            # Add if else logic to handle type of output format:
-            if self.pdf_generator.report_type == "Báo cáo thông tin doanh nghiệp":
-                for row, response in zip(inputs, responses):
-                    content_dict = {
-                        "stocks_mention": row["stocks_mention"],
-                        "person_mention": row["person_mention"],
-                    }
-                    content_dict.update(response.model_dump())
-                    output_list_call_llm.append(content_dict)
-            elif (
-                    self.pdf_generator.report_type == "Báo cáo kinh tế vĩ mô & chính sách" 
-                        or 
-                    self.pdf_generator.report_type == "Báo cáo thị trường & giao dịch"
-                        or 
-                    self.pdf_generator.report_type == "Báo cáo pháp lý & quản lý nhà nước"
-                ):
-                for row, response in zip(inputs, responses):
-                    content_dict = {
-                        "stocks_mention": "",
-                        "person_mention": row.get("person_mention", ""),
-                    }
-                    content_dict.update(response.model_dump())
-                    output_list_call_llm.append(content_dict)
-            elif (
-                    self.pdf_generator.report_type == "Báo cáo quỹ & danh mục đầu tư"
-                ):
-                for row, response in zip(inputs, responses):
-                    content_dict = {
-                        "person_mention": row.get("person_mention", ""),
-                    }
-                    content_dict.update(response.model_dump())
-                    output_list_call_llm.append(content_dict)
-                        
-            # # Generate pdf from output_list_call_llm
-            self.pdf_generator.run(
-                content=output_list_call_llm
-            )
+            # Step 1: Delete before load
+            self.loader.delete_before_load(loading_date)
             
+            # Step 2: Extract data
+            df = self.extract()
+            
+            # Step 3: Transform data
+            df = self.transform(df)
+            
+            # Step 4: Load to qdrant
+            self.loader.load(df)
+
         finally:
             self._close_clients()
