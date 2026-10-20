@@ -64,11 +64,11 @@ _TOPIC_CONFIG = {
 }
 
 
-def build_use_case(publish_date: str, topic_type: str, llm_api_key: str) -> TopicSummaryUseCase:
+def build_use_case(cfg, publish_date: str, topic_type: str, llm_api_key: str) -> TopicSummaryUseCase:
     if topic_type not in _TOPIC_CONFIG:
         raise ValueError(f"topic_type must be one of {list(_TOPIC_CONFIG.keys())}")
 
-    cfg = _TOPIC_CONFIG[topic_type]
+    # cfg = _TOPIC_CONFIG[topic_type]
     report_type = cfg["report_type"]
     print(f"Export data for {publish_date} for {report_type}")
 
@@ -107,6 +107,7 @@ def build_use_case(publish_date: str, topic_type: str, llm_api_key: str) -> Topi
 
 
 def main(publish_date: str, topic_type: str, llm_api_key: str):
-    use_case = build_use_case(publish_date, topic_type, llm_api_key)
-    use_case.run(publish_date)
+    cfg = _TOPIC_CONFIG[topic_type]
+    use_case = build_use_case(cfg, publish_date, topic_type, llm_api_key)
+    use_case.run(cfg["main_topic"])
     time.sleep(60)
