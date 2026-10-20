@@ -1,45 +1,80 @@
-# from polars import date
+import polars as pl
 import streamlit as st
 from datetime import date, timedelta
-
-
 from ai_engineer.frontend.components.filter.date_filter import DateFilter
 from ai_engineer.shared.data_pipeline.extract.qdrant_extractor import QdrantExtractorWithPayloadFilter
+from ai_engineer.frontend.components.filter.multi_select_dropdown_filter import MultiSelectDropdownFilter
 
 
+QDRANT_URL = "http://localhost:6333"
+COLLECTION_NAME = "newspaper_summary"
+
+
+def _unique_options(df: pl.DataFrame, column: str) -> list:
+    """Lấy danh sách giá trị duy nhất của một cột (cột dạng list sẽ được trải phẳng)."""
+    if df.is_empty() or column not in df.columns:
+        return []
+    return df[column].explode().unique().drop_nulls().sort().to_list()
+
+
+def _filter_by_values(df: pl.DataFrame, column: str, selected: list) -> pl.DataFrame:
+    """Giữ các dòng có giá trị (dạng scalar hoặc list) nằm trong `selected`."""
+    if not selected:
+        return df.head(0)
+    if isinstance(df.schema[column], pl.List):
+        return df.filter(
+            pl.col(column).list.eval(pl.element().is_in(selected)).list.any()
+        )
+    return df.filter(pl.col(column).is_in(selected))
 
 
 def market_news():
-    
+    st.set_page_config(
+        page_title="Market News",
+        layout="wide"  
+    )
 
-    # Date filter
-    _, col_right = st.columns([2, 1])
+    # Prepare filters
+    col_left, col_right = st.columns([2, 1])
     max_date = date.today()
     min_date = max_date - timedelta(days=90)
-    with col_right:
+    with col_left:
         input_date_filter = DateFilter(
             min_date=min_date, max_date=max_date
         )
         start_date, end_date = input_date_filter.render()
 
-    st.title("Tin tức thị trường")
-    st.write(f"Xem tin tức thị trường đáng chú ý ngày: {start_date} đến {end_date}")
-
-    extractor = QdrantExtractorWithPayloadFilter(
-        qdrant_url="http://localhost:6333",
-        collection_name="newspaper_summary",
+    # Prepare data: chỉ extract một lần theo bộ lọc ngày
+    news = QdrantExtractorWithPayloadFilter(
+        qdrant_url=QDRANT_URL,
+        collection_name=COLLECTION_NAME,
         payload_filter={
             "publish_date": {
                 "gte": start_date.isoformat(),
                 "lte": end_date.isoformat(),
             },
         },
-    )
+    ).extract()
 
-    news = extractor.extract()
+    # Các filter liên tiếp: options của filter sau dựa trên kết quả của filter trước
+    cascading_filters = [
+        ("Công ty liên quan", "stocks_mention"),
+        ("Trạng thái", "sentiment_analysis"),
+    ]
+    for filter_name, column in cascading_filters:
+        with col_right:
+            selected_values = MultiSelectDropdownFilter(
+                filter_name=filter_name,
+                options=_unique_options(news, column),
+            ).render()
+        news = _filter_by_values(news, column, selected_values)
+
+    # st.write(news_type)
+
+    st.title("Tin tức thị trường")
+    st.write(f"Xem tin tức thị trường đáng chú ý ngày: {start_date} đến {end_date}")
+
     news = news.to_dicts()
-    # news = news.select(["newspaper_summary"])
-
     for conv in news:
         with st.container(border=True):
             #f":blue[{publish_date}]"
