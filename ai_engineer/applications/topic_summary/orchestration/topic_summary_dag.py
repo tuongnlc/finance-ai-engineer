@@ -8,6 +8,9 @@ from ai_engineer.applications.topic_summary.orchestration.python_script.topic_su
     main as topic_summary_main,
     GCP_API_KEY_NAMES,
 )
+from ai_engineer.applications.topic_summary.orchestration.python_script.delete_before_load import (
+    main as delete_before_load,
+)
 
 
 def _pick_five_distinct_keys():
@@ -41,6 +44,14 @@ with DAG(
     start_topic_dag = BashOperator(
         task_id='start_topic_summary_dag',
         bash_command='echo "Start Topic Summary!"'
+    )
+
+    delete_all_before_load = PythonOperator(
+        task_id='delete_all_before_load',
+        python_callable=delete_before_load,
+        op_kwargs={
+            'publish_date': _PUBLISH_DATE_TEMPLATE,
+        },
     )
 
     topic_summary__business = PythonOperator(
@@ -93,4 +104,4 @@ with DAG(
         },
     )
 
-    start_topic_dag >> topic_summary__business >> topic_summary__macro >> topic_summary__market >> topic_summary__fund >> topic_summary__law
+    start_topic_dag >> delete_all_before_load >> topic_summary__business >> topic_summary__macro >> topic_summary__market >> topic_summary__fund >> topic_summary__law

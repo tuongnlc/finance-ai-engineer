@@ -78,17 +78,14 @@ class TopicSummaryUseCase:
             self.extractor.close()
 
     def run(self, loading_date: str):
-        try:
-            # Step 1: Delete before load
-            self.loader.delete_before_load(loading_date)
-            
-            # Step 2: Extract data
+        try:            
+            # Step 1: Extract data
             df = self.extract()
             
-            # Step 3: Transform data
+            # Step 2: Transform data
             df = self.transform(df)
             
-            # Step 4: Load to qdrant
+            # Step 3: Load to qdrant
             self.loader.load(df)
 
         finally:
