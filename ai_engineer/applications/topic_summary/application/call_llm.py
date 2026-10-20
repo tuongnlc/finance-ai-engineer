@@ -14,6 +14,7 @@ class CallLLMWithStructuredOutput:
     def _prompt_loading_from_mlflow(self):
         parser = PydanticOutputParser(pydantic_object=self.structure_output)
         return MLFlowPromptLoading(
+            tracking_uri="http://mlflow-server:5001",
             prompt_name=self.prompt_name
         ).load_and_parse_prompt().partial(
             format_instructions=parser.get_format_instructions()
@@ -37,12 +38,33 @@ class CallLLMWithStructuredOutput:
         chain = self._prompt_loading_from_mlflow() | self._create_llm_with_structured_output()
 
         #Reprocess inputs to fit with prompt format
-        text_contents = [{"text_content": row["newspaper_content"]} for row in inputs]
+        text_contents = [
+            {
+                "document_id": row["id"], 
+                "publish_date": row["publish_date"], 
+                "text_content": row["newspaper_content"], 
+                "stocks_mention": row["stocks_mention"],
+                "person_mention": row["person_mention"],
+            }
+            for row in inputs
+        ]
         all_responses = []
         for i in range(0, len(text_contents), batch_size):
             chunk = text_contents[i:i + batch_size]
-            chunk_responses = chain.batch(chunk, config={"max_concurrency": batch_size})
-            all_responses.extend(chunk_responses)
+            chunk_responses = chain.batch(
+                [{"text_content": item["text_content"]} for item in chunk],
+                config={"max_concurrency": batch_size},
+            )
+            all_responses.extend(
+                {
+                    "document_id": item["document_id"], 
+                    "publish_date": item["publish_date"], 
+                    "response": response, 
+                    "stocks_mention": item["stocks_mention"],
+                    "person_mention": item["person_mention"],
+                    }
+                for item, response in zip(chunk, chunk_responses)
+            )
             if i + batch_size < len(text_contents):
                 print(f"Đã xử lý xong batch {i // batch_size + 1}, đợi {waiting_time}s trước batch tiếp theo...")
                 time.sleep(waiting_time)
