@@ -1,30 +1,28 @@
 # from polars import date
 import streamlit as st
 from datetime import date, timedelta
-
-
 from ai_engineer.frontend.components.filter.date_filter import DateFilter
 from ai_engineer.shared.data_pipeline.extract.qdrant_extractor import QdrantExtractorWithPayloadFilter
-
-
+from ai_engineer.frontend.components.filter.multi_select_dropdown_filter import MultiSelectDropdownFilter
 
 
 def market_news():
-    
+    st.set_page_config(
+        page_title="Market News",
+        layout="wide"  
+    )
 
-    # Date filter
-    _, col_right = st.columns([2, 1])
+    # Prepare filters
+    col_left, col_right = st.columns([2, 1])
     max_date = date.today()
     min_date = max_date - timedelta(days=90)
-    with col_right:
+    with col_left:
         input_date_filter = DateFilter(
             min_date=min_date, max_date=max_date
         )
         start_date, end_date = input_date_filter.render()
-
-    st.title("Tin tức thị trường")
-    st.write(f"Xem tin tức thị trường đáng chú ý ngày: {start_date} đến {end_date}")
-
+    
+    #Prepare data
     extractor = QdrantExtractorWithPayloadFilter(
         qdrant_url="http://localhost:6333",
         collection_name="newspaper_summary",
@@ -37,9 +35,36 @@ def market_news():
     )
 
     news = extractor.extract()
-    news = news.to_dicts()
-    # news = news.select(["newspaper_summary"])
+    
+    # Filter by news_type
+    stock_mention = news["stocks_mention"].to_list()
+    with col_right:
+        input_news_type_filter = MultiSelectDropdownFilter(
+            filter_name="Công ty liên quan",
+            options=stock_mention,
+            default=stock_mention
+        )
+        stock_mention = input_news_type_filter.render()
 
+    extractor = QdrantExtractorWithPayloadFilter(
+        qdrant_url="http://localhost:6333",
+        collection_name="newspaper_summary",
+        payload_filter={
+            "publish_date": {
+                "gte": start_date.isoformat(),
+                "lte": end_date.isoformat(),
+            },
+            "stocks_mention": ["msr", "acb"],
+        },
+    )
+    news = extractor.extract()
+
+    # st.write(news_type)
+
+    st.title("Tin tức thị trường")
+    st.write(f"Xem tin tức thị trường đáng chú ý ngày: {start_date} đến {end_date}")
+
+    news = news.to_dicts()
     for conv in news:
         with st.container(border=True):
             #f":blue[{publish_date}]"
