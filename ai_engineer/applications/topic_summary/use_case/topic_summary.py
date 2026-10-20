@@ -48,7 +48,7 @@ class TopicSummaryUseCase:
         df = self.extractor.extract()
         return df
 
-    def transform(self, df: pl.DataFrame) -> pl.DataFrame:
+    def transform(self, df: pl.DataFrame, main_topic: str) -> pl.DataFrame:
         # return df
         inputs = df.to_dicts()
         responses = self.llm_caller.call_llm_in_batch(
@@ -69,6 +69,7 @@ class TopicSummaryUseCase:
                     "circular_and_policy": getattr(summary, "circular_and_policy", []),
                     "legal_documents_and_regulations": getattr(summary, "legal_documents_and_regulations", []),
                     "fund_name": getattr(summary, "fund_name", []),
+                    "main_topic": main_topic,
                 })
         df = pl.DataFrame(rows)
         return df
@@ -77,13 +78,13 @@ class TopicSummaryUseCase:
         if hasattr(self.extractor, "close"):
             self.extractor.close()
 
-    def run(self, loading_date: str):
+    def run(self, main_topic: str):
         try:            
             # Step 1: Extract data
             df = self.extract()
             
             # Step 2: Transform data
-            df = self.transform(df)
+            df = self.transform(df, main_topic)
             
             # Step 3: Load to qdrant
             self.loader.load(df)
