@@ -3,7 +3,7 @@ import json
 
 import streamlit as st
 from ai_engineer.frontend.applications.ai_chatbot.services.call_llm.query_understand_service import QueryUnderstandService
-from ai_engineer.frontend.applications.ai_chatbot.services.chat_with_llm_service import ChatWithLLMService
+from ai_engineer.frontend.applications.ai_chatbot.services.call_llm.chat_with_llm_service import ChatWithLLMService
 from ai_engineer.frontend.applications.ai_chatbot.services.message_service import (
     MessageService,
 )
@@ -15,6 +15,10 @@ from ai_engineer.frontend.state.home_state import (
 )
 from ai_engineer.helpers.timestamp import create_int_timestamp
 from ai_engineer.frontend.applications.ai_chatbot.services.call_llm.tool_calling import ToolCallingService
+from ai_engineer.frontend.applications.ai_chatbot.services.response.llm_response_service import (
+    LLMResponseService
+)
+
 
 
 CHAT_INPUT_KEY = "new_chat_prompt"
@@ -22,10 +26,24 @@ RERUN_FLAG = "_new_chat_just_rerun_from_message"
 
 
 def _extract_text_from_tool_output(tool_output) -> str:
+    """
+    Gom toàn bộ text trong tool_output thành một chuỗi.
+
+    Nội dung tool_output thay đổi theo từng lần gọi tool nên không thể phụ
+    thuộc vào key cố định; duyệt đệ quy và lấy mọi giá trị text.
+    """
+    def _flatten(value) -> list[str]:
+        
+        if isinstance(value, dict):
+            return [text for item in value.values() for text in _flatten(item)]
+        
+        return [] if value is None else [str(value)]
+
     texts = []
     for block in tool_output:
-        for article in json.loads(block["text"]):
-            texts.append(f"{article['newspaper_title']} ({article['publish_date']}):\n{article['newspaper_content']}")
+        # Block thường có dạng {"type": ..., "text": ..., "id": ...} -> chỉ lấy "text"
+        raw = block.get("text", block) if isinstance(block, dict) else block
+        texts.extend(_flatten(raw))
     return "\n\n".join(texts)
 
 
@@ -56,7 +74,7 @@ def render_home():
             st.session_state["chat_messages"].append({"role": "user", "chat_content": prompt})
 
             # Write message (prompt) to backend
-            MessageService().create_message(
+            created_message = MessageService().create_message(
                 conversation_id=st.session_state["conversation_id"],
                 user_id=st.session_state["user_id"],
                 created_timestamp=create_int_timestamp(),
@@ -96,8 +114,17 @@ def render_home():
                     question_context=question_context,
                 )
 
+                llm_response = chat_with_llm_output.response
+                # Save response to database
+                LLMResponseService().create_llm_response(
+                    message_id=created_message.id,
+                    conversation_id=st.session_state["conversation_id"],
+                    llm_response=llm_response,
+                    content_type="text",
+                )
+
                         
-            st.session_state["chat_messages"].append({"role": "assistant", "chat_content": chat_with_llm_output.response})
+            st.session_state["chat_messages"].append({"role": "assistant", "chat_content": llm_response})
             print(st.session_state["chat_messages"])
             st.session_state[RERUN_FLAG] = True
             st.rerun()
