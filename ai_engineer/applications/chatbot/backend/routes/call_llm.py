@@ -7,7 +7,7 @@ from ai_engineer.applications.chatbot.service.agent_caller_service import AgentC
 from ai_engineer.applications.chatbot.service.llm_caller_service import LLMCallerService
 
 
-router = APIRouter(prefix="/call_llm", tags=["AI Chat"])
+router = APIRouter(prefix="/call_llm", tags=["Call LLM"])
 
 
 @router.post("/chat_with_llm/", status_code=200)

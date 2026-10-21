@@ -3,6 +3,9 @@ from ai_engineer.frontend.applications.ai_chatbot.services.message_service impor
     MessageService,
 )
 from ai_engineer.frontend.applications.ai_chatbot.services.session_service import SessionService
+from ai_engineer.frontend.applications.ai_chatbot.services.query_understand_service import (
+    QueryUnderstandService,
+)
 from ai_engineer.frontend.state.home_state import (
     initialize_chat_messages,
     initialize_conversation_session,
@@ -49,7 +52,14 @@ def render_home():
                 content=prompt,
             )
 
-            reply = f"Đây là phản hồi mẫu cho câu hỏi của bạn. {prompt}"
+            # Query understanding
+            with st.spinner("AI đang suy nghĩ..."):
+                query_understand_result = QueryUnderstandService().query_understand(
+                    content=prompt,
+                    question_context=prompt,
+                )
+
+            reply = query_understand_result.model_dump_json(indent=2)
             st.session_state["chat_messages"].append({"role": "assistant", "chat_content": reply})
             print(st.session_state["chat_messages"])
             st.session_state[RERUN_FLAG] = True

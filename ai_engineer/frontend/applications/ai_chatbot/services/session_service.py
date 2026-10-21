@@ -8,7 +8,7 @@ from pydantic import BaseModel
 
 class SessionContext(BaseModel):
     session_id: uuid.UUID
-    # conversation_id: uuid.UUID | None = None
+
 
 class SessionService:
     """
