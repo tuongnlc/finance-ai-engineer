@@ -42,7 +42,7 @@ class LLMCallerService:
 
         mlflow.langchain.autolog()
         mlflow.set_tracking_uri("http://localhost:5001")
-        mlflow.set_experiment(mlflow_experiment_name)
+        self._experiment_id = mlflow.set_experiment(mlflow_experiment_name).experiment_id
 
     def _get_prompt(self):
         key = (self.prompt_name, self._pydantic_key)
@@ -99,23 +99,24 @@ class LLMCallerService:
         else:
             chain = prompt | llm
 
-        try:
-            response = chain.invoke(
-                {
-                    "question": user_question,
-                    "question_context": question_context,
-                },
-            )
-            content = response.content if hasattr(response, "content") else response
-            return self._extract_text(content)
-        except Exception as e:
-            if self.add_parser:
-                fallback_chain = prompt | llm
-                response = fallback_chain.invoke(
+        with mlflow.start_run(experiment_id=self._experiment_id):
+            try:
+                response = chain.invoke(
                     {
                         "question": user_question,
                         "question_context": question_context,
-                    }
+                    },
                 )
-                return self._extract_text(response.content)
-            raise e
+                content = response.content if hasattr(response, "content") else response
+                return self._extract_text(content)
+            except Exception as e:
+                if self.add_parser:
+                    fallback_chain = prompt | llm
+                    response = fallback_chain.invoke(
+                        {
+                            "question": user_question,
+                            "question_context": question_context,
+                        }
+                    )
+                    return self._extract_text(response.content)
+                raise e
