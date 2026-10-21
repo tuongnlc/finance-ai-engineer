@@ -1,7 +1,9 @@
+import ast
 import json
 
 import streamlit as st
 from ai_engineer.frontend.applications.ai_chatbot.services.call_llm.query_understand_service import QueryUnderstandService
+from ai_engineer.frontend.applications.ai_chatbot.services.chat_with_llm_service import ChatWithLLMService
 from ai_engineer.frontend.applications.ai_chatbot.services.message_service import (
     MessageService,
 )
@@ -15,9 +17,16 @@ from ai_engineer.helpers.timestamp import create_int_timestamp
 from ai_engineer.frontend.applications.ai_chatbot.services.call_llm.tool_calling import ToolCallingService
 
 
-
 CHAT_INPUT_KEY = "new_chat_prompt"
 RERUN_FLAG = "_new_chat_just_rerun_from_message"
+
+
+def _extract_text_from_tool_output(tool_output) -> str:
+    texts = []
+    for block in tool_output:
+        for article in json.loads(block["text"]):
+            texts.append(f"{article['newspaper_title']} ({article['publish_date']}):\n{article['newspaper_content']}")
+    return "\n\n".join(texts)
 
 
 def render_home():
@@ -64,7 +73,7 @@ def render_home():
                 reply = json.loads(query_understand_result.response)
 
                 #Implement tool calling ToolCallingService
-                tool_calling_input = ToolCallingService().tool_calling(
+                tool_calling_output = ToolCallingService().tool_calling(
                     original_query=prompt,
                     vietnamese_with_diacritics=prompt,
                     question_type=reply["question_type"],
@@ -75,10 +84,20 @@ def render_home():
                     optimized_search_query=", ".join(reply["optimized_search_query"]),
                 )
 
-            # reply = query_understand_result.model_dump_json(indent=2)
-            
+                tool_output = ast.literal_eval(tool_calling_output.tool_output)
+                print(tool_output)
 
-            st.session_state["chat_messages"].append({"role": "assistant", "chat_content": tool_calling_input})
+                # Get text from tool_output and use as question context
+                question_context = _extract_text_from_tool_output(tool_output)
+
+                # Sending to ai to get response
+                chat_with_llm_output = ChatWithLLMService().chat_with_llm(
+                    content=prompt,
+                    question_context=question_context,
+                )
+
+                        
+            st.session_state["chat_messages"].append({"role": "assistant", "chat_content": chat_with_llm_output.response})
             print(st.session_state["chat_messages"])
             st.session_state[RERUN_FLAG] = True
             st.rerun()

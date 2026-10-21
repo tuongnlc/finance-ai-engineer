@@ -7,7 +7,7 @@ from ai_engineer.applications.chatbot.backend.schemas.llm_caller import (
     ToolCallingRequest,
     ToolCallingResponse,
 )
-from ai_engineer.frontend.applications.ai_chatbot.integrations.call_llm.tool_calling import (
+from ai_engineer.frontend.applications.ai_chatbot.integrations.call_llm.tool_calling_client import (
     ToolCallingClient,
 )
 

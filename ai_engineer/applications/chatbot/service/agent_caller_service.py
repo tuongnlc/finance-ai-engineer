@@ -28,6 +28,7 @@ class AgentCallerService:
         model_name: str,
         temperature: float,
         prompt_name: str,
+        mlflow_experiment_name: str, 
         mcp_server_url: str = "http://127.0.0.1:7000/sse",
         pydantic_object: type[BaseModel] = ToolCallingOutput,
     ):
@@ -38,7 +39,7 @@ class AgentCallerService:
         self._pydantic_object = pydantic_object
         mlflow.langchain.autolog()
         mlflow.set_tracking_uri("http://localhost:5001")
-        mlflow.set_experiment("tracing_agent_new")
+        mlflow.set_experiment(mlflow_experiment_name)
 
     def _get_prompt(self):
         key = self.prompt_name
