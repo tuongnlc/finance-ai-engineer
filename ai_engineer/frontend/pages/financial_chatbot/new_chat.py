@@ -1,10 +1,9 @@
+import json
+
 import streamlit as st
+from ai_engineer.frontend.applications.ai_chatbot.services.call_llm.query_understand_service import QueryUnderstandService
 from ai_engineer.frontend.applications.ai_chatbot.services.message_service import (
     MessageService,
-)
-from ai_engineer.frontend.applications.ai_chatbot.services.session_service import SessionService
-from ai_engineer.frontend.applications.ai_chatbot.services.query_understand_service import (
-    QueryUnderstandService,
 )
 from ai_engineer.frontend.state.home_state import (
     initialize_chat_messages,
@@ -13,6 +12,9 @@ from ai_engineer.frontend.state.home_state import (
     reset_chat,
 )
 from ai_engineer.helpers.timestamp import create_int_timestamp
+from ai_engineer.frontend.applications.ai_chatbot.services.call_llm.tool_calling import ToolCallingService
+
+
 
 CHAT_INPUT_KEY = "new_chat_prompt"
 RERUN_FLAG = "_new_chat_just_rerun_from_message"
@@ -59,8 +61,24 @@ def render_home():
                     question_context=prompt,
                 )
 
-            reply = query_understand_result.model_dump_json(indent=2)
-            st.session_state["chat_messages"].append({"role": "assistant", "chat_content": reply})
+                reply = json.loads(query_understand_result.response)
+
+                #Implement tool calling ToolCallingService
+                tool_calling_input = ToolCallingService().tool_calling(
+                    original_query=prompt,
+                    vietnamese_with_diacritics=prompt,
+                    question_type=reply["question_type"],
+                    main_topic=reply["main_topic"],
+                    stock_id=reply["stock_id"],
+                    target_year=reply["target_year"],
+                    document_type=reply["document_type"],
+                    optimized_search_query=", ".join(reply["optimized_search_query"]),
+                )
+
+            # reply = query_understand_result.model_dump_json(indent=2)
+            
+
+            st.session_state["chat_messages"].append({"role": "assistant", "chat_content": tool_calling_input})
             print(st.session_state["chat_messages"])
             st.session_state[RERUN_FLAG] = True
             st.rerun()

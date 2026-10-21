@@ -77,6 +77,8 @@ class LLMCallerService:
     def _extract_text(self, content: object) -> str:
         if isinstance(content, str):
             return content
+        if isinstance(content, BaseModel):
+            return content.model_dump_json()
         if isinstance(content, list):
             text_parts = []
             for part in content:
