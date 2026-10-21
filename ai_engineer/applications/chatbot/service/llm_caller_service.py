@@ -1,6 +1,7 @@
 from threading import RLock
 from typing import Optional
 
+import mlflow
 from langchain_core.output_parsers import PydanticOutputParser
 from pydantic import BaseModel
 
@@ -37,6 +38,10 @@ class LLMCallerService:
         else:
             self._parser = None
             self._pydantic_key = "__no_parser__"
+
+        mlflow.langchain.autolog()
+        mlflow.set_tracking_uri("http://localhost:5001")
+        mlflow.set_experiment("Query_Understand_AutoLog_Tracking")
 
     def _get_prompt(self):
         key = (self.prompt_name, self._pydantic_key)
@@ -96,7 +101,7 @@ class LLMCallerService:
                 {
                     "question": user_question,
                     "question_context": question_context,
-                }
+                },
             )
             content = response.content if hasattr(response, "content") else response
             return self._extract_text(content)
