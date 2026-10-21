@@ -1,10 +1,9 @@
 import operator
-import json as _json
 from threading import RLock
 from typing import Annotated, Literal, TypedDict
 import mlflow
 
-from langchain_core.messages import BaseMessage, ToolMessage, AIMessage, convert_to_messages
+from langchain_core.messages import BaseMessage, ToolMessage, convert_to_messages
 from langgraph.graph import END, START, StateGraph
 from langchain.mcp import MCPAdapter
 from pydantic import BaseModel
@@ -75,23 +74,12 @@ class AgentCallerService:
             tool_map = {t.name: t for t in all_tools}
 
             model_with_tools = model.bind_tools(all_tools)
-            model_structured = model.with_structured_output(self._pydantic_object)
 
             async def call_model(state: AgentState):
                 msgs = convert_to_messages(state["messages"])
                 user_msg = [m for m in msgs if m.type == "human"][-1]
-                has_tool_msg = any(m.type == "tool" for m in msgs)
                 messages = prompt_template.format_messages(input=user_msg.content)
-                messages += [m for m in msgs if m.type != "human"]
-
-                if has_tool_msg:
-                    response_obj = await model_structured.ainvoke(messages)
-                    return {"messages": [AIMessage(content=response_obj.model_dump_json())]}
-                response = await model_with_tools.ainvoke(messages)
-                if response.tool_calls:
-                    return {"messages": [response]}
-                response_obj = await model_structured.ainvoke(messages)
-                return {"messages": [AIMessage(content=response_obj.model_dump_json())]}
+                return {"messages": [await model_with_tools.ainvoke(messages)]}
 
             async def call_tools(state: AgentState):
                 messages = convert_to_messages(state["messages"])
@@ -132,7 +120,7 @@ class AgentCallerService:
                 should_continue,
             )
 
-            workflow.add_edge("tools", "agent")
+            workflow.add_edge("tools", END)
 
             app = workflow.compile()
 
@@ -141,11 +129,23 @@ class AgentCallerService:
             )
 
             messages = convert_to_messages(output.get("messages", []))
-            for msg in reversed(messages):
-                if msg.type == "ai" and isinstance(msg.content, str):
-                    try:
-                        parsed = _json.loads(msg.content)
-                        return self._pydantic_object(**parsed).model_dump()
-                    except Exception:
-                        continue
-            raise RuntimeError("call_agent failed: no AI response found")
+            ai_message = next(
+                (
+                    m
+                    for m in reversed(messages)
+                    if m.type == "ai" and getattr(m, "tool_calls", None)
+                ),
+                None,
+            )
+            tool_message = next(
+                (m for m in reversed(messages) if m.type == "tool"),
+                None,
+            )
+            if ai_message is None or tool_message is None:
+                raise RuntimeError("call_agent failed: no tool call executed")
+
+            return self._pydantic_object(
+                tool_output=tool_message.content,
+                tool_name=ai_message.tool_calls[0]["name"],
+                input_message=preprocessed_query,
+            ).model_dump()

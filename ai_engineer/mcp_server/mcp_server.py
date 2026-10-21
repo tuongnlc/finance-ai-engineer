@@ -29,7 +29,7 @@ def search_internet(query: str) -> list[dict]:
     return _search_internet(query)
 
 @mcp.tool()
-async def retrieve_newspaper_db(query: str, stock_id: str = None, main_topic: str=None) -> list[dict]:
+async def get_news_from_db(query: str, stock_id: str = None, main_topic: str=None) -> list[dict]:
     """
         Get newspaper from the newspaper collection in Qdrant.
     

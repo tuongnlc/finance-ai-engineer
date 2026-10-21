@@ -2,7 +2,6 @@
 from ai_engineer.applications.chatbot.applications.prompt.prompt_template import (
     chatbot_template,
     tool_calling_v1, 
-    vietnam_language_format_prompt, 
     query_understand_prompt
 )
 from ai_engineer.helpers.prompt.prompt_registry.prompt_register import PromptRegister
