@@ -21,8 +21,9 @@ class LLMCallerService:
         model_name: str,
         temperature: float,
         prompt_name: str,
+        mlflow_experiment_name: str, 
         add_parser: bool = False,
-        pydantic_object: Optional[type[BaseModel]] = None,
+        pydantic_object: Optional[type[BaseModel]] = None
     ):
         self._config = (api_key, model_name, temperature)
         self.llm = self._get_llm(api_key, model_name, temperature)
@@ -41,7 +42,7 @@ class LLMCallerService:
 
         mlflow.langchain.autolog()
         mlflow.set_tracking_uri("http://localhost:5001")
-        mlflow.set_experiment("Query_Understand_AutoLog_Tracking")
+        mlflow.set_experiment(mlflow_experiment_name)
 
     def _get_prompt(self):
         key = (self.prompt_name, self._pydantic_key)

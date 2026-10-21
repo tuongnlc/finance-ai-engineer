@@ -50,23 +50,14 @@ def get_llm_response_service(
 
 
 @lru_cache
-def get_llm_caller_service() -> LLMCallerService:
+def get_llm_caller_service_chat_with_llm() -> LLMCallerService:
     return LLMCallerService(
         api_key=os.getenv("LLM_CHAT_API_KEY_1"),
         model_name=os.getenv("LLM_CHAT_MODEL"),
         temperature=0.7,
         prompt_name="chatbot_prompt",
         add_parser=True,
-    )
-
-@lru_cache
-def get_llm_caller_service_vietnam_language_format_prompt() -> LLMCallerService:
-    return LLMCallerService(
-        api_key=os.getenv("LLM_CHAT_API_KEY_1"),
-        model_name=os.getenv("LLM_CHAT_MODEL"),
-        temperature=0,
-        prompt_name='vietnam_language_format_prompt',
-        add_parser=False
+        mlflow_experiment_name="Chat_with_LLM_AutoLog_Tracking",
     )
 
 @lru_cache
@@ -78,6 +69,7 @@ def get_llm_caller_service_query_understand() -> LLMCallerService:
         prompt_name='query_understand_prompt',
         add_parser=True,
         pydantic_object=QueryUnderstandOutput,
+        mlflow_experiment_name="Query_Understand_AutoLog_Tracking",
     )
 
 @lru_cache
@@ -88,6 +80,7 @@ def get_llm_caller_service_tool_calling() -> AgentCallerService:
         temperature=0,
         prompt_name='tool_calling_prompt_v1',
         pydantic_object=ToolCallingOutput,
+        mlflow_experiment_name="tracing_agent_new",
     )
 
 @lru_cache
