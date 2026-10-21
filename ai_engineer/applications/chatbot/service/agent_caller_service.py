@@ -39,7 +39,7 @@ class AgentCallerService:
         self._pydantic_object = pydantic_object
         mlflow.langchain.autolog()
         mlflow.set_tracking_uri("http://localhost:5001")
-        mlflow.set_experiment(mlflow_experiment_name)
+        self._experiment_id = mlflow.set_experiment(mlflow_experiment_name).experiment_id
 
     def _get_prompt(self):
         key = self.prompt_name
@@ -125,9 +125,10 @@ class AgentCallerService:
 
             app = workflow.compile()
 
-            output = await app.ainvoke(
-                {"messages": [{"role": "user", "content": preprocessed_query}]}
-            )
+            with mlflow.start_run(experiment_id=self._experiment_id):
+                output = await app.ainvoke(
+                    {"messages": [{"role": "user", "content": preprocessed_query}]}
+                )
 
             messages = convert_to_messages(output.get("messages", []))
             ai_message = next(
