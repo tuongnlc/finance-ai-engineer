@@ -4,7 +4,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends
 
 from ai_engineer.applications.chatbot.backend.schemas.llm_response import LLMResponseRequest, LLMResponseResponse
-from ai_engineer.applications.chatbot.service.llm_response_service import LLMResponseService
+from ai_engineer.applications.chatbot.backend.service.llm_response_service import LLMResponseService
 from ai_engineer.applications.chatbot.backend.dependencies import get_llm_response_service
 
 router = APIRouter(prefix="/llm_response", tags=["LLM Response"])

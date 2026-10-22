@@ -7,17 +7,17 @@ from qdrant_client import QdrantClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ai_engineer.applications.chatbot.applications.io_schemas import QueryUnderstandOutput, ToolCallingOutput
-from ai_engineer.applications.chatbot.service.conversation_service import ConversationService
-from ai_engineer.applications.chatbot.service.llm_caller_service import LLMCallerService
-from ai_engineer.applications.chatbot.service.agent_caller_service import AgentCallerService
-from ai_engineer.applications.chatbot.service.llm_response_service import LLMResponseService
-from ai_engineer.applications.chatbot.service.message_service import MessageService
-from ai_engineer.applications.chatbot.service.rag_service import DocumentSearchService
+from ai_engineer.applications.chatbot.backend.service.conversation_service import ConversationService
+from ai_engineer.applications.chatbot.backend.service.llm_caller_service import LLMCallerService
+from ai_engineer.applications.chatbot.backend.service.agent_caller_service import AgentCallerService
+from ai_engineer.applications.chatbot.backend.service.llm_response_service import LLMResponseService
+from ai_engineer.applications.chatbot.backend.service.message_service import MessageService
+from ai_engineer.applications.chatbot.backend.service.rag_service import DocumentSearchService
 from ai_engineer.infrastructure.database.repositories.conversation import PostgresConversationRepository
 from ai_engineer.infrastructure.database.repositories.llm_response import PostgresLLMResponseRepository
 from ai_engineer.infrastructure.database.repositories.message import PostgresMessageRepository
 from ai_engineer.infrastructure.database.session import get_session
-from ai_engineer.applications.chatbot.service.session_service import SessionService
+from ai_engineer.applications.chatbot.backend.service.session_service import SessionService
 from ai_engineer.infrastructure.database.repositories.session import PostgresSessionRepository
 
 

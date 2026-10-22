@@ -1,7 +1,7 @@
 import json
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from ai_engineer.applications.chatbot.domain.models.llm_response import LLMResponse
+from ai_engineer.applications.chatbot.backend.domain.models.llm_response import LLMResponse
 from ai_engineer.infrastructure.database.orm_models.llm_response import LLMResponseORM
 
 

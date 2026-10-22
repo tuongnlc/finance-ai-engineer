@@ -3,7 +3,7 @@ from datetime import date
 from typing import Optional
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from ai_engineer.applications.chatbot.domain.models.newspaper_summary import NewspaperSummary
+from ai_engineer.applications.topic_summary.backend.domain.models.newspaper_summary import NewspaperSummary
 from ai_engineer.infrastructure.database.orm_models.newspaper_summary import NewspaperSummaryORM
 
 

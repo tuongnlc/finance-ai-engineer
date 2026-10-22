@@ -1,8 +1,8 @@
 import uuid
 from datetime import date
 from typing import Optional
-from ai_engineer.applications.chatbot.domain.repositories.newspaper_summary import NewspaperSummaryRepository
-from ai_engineer.applications.chatbot.domain.models.newspaper_summary import NewspaperSummary
+from ai_engineer.applications.topic_summary.backend.domain.repositories.newspaper_summary import NewspaperSummaryRepository
+from ai_engineer.applications.topic_summary.backend.domain.models.newspaper_summary import NewspaperSummary
 
 
 class NewspaperSummaryService:

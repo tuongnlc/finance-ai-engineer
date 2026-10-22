@@ -2,7 +2,7 @@ from typing import Optional
 from uuid import UUID
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from ai_engineer.applications.chatbot.domain.models.message import Message
+from ai_engineer.applications.chatbot.backend.domain.models.message import Message
 from ai_engineer.infrastructure.database.orm_models.message import MessageORM
 
 

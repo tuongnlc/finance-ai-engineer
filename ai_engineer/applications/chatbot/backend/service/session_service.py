@@ -1,6 +1,5 @@
-import uuid
-from ai_engineer.applications.chatbot.domain.repositories.session import SessionRepository
-from ai_engineer.applications.chatbot.domain.models.session import Session
+from ai_engineer.applications.chatbot.backend.domain.repositories.session import SessionRepository
+from ai_engineer.applications.chatbot.backend.domain.models.session import Session
 
 
 class SessionService:

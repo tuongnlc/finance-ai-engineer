@@ -7,7 +7,6 @@ import uuid
 from datetime import date
 
 
-
 class ConversationStatus(str, Enum):
     PENDING = "PENDING"
     COMPLETED = "COMPLETED"

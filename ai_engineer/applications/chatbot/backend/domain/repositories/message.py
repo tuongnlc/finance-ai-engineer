@@ -1,7 +1,6 @@
 from typing import Protocol
 import uuid
-
-from ai_engineer.applications.chatbot.domain.models.message import Message
+from ai_engineer.applications.chatbot.backend.domain.models.message import Message
 
 
 class MessageRepository(Protocol):
