@@ -46,6 +46,7 @@ class TopicSummaryUseCase:
 
     def extract(self):
         df = self.extractor.extract()
+        df = df.limit(2) #Update later
         return df
 
     def transform(self, df: pl.DataFrame, main_topic: str) -> pl.DataFrame:
@@ -56,15 +57,15 @@ class TopicSummaryUseCase:
             )
         rows = []
         for item in responses:
-            for news_type, summary in item["response"].root.items():
+            for newspaper_type, summary in item["response"].root.items():
                 rows.append({
                     "id": uuid.uuid4(),
                     "document_id": item["document_id"],
                     "publish_date": item["publish_date"],
                     "stocks_mention": item["stocks_mention"],
                     "person_mention": item["person_mention"],
-                    "news_type": news_type,
-                    "news_summary": summary.summary,
+                    "newspaper_type": newspaper_type,
+                    "newspaper_summary": summary.summary,
                     "sentiment_analysis": summary.sentiment_analysis,
                     "circular_and_policy": getattr(summary, "circular_and_policy", []),
                     "legal_documents_and_regulations": getattr(summary, "legal_documents_and_regulations", []),

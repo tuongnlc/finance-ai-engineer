@@ -14,7 +14,7 @@ from ai_engineer.applications.topic_summary.use_case.topic_summary import TopicS
 from ai_engineer.shared.data_pipeline.extract.qdrant_extractor import QdrantExtractorWithPayloadFilter
 from dotenv import load_dotenv
 import os
-from ai_engineer.shared.data_pipeline.load.qdrant_loader import QdrantLoader
+from ai_engineer.shared.data_pipeline.load.postrgesql_loader import PostgreDBLoaderWithPolars
 from ai_engineer.shared.llm.create_llm import create_gemini_llm
 
 load_dotenv()
@@ -29,6 +29,14 @@ GCP_API_KEY_NAMES = [
     "GCP_PROJECT_7",
     "GCP_PROJECT_8",
 ]
+
+POSTGRES_URI = (
+    f"postgresql://{os.getenv('POSTGRES_USER_CHATBOT', 'postgres')}:"
+    f"{os.getenv('POSTGRES_PASSWORD_CHATBOT', 'postgres')}@"
+    f"{os.getenv('POSTGRES_HOST_CHATBOT', 'chatbot_postgres')}:"
+    f"{os.getenv('POSTGRES_PORT_CHATBOT', '5432')}/"
+    f"{os.getenv('POSTGRES_DB_CHATBOT', 'chatbot_db')}"
+)
 
 _TOPIC_CONFIG = {
     "business": { # Quản trị Doanh nghiệp & Tài chính Doanh nghiệp
@@ -94,9 +102,9 @@ def build_use_case(cfg, publish_date: str, topic_type: str, llm_api_key: str) ->
         structure_output=cfg["structure_output"],
     )
 
-    loader = QdrantLoader(
-        qdrant_url="http://qdrant:6333",
-        destination_collection_name="newspaper_summary",
+    loader = PostgreDBLoaderWithPolars(
+        destination_table_name="newspaper_summary",
+        uri=POSTGRES_URI,
     )
 
     return TopicSummaryUseCase(
