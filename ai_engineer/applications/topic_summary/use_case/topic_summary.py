@@ -46,7 +46,6 @@ class TopicSummaryUseCase:
 
     def extract(self):
         df = self.extractor.extract()
-        df = df.limit(2) #Update later
         return df
 
     def transform(self, df: pl.DataFrame, main_topic: str) -> pl.DataFrame:
