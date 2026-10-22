@@ -6,11 +6,11 @@ from ai_engineer.shared.data_pipeline.load.postrgesql_loader import PostgreDBLoa
 load_dotenv()
 
 POSTGRES_URI = (
-    f"postgresql://{os.getenv('POSTGRES_USER_CHATBOT', 'postgres')}:"
-    f"{os.getenv('POSTGRES_PASSWORD_CHATBOT', 'postgres')}@"
-    f"{os.getenv('POSTGRES_HOST_CHATBOT', 'chatbot_postgres')}:"
-    f"{os.getenv('POSTGRES_PORT_CHATBOT', '5432')}/"
-    f"{os.getenv('POSTGRES_DB_CHATBOT', 'chatbot_db')}"
+    f"postgresql://{os.getenv('POSTGRES_USER_CHATBOT')}:"
+    f"{os.getenv('POSTGRES_PASSWORD_CHATBOT')}@"
+    f"{os.getenv('POSTGRES_HOST_CHATBOT')}:"
+    f"{os.getenv('POSTGRES_PORT_CHATBOT')}/"
+    f"{os.getenv('POSTGRES_DB_CHATBOT')}"
 )
 
 loader = PostgreDBLoaderWithPolars(
