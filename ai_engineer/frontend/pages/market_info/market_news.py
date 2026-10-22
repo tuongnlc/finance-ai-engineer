@@ -81,7 +81,7 @@ def market_news():
     st.write(f"Xem tin tức thị trường đáng chú ý ngày: {start_date} đến {end_date}")
 
     news = news.to_dicts()
-    for conv in news:
+    for idx, conv in enumerate(news):
         with st.container(border=True):
             #f":blue[{publish_date}]"
             publish_date = conv.get("publish_date")
@@ -109,6 +109,12 @@ def market_news():
                 st.caption(f":red[Thông tư và chính sách liên quan: {', '.join(circular_and_policy)}]")
             if legal_documents_and_regulations:
                 st.caption(f":red[Văn bản pháp luật liên quan: {', '.join(legal_documents_and_regulations)}]")  
+
+            btn_col1, btn_col2, _ = st.columns([1, 3, 2], gap="small")
+            with btn_col1:
+                st.button("Xóa", key=f"delete_{idx}")
+            with btn_col2:
+                st.button("Thêm vào danh sách theo dõi", key=f"follow_{idx}")
 
 
     # st.dataframe(news)

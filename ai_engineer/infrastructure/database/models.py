@@ -112,3 +112,6 @@ class LLMResponse(Base):
         default=date.today,
         nullable=False,
     )
+
+
+# AI applications table
