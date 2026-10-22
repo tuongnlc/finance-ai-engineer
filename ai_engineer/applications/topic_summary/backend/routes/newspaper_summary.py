@@ -56,9 +56,10 @@ async def get_newspaper_summary(
 @router.get("/", status_code=200)
 async def list_newspaper_summaries(
         newspaper_summary_service: Annotated[NewspaperSummaryService, Depends(get_newspaper_summary_service)],
-        publish_date: Optional[date] = None,
+        min_date: Optional[date] = None,
+        max_date: Optional[date] = None,
     ) -> list[GetNewspaperSummaryResponse]:
-    summaries = await newspaper_summary_service.list_summaries(publish_date=publish_date)
+    summaries = await newspaper_summary_service.list_summaries(min_date=min_date, max_date=max_date)
     return [
         GetNewspaperSummaryResponse(
             id=summary.id,
