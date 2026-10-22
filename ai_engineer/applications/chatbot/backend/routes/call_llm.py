@@ -3,8 +3,8 @@ from fastapi import APIRouter, Depends
 
 from ai_engineer.applications.chatbot.backend.dependencies import get_llm_caller_service_chat_with_llm, get_llm_caller_service_query_understand, get_llm_caller_service_tool_calling
 from ai_engineer.applications.chatbot.backend.schemas.llm_caller import LLMCallerRequest, LLMCallerResponse, ToolCallingRequest, ToolCallingResponse
-from ai_engineer.applications.chatbot.service.agent_caller_service import AgentCallerService
-from ai_engineer.applications.chatbot.service.llm_caller_service import LLMCallerService
+from ai_engineer.applications.chatbot.backend.service.agent_caller_service import AgentCallerService
+from ai_engineer.applications.chatbot.backend.service.llm_caller_service import LLMCallerService
 
 
 router = APIRouter(prefix="/call_llm", tags=["Call LLM"])

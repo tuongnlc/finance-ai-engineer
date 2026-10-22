@@ -1,7 +1,7 @@
 from typing import Optional
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from ai_engineer.applications.chatbot.domain.models.conversation import Conversation
+from ai_engineer.applications.chatbot.backend.domain.models.conversation import Conversation
 from ai_engineer.infrastructure.database.orm_models.conversation import ConversationORM
 
 

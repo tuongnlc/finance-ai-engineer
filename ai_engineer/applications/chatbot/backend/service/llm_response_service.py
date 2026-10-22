@@ -1,7 +1,7 @@
 import uuid
 
-from ai_engineer.applications.chatbot.domain.models.llm_response import LLMResponse
-from ai_engineer.applications.chatbot.domain.repositories.llm_response import LLMResponseRepository
+from ai_engineer.applications.chatbot.backend.domain.models.llm_response import LLMResponse
+from ai_engineer.applications.chatbot.backend.domain.repositories.llm_response import LLMResponseRepository
 
 
 class LLMResponseService:

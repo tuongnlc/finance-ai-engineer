@@ -1,7 +1,7 @@
 import uuid
 from typing import Optional
-from ai_engineer.applications.chatbot.domain.repositories.conversation import ConversationRepository
-from ai_engineer.applications.chatbot.domain.models.conversation import Conversation
+from ai_engineer.applications.chatbot.backend.domain.repositories.conversation import ConversationRepository
+from ai_engineer.applications.chatbot.backend.domain.models.conversation import Conversation
 from datetime import date
 
 

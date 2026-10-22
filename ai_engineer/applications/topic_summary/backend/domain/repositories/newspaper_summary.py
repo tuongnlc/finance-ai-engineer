@@ -1,7 +1,7 @@
 from typing import Protocol, Optional
 import uuid
 from datetime import date
-from ai_engineer.applications.chatbot.domain.models.newspaper_summary import NewspaperSummary
+from ai_engineer.applications.topic_summary.backend.domain.models.newspaper_summary import NewspaperSummary
 
 
 class NewspaperSummaryRepository(Protocol):

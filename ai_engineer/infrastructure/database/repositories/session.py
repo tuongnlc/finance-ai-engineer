@@ -1,6 +1,6 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from ai_engineer.applications.chatbot.domain.models.session import Session
+from ai_engineer.applications.chatbot.backend.domain.models.session import Session
 from ai_engineer.infrastructure.database.orm_models.session import SessionORM
 
 

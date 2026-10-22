@@ -1,19 +1,17 @@
 from typing import Annotated, Optional
 from uuid import UUID
-
 from fastapi import APIRouter, Depends
-
 from ai_engineer.applications.chatbot.backend.dependencies import (
     get_message_service,
 )
-
 from ai_engineer.applications.chatbot.backend.schemas.message import (
     CreateMessageRequest,
     CreateMessageResponse,
     GetMessageResponse,
 )
-from ai_engineer.applications.chatbot.service.llm_caller_service import LLMCallerService
-from ai_engineer.applications.chatbot.service.message_service import MessageService
+from ai_engineer.applications.chatbot.backend.service.llm_caller_service import LLMCallerService
+from ai_engineer.applications.chatbot.backend.service.message_service import MessageService
+
 
 router = APIRouter(prefix="/message", tags=["Message"])
 

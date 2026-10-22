@@ -1,7 +1,5 @@
 import asyncio
-
 from fastapi import APIRouter
-
 from ai_engineer.applications.chatbot.backend.dependencies import (
     get_rag_collection_names,
     get_document_search_service,

@@ -8,7 +8,7 @@ from ..schemas.conversation import (
     GetConversationResponse,
     ConversationStatus,
 )
-from ai_engineer.applications.chatbot.service.conversation_service import ConversationService
+from ai_engineer.applications.chatbot.backend.service.conversation_service import ConversationService
 from ai_engineer.applications.chatbot.backend.dependencies import get_conversation_service
 
 router = APIRouter(prefix="/conversations", tags=["Conversation"])
