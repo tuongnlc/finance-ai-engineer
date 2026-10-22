@@ -13,7 +13,8 @@ class NewspaperSummaryRepository(Protocol):
 
     async def list(
         self,
-        publish_date: Optional[date] = None,
+        min_date: Optional[date] = None,
+        max_date: Optional[date] = None,
     ) -> list[NewspaperSummary]:
         pass
 

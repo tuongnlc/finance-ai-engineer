@@ -29,8 +29,12 @@ class NewspaperSummaryService:
     async def get_by_id(self, summary_id: uuid.UUID) -> NewspaperSummary:
         return await self._newspaper_summary_repository.get_by_id(summary_id)
 
-    async def list_summaries(self, publish_date: Optional[date] = None) -> list[NewspaperSummary]:
-        return await self._newspaper_summary_repository.list(publish_date=publish_date)
+    async def list_summaries(
+        self,
+        min_date: Optional[date] = None,
+        max_date: Optional[date] = None,
+    ) -> list[NewspaperSummary]:
+        return await self._newspaper_summary_repository.list(min_date=min_date, max_date=max_date)
 
     async def delete_by_id(self, summary_id: uuid.UUID) -> None:
         return await self._newspaper_summary_repository.delete_by_id(summary_id)

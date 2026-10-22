@@ -27,10 +27,16 @@ class PostgresNewspaperSummaryRepository:
             return None
         return self._to_domain(summary_orm)
 
-    async def list(self, publish_date: Optional[date] = None) -> list[NewspaperSummary]:
+    async def list(
+        self,
+        min_date: Optional[date] = None,
+        max_date: Optional[date] = None,
+    ) -> list[NewspaperSummary]:
         stmt = select(NewspaperSummaryORM)
-        if publish_date is not None:
-            stmt = stmt.where(NewspaperSummaryORM.publish_date == publish_date)
+        if min_date is not None:
+            stmt = stmt.where(NewspaperSummaryORM.publish_date >= min_date)
+        if max_date is not None:
+            stmt = stmt.where(NewspaperSummaryORM.publish_date <= max_date)
         result = await self._session.execute(stmt)
         summaries = result.scalars().all()
         return [self._to_domain(summary) for summary in summaries]
