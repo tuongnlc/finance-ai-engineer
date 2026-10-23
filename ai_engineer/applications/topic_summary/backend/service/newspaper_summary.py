@@ -23,6 +23,7 @@ class NewspaperSummaryService:
             legal_documents_and_regulations=request.legal_documents_and_regulations,
             fund_name=request.fund_name,
             main_topic=request.main_topic,
+            is_favorite=request.is_favorite if request.is_favorite is not None else 0,
         )
         return await self._newspaper_summary_repository.create(summary)
 

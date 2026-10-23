@@ -55,6 +55,12 @@ market_news_page = st.Page(
     icon="📰",
 )
 
+favorite_news_page = st.Page(
+    "pages/market_info/favorite_news.py",
+    title="Tin tức đáng chú ý",
+    icon="📰",
+)
+
 # IMAGE RENDER PAGE
 img_render_page = st.Page(
     "pages/img_render/img_render.py",
@@ -76,6 +82,7 @@ pg = st.navigation({
     "CHỨNG KHOÁN - PHÂN TÍCH KỸ THUẬT": [],
     "THÔNG TIN KINH TẾ": [
         market_news_page,
+        favorite_news_page,
     ],
     "BẤT ĐỘNG SẢN": [],
     "VÀNG": [],

@@ -17,6 +17,7 @@ class CreateNewspaperSummaryRequest(BaseModel):
     legal_documents_and_regulations: Optional[str] = None
     fund_name: Optional[str] = None
     main_topic: Optional[str] = None
+    is_favorite: Optional[int] = None
 
 
 class CreateNewspaperSummaryResponse(BaseModel):
@@ -36,6 +37,8 @@ class GetNewspaperSummaryResponse(BaseModel):
     legal_documents_and_regulations: Optional[str] = None
     fund_name: Optional[str] = None
     main_topic: Optional[str] = None
+    is_favorite: Optional[int] = None
+
 
 class DeleteNewspaperSumResponse(BaseModel):
     id: UUID

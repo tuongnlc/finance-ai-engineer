@@ -65,6 +65,7 @@ class PostgresNewspaperSummaryRepository:
             legal_documents_and_regulations=summary.legal_documents_and_regulations,
             fund_name=summary.fund_name,
             main_topic=summary.main_topic,
+            is_favorite=summary.is_favorite,
         )
 
     def _to_domain(self, summary: NewspaperSummaryORM) -> NewspaperSummary:
@@ -81,4 +82,5 @@ class PostgresNewspaperSummaryRepository:
             legal_documents_and_regulations=summary.legal_documents_and_regulations,
             fund_name=summary.fund_name,
             main_topic=summary.main_topic,
+            is_favorite=summary.is_favorite,
         )

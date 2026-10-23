@@ -51,6 +51,7 @@ async def get_newspaper_summary(
         legal_documents_and_regulations=summary.legal_documents_and_regulations,
         fund_name=summary.fund_name,
         main_topic=summary.main_topic,
+        is_favorite=summary.is_favorite,
     )
 
 @router.get("/", status_code=200)
@@ -63,6 +64,7 @@ async def list_newspaper_summaries(
     return [
         GetNewspaperSummaryResponse(
             id=summary.id,
+            is_favorite=summary.is_favorite,
             document_id=summary.document_id,
             newspaper_summary=summary.newspaper_summary,
             publish_date=summary.publish_date,

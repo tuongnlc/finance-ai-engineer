@@ -10,7 +10,7 @@ from sqlalchemy import Date, String, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from datetime import date
-from sqlalchemy import BigInteger
+from sqlalchemy import BigInteger, Integer
 
 
 class Base(DeclarativeBase):
@@ -139,3 +139,4 @@ class NewspaperSummary(Base):
     legal_documents_and_regulations: Mapped[str] = mapped_column(Text, nullable=True)
     fund_name: Mapped[str] = mapped_column(Text, nullable=True)
     main_topic: Mapped[str] = mapped_column(String(255), nullable=True)
+    is_favorite: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
