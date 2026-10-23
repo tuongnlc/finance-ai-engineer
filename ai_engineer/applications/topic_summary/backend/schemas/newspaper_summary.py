@@ -36,3 +36,7 @@ class GetNewspaperSummaryResponse(BaseModel):
     legal_documents_and_regulations: Optional[str] = None
     fund_name: Optional[str] = None
     main_topic: Optional[str] = None
+
+class DeleteNewspaperSumResponse(BaseModel):
+    id: UUID
+    document_id: UUID

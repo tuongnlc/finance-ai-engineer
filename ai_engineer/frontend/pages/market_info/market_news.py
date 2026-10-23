@@ -46,6 +46,7 @@ def market_news():
     news = pl.DataFrame(
         [
             {
+                "summary_id": str(item.summary_id),
                 "publish_date": item.publish_date,
                 "news_type": item.newspaper_type,
                 "news_summary": item.newspaper_summary,
@@ -59,6 +60,7 @@ def market_news():
             for item in summaries
         ],
         schema={
+            "summary_id": pl.Utf8,
             "publish_date": pl.Date,
             "news_type": pl.Utf8,
             "news_summary": pl.Utf8,
@@ -69,7 +71,7 @@ def market_news():
             "circular_and_policy": pl.Utf8,
             "legal_documents_and_regulations": pl.Utf8,
         },
-    )
+    ).sort("publish_date", descending=True)
 
     # Các filter liên tiếp: options của filter sau dựa trên kết quả của filter trước
     cascading_filters = [
@@ -126,7 +128,9 @@ def market_news():
 
             btn_col1, btn_col2, _ = st.columns([1, 3, 2], gap="small")
             with btn_col1:
-                st.button("Xóa", key=f"delete_{idx}")
+                if st.button("Xóa", key=f"delete_{idx}"):
+                    NewspaperSummaryService().delete_summaries(conv.get("summary_id"))
+                    st.rerun()
             with btn_col2:
                 st.button("Thêm vào danh sách theo dõi", key=f"follow_{idx}")
 
