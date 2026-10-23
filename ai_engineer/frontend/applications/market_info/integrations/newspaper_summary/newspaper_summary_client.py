@@ -3,11 +3,18 @@ from __future__ import annotations
 from datetime import date
 from typing import Optional
 import requests
+import streamlit as st
 from ai_engineer.frontend.config import get_backend_base_url
 from ai_engineer.applications.topic_summary.backend.schemas.newspaper_summary import (
     DeleteNewspaperSumResponse,
     GetNewspaperSummaryResponse,
 )
+
+
+@st.cache_resource(show_spinner=False)
+def _get_http_session() -> requests.Session:
+    """Dùng chung 1 HTTP session để tái sử dụng connection pool giữa các lần rerun."""
+    return requests.Session()
 
 
 class NewspaperSummaryClient:
@@ -26,7 +33,7 @@ class NewspaperSummaryClient:
         min_date: Optional[date] = None,
         max_date: Optional[date] = None,
     ) -> list[GetNewspaperSummaryResponse]:
-        response = requests.get(
+        response = _get_http_session().get(
             f"{self.base_url}/newspaper-summary/",
             params={
                 "min_date": min_date,
@@ -44,7 +51,7 @@ class NewspaperSummaryClient:
         ]
 
     def delete_summaries(self, summary_id: str) -> None:
-        response = requests.delete(
+        response = _get_http_session().delete(
             f"{self.base_url}/newspaper-summary/{summary_id}",
             headers={
                 "accept": "*/*",
@@ -55,7 +62,7 @@ class NewspaperSummaryClient:
         return None
 
     def add_to_favorite(self, summary_id: str) -> None:
-        response = requests.put(
+        response = _get_http_session().put(
             f"{self.base_url}/newspaper-summary/{summary_id}",
             params={
                 "is_favorite": 1,
