@@ -6,6 +6,7 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
+from ai_engineer.applications.topic_summary.backend.schemas.newspaper_summary import DeleteNewspaperSumResponse
 from ai_engineer.frontend.applications.market_info.integrations.newspaper_summary.newspaper_summary_client import (
     NewspaperSummaryClient,
 )
@@ -56,3 +57,6 @@ class NewspaperSummaryService:
             )
             for item in response
         ]
+
+    def delete_summaries(self, summary_id: str) -> DeleteNewspaperSumResponse | None:
+        return self.client.delete_summaries(summary_id)

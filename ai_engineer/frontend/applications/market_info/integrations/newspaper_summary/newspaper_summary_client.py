@@ -5,6 +5,7 @@ from typing import Optional
 import requests
 from ai_engineer.frontend.config import get_backend_base_url
 from ai_engineer.applications.topic_summary.backend.schemas.newspaper_summary import (
+    DeleteNewspaperSumResponse,
     GetNewspaperSummaryResponse,
 )
 
@@ -41,3 +42,14 @@ class NewspaperSummaryClient:
             GetNewspaperSummaryResponse.model_validate(item)
             for item in response.json()
         ]
+
+    def delete_summaries(self, summary_id: str) -> None:
+        response = requests.delete(
+            f"{self.base_url}/newspaper-summary/{summary_id}",
+            headers={
+                "accept": "*/*",
+            },
+            timeout=self.timeout,
+        )
+        response.raise_for_status()
+        return None
