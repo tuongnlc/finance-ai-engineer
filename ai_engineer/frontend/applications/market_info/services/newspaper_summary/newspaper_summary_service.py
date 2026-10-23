@@ -25,6 +25,7 @@ class NewspaperSummary(BaseModel):
     legal_documents_and_regulations: Optional[str] = None
     fund_name: Optional[str] = None
     main_topic: Optional[str] = None
+    is_favorite: Optional[int] = None
 
 
 class NewspaperSummaryService:
@@ -60,3 +61,6 @@ class NewspaperSummaryService:
 
     def delete_summaries(self, summary_id: str) -> DeleteNewspaperSumResponse | None:
         return self.client.delete_summaries(summary_id)
+
+    def add_to_favorite(self, summary_id: str) -> None:
+        return self.client.add_to_favorite(summary_id)

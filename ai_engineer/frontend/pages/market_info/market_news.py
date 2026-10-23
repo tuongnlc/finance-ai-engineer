@@ -32,6 +32,11 @@ def market_news():
         layout="wide"  
     )
 
+    # Hiển thị popup sau khi rerun
+    toast_message = st.session_state.pop("favorite_toast", None)
+    if toast_message:
+        st.toast(toast_message, icon="✅")
+
     # Prepare filters
     col_left, col_right = st.columns([2, 1])
     max_date = date.today()
@@ -132,8 +137,10 @@ def market_news():
                     NewspaperSummaryService().delete_summaries(conv.get("summary_id"))
                     st.rerun()
             with btn_col2:
-                st.button("Thêm vào danh sách theo dõi", key=f"follow_{idx}")
-
+                if st.button("Thêm vào danh sách theo dõi", key=f"follow_{idx}"):
+                    NewspaperSummaryService().add_to_favorite(conv.get("summary_id"))
+                    st.session_state["favorite_toast"] = "Thêm vào danh sách theo dõi thành công!"
+                    st.rerun()
 
     # st.dataframe(news)
 

@@ -53,3 +53,17 @@ class NewspaperSummaryClient:
         )
         response.raise_for_status()
         return None
+
+    def add_to_favorite(self, summary_id: str) -> None:
+        response = requests.put(
+            f"{self.base_url}/newspaper-summary/{summary_id}",
+            params={
+                "is_favorite": 1,
+            },
+            headers={
+                "accept": "*/*",
+            },
+            timeout=self.timeout,
+        )
+        response.raise_for_status()
+        return None
