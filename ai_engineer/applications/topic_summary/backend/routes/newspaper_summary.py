@@ -12,6 +12,7 @@ from ai_engineer.applications.topic_summary.backend.schemas.newspaper_summary im
     CreateNewspaperSummaryRequest,
     CreateNewspaperSummaryResponse,
     GetNewspaperSummaryResponse,
+    UpdateNewspaperSummaryResponse,
 )
 from ai_engineer.applications.topic_summary.backend.service.newspaper_summary import (
     NewspaperSummaryService,
@@ -51,6 +52,7 @@ async def get_newspaper_summary(
         legal_documents_and_regulations=summary.legal_documents_and_regulations,
         fund_name=summary.fund_name,
         main_topic=summary.main_topic,
+        is_favorite=summary.is_favorite,
     )
 
 @router.get("/", status_code=200)
@@ -63,6 +65,7 @@ async def list_newspaper_summaries(
     return [
         GetNewspaperSummaryResponse(
             id=summary.id,
+            is_favorite=summary.is_favorite,
             document_id=summary.document_id,
             newspaper_summary=summary.newspaper_summary,
             publish_date=summary.publish_date,
@@ -85,3 +88,15 @@ async def delete_newspaper_summary(
         newspaper_summary_service: Annotated[NewspaperSummaryService, Depends(get_newspaper_summary_service)],
     ) -> None:
     await newspaper_summary_service.delete_by_id(summary_id)
+
+@router.put("/{summary_id}", status_code=200)
+async def update_newspaper_summary(
+        summary_id: UUID,
+        newspaper_summary_service: Annotated[NewspaperSummaryService, Depends(get_newspaper_summary_service)],
+        is_favorite: Optional[int] = None,
+    ) -> UpdateNewspaperSummaryResponse:
+    summary = await newspaper_summary_service.update_by_id(summary_id, is_favorite=is_favorite)
+    return UpdateNewspaperSummaryResponse(
+        id=summary.id,
+        document_id=summary.document_id,
+    )

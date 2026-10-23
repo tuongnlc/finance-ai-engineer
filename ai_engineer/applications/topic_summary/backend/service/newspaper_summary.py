@@ -23,6 +23,7 @@ class NewspaperSummaryService:
             legal_documents_and_regulations=request.legal_documents_and_regulations,
             fund_name=request.fund_name,
             main_topic=request.main_topic,
+            is_favorite=request.is_favorite if request.is_favorite is not None else 0,
         )
         return await self._newspaper_summary_repository.create(summary)
 
@@ -38,3 +39,10 @@ class NewspaperSummaryService:
 
     async def delete_by_id(self, summary_id: uuid.UUID) -> None:
         return await self._newspaper_summary_repository.delete_by_id(summary_id)
+
+    async def update_by_id(
+        self,
+        summary_id: uuid.UUID,
+        is_favorite: Optional[int] = None,
+    ) -> NewspaperSummary:
+        return await self._newspaper_summary_repository.update_by_id(summary_id, is_favorite=is_favorite)

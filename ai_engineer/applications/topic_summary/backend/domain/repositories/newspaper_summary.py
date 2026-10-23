@@ -20,3 +20,10 @@ class NewspaperSummaryRepository(Protocol):
 
     async def delete_by_id(self, summary_id: uuid.UUID) -> None:
         pass
+
+    async def update_by_id(
+        self,
+        summary_id: uuid.UUID,
+        is_favorite: Optional[int] = None,
+    ) -> NewspaperSummary:
+        pass

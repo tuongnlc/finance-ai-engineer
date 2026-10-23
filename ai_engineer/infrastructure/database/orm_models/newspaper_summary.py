@@ -1,6 +1,6 @@
 import uuid
 from datetime import date
-from sqlalchemy import Date, String, Text
+from sqlalchemy import Date, Integer, String, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 from ai_engineer.infrastructure.database.orm_models.base import Base
@@ -30,3 +30,4 @@ class NewspaperSummaryORM(Base):
     legal_documents_and_regulations: Mapped[str] = mapped_column(String(255), nullable=True)
     fund_name: Mapped[str] = mapped_column(String(255), nullable=True)
     main_topic: Mapped[str] = mapped_column(String(255), nullable=True)
+    is_favorite: Mapped[int] = mapped_column(Integer, nullable=False, default=0)

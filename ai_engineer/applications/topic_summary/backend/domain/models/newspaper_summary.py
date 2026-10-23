@@ -18,3 +18,4 @@ class NewspaperSummary:
     legal_documents_and_regulations: Optional[str] = None
     fund_name: Optional[str] = None
     main_topic: Optional[str] = None
+    is_favorite: int = 0
