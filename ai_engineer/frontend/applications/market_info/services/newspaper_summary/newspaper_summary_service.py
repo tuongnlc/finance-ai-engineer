@@ -55,6 +55,7 @@ class NewspaperSummaryService:
                 legal_documents_and_regulations=item.legal_documents_and_regulations,
                 fund_name=item.fund_name,
                 main_topic=item.main_topic,
+                is_favorite=item.is_favorite,
             )
             for item in response
         ]

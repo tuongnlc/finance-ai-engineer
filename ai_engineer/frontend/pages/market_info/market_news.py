@@ -26,6 +26,12 @@ def _filter_by_values(df: pl.DataFrame, column: str, selected: list) -> pl.DataF
     return df.filter(pl.col(column).is_in(selected))
 
 
+@st.cache_data(ttl=300, show_spinner=False)
+def _load_summaries(start_date: date, end_date: date):
+    """Cache danh sách tin tức để không phải gọi lại backend mỗi lần rerun."""
+    return NewspaperSummaryService().list_summaries(start_date, end_date)
+
+
 def market_news():
     st.set_page_config(
         page_title="Market News",
@@ -47,7 +53,7 @@ def market_news():
         )
         start_date, end_date = input_date_filter.render()
 
-    summaries = NewspaperSummaryService().list_summaries(start_date, end_date)
+    summaries = _load_summaries(start_date, end_date)
     news = pl.DataFrame(
         [
             {
@@ -135,6 +141,7 @@ def market_news():
             with btn_col1:
                 if st.button("Xóa", key=f"delete_{idx}"):
                     NewspaperSummaryService().delete_summaries(conv.get("summary_id"))
+                    _load_summaries.clear()
                     st.rerun()
             with btn_col2:
                 if st.button("Thêm vào danh sách theo dõi", key=f"follow_{idx}"):
