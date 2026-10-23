@@ -51,6 +51,25 @@ class PostgresNewspaperSummaryRepository:
         await self._session.delete(summary_orm)
         await self._session.flush()
 
+    async def update_by_id(
+        self,
+        summary_id: uuid.UUID,
+        is_favorite: Optional[int] = None,
+    ) -> NewspaperSummary:
+        result = await self._session.execute(
+            select(NewspaperSummaryORM).where(NewspaperSummaryORM.id == summary_id)
+        )
+        summary_orm = result.scalar_one_or_none()
+        if summary_orm is None:
+            raise ValueError(f"NewspaperSummary with id {summary_id} not found")
+
+        if is_favorite is not None:
+            summary_orm.is_favorite = is_favorite
+
+        await self._session.flush()
+        await self._session.refresh(summary_orm)
+        return self._to_domain(summary_orm)
+
     def _to_orm(self, summary: NewspaperSummary) -> NewspaperSummaryORM:
         return NewspaperSummaryORM(
             id=summary.id,

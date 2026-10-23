@@ -39,3 +39,10 @@ class NewspaperSummaryService:
 
     async def delete_by_id(self, summary_id: uuid.UUID) -> None:
         return await self._newspaper_summary_repository.delete_by_id(summary_id)
+
+    async def update_by_id(
+        self,
+        summary_id: uuid.UUID,
+        is_favorite: Optional[int] = None,
+    ) -> NewspaperSummary:
+        return await self._newspaper_summary_repository.update_by_id(summary_id, is_favorite=is_favorite)

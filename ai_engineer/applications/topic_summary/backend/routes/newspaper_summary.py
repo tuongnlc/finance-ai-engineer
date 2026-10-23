@@ -12,6 +12,7 @@ from ai_engineer.applications.topic_summary.backend.schemas.newspaper_summary im
     CreateNewspaperSummaryRequest,
     CreateNewspaperSummaryResponse,
     GetNewspaperSummaryResponse,
+    UpdateNewspaperSummaryResponse,
 )
 from ai_engineer.applications.topic_summary.backend.service.newspaper_summary import (
     NewspaperSummaryService,
@@ -87,3 +88,15 @@ async def delete_newspaper_summary(
         newspaper_summary_service: Annotated[NewspaperSummaryService, Depends(get_newspaper_summary_service)],
     ) -> None:
     await newspaper_summary_service.delete_by_id(summary_id)
+
+@router.put("/{summary_id}", status_code=200)
+async def update_newspaper_summary(
+        summary_id: UUID,
+        newspaper_summary_service: Annotated[NewspaperSummaryService, Depends(get_newspaper_summary_service)],
+        is_favorite: Optional[int] = None,
+    ) -> UpdateNewspaperSummaryResponse:
+    summary = await newspaper_summary_service.update_by_id(summary_id, is_favorite=is_favorite)
+    return UpdateNewspaperSummaryResponse(
+        id=summary.id,
+        document_id=summary.document_id,
+    )

@@ -43,3 +43,7 @@ class GetNewspaperSummaryResponse(BaseModel):
 class DeleteNewspaperSumResponse(BaseModel):
     id: UUID
     document_id: UUID
+
+class UpdateNewspaperSummaryResponse(BaseModel):
+    id: UUID
+    document_id: UUID
