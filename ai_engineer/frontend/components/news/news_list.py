@@ -95,6 +95,8 @@ class NewsList:
         self.end_date = end_date
         if favorite_only:
             summaries = [item for item in summaries if item.is_favorite == 1]
+        else:
+            summaries = [item for item in summaries if item.is_favorite == 0]
         self.news = self._to_dataframe(summaries)
 
     def render(self, show_actions: bool = False) -> None:
