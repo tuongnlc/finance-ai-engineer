@@ -1,4 +1,4 @@
-kpikpi_increase_query = """
+kpi_increase_query = """
 WITH base_data AS (
     SELECT 
         ist.year,
@@ -125,5 +125,5 @@ SELECT
     END AS fcff_growth_yoy_pct
 
 FROM lagged_data
-ORDER BY year, quarter
+ORDER BY year DESC, quarter DESC
 """
