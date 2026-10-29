@@ -46,6 +46,12 @@ debt_management_ratio_page = st.Page(
     icon="📊",
 )
 
+cash_flow_page = st.Page(
+    "pages/fundamental_analytics/cash_flow.py",
+    title="Phân tích dòng tiền",
+    icon="📊",
+)
+
 # TECHNICAL ANALYSIS PAGE
 
 # MARKET INFO PAGE
@@ -77,7 +83,8 @@ pg = st.navigation({
         fundamental_page, 
         profitability_ratio_page, 
         liquidity_ratio_page, 
-        debt_management_ratio_page
+        debt_management_ratio_page,
+        cash_flow_page,
     ],
     "CHỨNG KHOÁN - PHÂN TÍCH KỸ THUẬT": [],
     "THÔNG TIN KINH TẾ": [
