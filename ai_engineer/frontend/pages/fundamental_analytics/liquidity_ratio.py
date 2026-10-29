@@ -61,7 +61,7 @@ def liquidity_ratio():
     )
 
     st.divider()
-    #Main kpi
+    #Step 1: Main kpi
     main_kpt = MarkDown(
         font_size="24px",    
         text="CÁC CHỈ SỐ CƠ BẢN"
