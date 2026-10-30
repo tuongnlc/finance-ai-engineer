@@ -20,13 +20,13 @@ if __name__ == "__main__":
     )
 
     prompt_register.register_prompt(
-        prompt_name='query_understand_prompt', 
+        prompt_name="finance_agent_2026.finance_agent_2026_prompt.query_understand_prompt",
         prompt_template=query_understand_prompt,
-        enable=False
+        enable=True
     )
 
     prompt_register.register_prompt(
         prompt_name='tool_calling_prompt_v1', 
         prompt_template=tool_calling_v1,
-        enable=True
+        enable=False
     )
