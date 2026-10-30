@@ -44,8 +44,7 @@ class LLMCallerService:
         mlflow.langchain.autolog()
         mlflow.set_tracking_uri("databricks")
         mlflow.set_registry_uri("databricks-uc")
-        self._experiment_id = mlflow_experiment_id
-        mlflow.set_experiment(experiment_id=self._experiment_id)
+        mlflow.set_experiment(experiment_id=mlflow_experiment_id)
 
     def _get_prompt(self):
         key = (self.prompt_name, self._pydantic_key)
