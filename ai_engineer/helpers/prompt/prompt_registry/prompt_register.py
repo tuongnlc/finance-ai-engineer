@@ -46,17 +46,19 @@ class PromptRegister:
         )
     
     @staticmethod
-    def _escape_braces_for_langchain(template: list[dict], variables: set[str]) -> list[dict]:
-        for m in template:
+    def _escape_braces_for_langchain(template: str | list[dict], variables: set[str]) -> str | list[dict]:
+        messages = template if isinstance(template, list) else [{"role": "human", "content": template}]
+        for m in messages:
             c = m["content"]
             for v in variables: c = c.replace(f"{{{v}}}", f"__{v}__")
             c = c.replace("{", "{{").replace("}", "}}")
             for v in variables: c = c.replace(f"__{v}__", f"{{{v}}}")
             m["content"] = c
-        return template
+        return messages
     
     def load_and_parse_prompt(self, prompt_name: str) -> ChatPromptTemplate:
         prompt = mlflow.genai.load_prompt(prompt_name)        
         langchain_template = prompt.to_single_brace_format()
+        langchain_template = self._escape_braces_for_langchain(langchain_template, set(prompt.variables))
         return self._to_langchain_chat_prompt(langchain_template)
         
