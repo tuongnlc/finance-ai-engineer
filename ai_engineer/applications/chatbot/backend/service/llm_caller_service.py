@@ -1,3 +1,4 @@
+import os
 from threading import RLock
 from typing import Optional
 
@@ -21,7 +22,7 @@ class LLMCallerService:
         model_name: str,
         temperature: float,
         prompt_name: str,
-        mlflow_experiment_name: str, 
+        mlflow_experiment_id: str, 
         add_parser: bool = False,
         pydantic_object: Optional[type[BaseModel]] = None
     ):
@@ -41,8 +42,10 @@ class LLMCallerService:
             self._pydantic_key = "__no_parser__"
 
         mlflow.langchain.autolog()
-        mlflow.set_tracking_uri("http://localhost:5001")
-        self._experiment_id = mlflow.set_experiment(mlflow_experiment_name).experiment_id
+        mlflow.set_tracking_uri("databricks")
+        mlflow.set_registry_uri("databricks-uc")
+        self._experiment_id = mlflow_experiment_id
+        mlflow.set_experiment(experiment_id=self._experiment_id)
 
     def _get_prompt(self):
         key = (self.prompt_name, self._pydantic_key)
@@ -99,24 +102,23 @@ class LLMCallerService:
         else:
             chain = prompt | llm
 
-        with mlflow.start_run(experiment_id=self._experiment_id):
-            try:
-                response = chain.invoke(
+        try:
+            response = chain.invoke(
+                {
+                    "question": user_question,
+                    "question_context": question_context,
+                },
+            )
+            content = response.content if hasattr(response, "content") else response
+            return self._extract_text(content)
+        except Exception as e:
+            if self.add_parser:
+                fallback_chain = prompt | llm
+                response = fallback_chain.invoke(
                     {
                         "question": user_question,
                         "question_context": question_context,
-                    },
+                    }
                 )
-                content = response.content if hasattr(response, "content") else response
-                return self._extract_text(content)
-            except Exception as e:
-                if self.add_parser:
-                    fallback_chain = prompt | llm
-                    response = fallback_chain.invoke(
-                        {
-                            "question": user_question,
-                            "question_context": question_context,
-                        }
-                    )
-                    return self._extract_text(response.content)
-                raise e
+                return self._extract_text(response.content)
+            raise e

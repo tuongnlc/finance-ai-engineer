@@ -1,8 +1,11 @@
 import os
+
+from dotenv import load_dotenv
 from langchain_core.prompts import ChatPromptTemplate
 import mlflow
 from mlflow import MlflowClient
 
+load_dotenv()
 
 
 RESERVED_PROMPT_ALIASES = {"latest"}
@@ -10,9 +13,10 @@ RESERVED_PROMPT_ALIASES = {"latest"}
 
 class PromptRegister:
     def __init__(self):
-        tracking_uri = os.getenv("MLFLOW_TRACKING_URI", "http://localhost:5001")
+        tracking_uri = os.getenv("MLFLOW_TRACKING_URI", "databricks")
         mlflow.set_tracking_uri(tracking_uri)
-        mlflow.set_registry_uri(tracking_uri)
+        registry_uri = os.getenv("MLFLOW_REGISTRY_URI", "databricks-uc")
+        mlflow.set_registry_uri(registry_uri)
 
     def _prompt_alias_assign(self, prompt_name: str, alias_name: str):
         if alias_name.lower() in RESERVED_PROMPT_ALIASES:
