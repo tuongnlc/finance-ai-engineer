@@ -32,7 +32,7 @@ class PromptRegister:
     
     def register_prompt(self, prompt_name, prompt_template, alias_name: str = "production", enable: bool = False):
         if enable:
-            mlflow.register_prompt(prompt_name, prompt_template)
+            mlflow.genai.register_prompt(prompt_name, prompt_template)
             self._prompt_alias_assign(prompt_name, alias_name)
     
     @staticmethod

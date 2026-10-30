@@ -66,7 +66,7 @@ def get_llm_caller_service_query_understand() -> LLMCallerService:
         api_key=os.getenv("LLM_CHAT_API_KEY_1"),
         model_name=os.getenv("LLM_CHAT_MODEL"),
         temperature=0,
-        prompt_name='prompts:/finance_agent_2026.test_schema.query_understand_prompt@production',
+        prompt_name='prompts:/finance_agent_2026.finance_agent_2026_prompt.query_understand_prompt@production',
         add_parser=True,
         pydantic_object=QueryUnderstandOutput,
         mlflow_experiment_id=3104362340439739,
