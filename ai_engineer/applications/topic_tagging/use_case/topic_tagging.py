@@ -137,8 +137,6 @@ class TopicTaggingUseCase:
         parser = PydanticOutputParser(pydantic_object=TopicTagging)
 
         # prepare prompt
-        # topic_tagging_prompt = TopicTaggingPromptLoading().load_and_parse_prompt()
-        #prompts:/finance_agent_2026.finance_agent_2026_prompt.query_understand_prompt@production'
         topic_tagging_prompt = PromptRegister().load_and_parse_prompt("prompts:/finance_agent_2026.finance_agent_2026_prompt.topic_tagging_prompt@production")
         prompt = topic_tagging_prompt.partial(format_instructions=parser.get_format_instructions())
 
