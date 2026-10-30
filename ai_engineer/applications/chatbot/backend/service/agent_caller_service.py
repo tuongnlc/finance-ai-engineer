@@ -28,7 +28,8 @@ class AgentCallerService:
         model_name: str,
         temperature: float,
         prompt_name: str,
-        mlflow_experiment_name: str, 
+        # mlflow_experiment_name: str,
+        mlflow_experiment_id: int, 
         mcp_server_url: str = "http://127.0.0.1:7000/sse",
         pydantic_object: type[BaseModel] = ToolCallingOutput,
     ):
@@ -38,8 +39,9 @@ class AgentCallerService:
         self.mcp_server_url = mcp_server_url
         self._pydantic_object = pydantic_object
         mlflow.langchain.autolog()
-        mlflow.set_tracking_uri("http://localhost:5001")
-        self._experiment_id = mlflow.set_experiment(mlflow_experiment_name).experiment_id
+        mlflow.set_tracking_uri("databricks")
+        mlflow.set_registry_uri("databricks-uc")
+        mlflow.set_experiment(experiment_id=mlflow_experiment_id)
 
     def _get_prompt(self):
         key = self.prompt_name
@@ -125,10 +127,9 @@ class AgentCallerService:
 
             app = workflow.compile()
 
-            with mlflow.start_run(experiment_id=self._experiment_id):
-                output = await app.ainvoke(
-                    {"messages": [{"role": "user", "content": preprocessed_query}]}
-                )
+            output = await app.ainvoke(
+                {"messages": [{"role": "user", "content": preprocessed_query}]}
+            )
 
             messages = convert_to_messages(output.get("messages", []))
             ai_message = next(

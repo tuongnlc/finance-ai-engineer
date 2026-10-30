@@ -78,9 +78,9 @@ def get_llm_caller_service_tool_calling() -> AgentCallerService:
         api_key=os.getenv("LLM_CHAT_API_KEY_1"),
         model_name=os.getenv("LLM_CHAT_MODEL"),
         temperature=0,
-        prompt_name='tool_calling_prompt_v1',
+        prompt_name='prompts:/finance_agent_2026.finance_agent_2026_prompt.tool_calling_prompt_v1@production',
         pydantic_object=ToolCallingOutput,
-        mlflow_experiment_name="tracing_agent_new",
+        mlflow_experiment_id=2361190451851841, # experiments name: tool_calling
     )
 
 @lru_cache
