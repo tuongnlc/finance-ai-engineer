@@ -14,7 +14,7 @@ if __name__ == "__main__":
     prompt_register = PromptRegister()
 
     prompt_register.register_prompt(
-        prompt_name='chatbot_prompt', 
+        prompt_name='finance_agent_2026.finance_agent_2026_prompt.chatbot_prompt', 
         prompt_template=chatbot_template,
         enable=False
     )

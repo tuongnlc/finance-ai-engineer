@@ -55,9 +55,9 @@ def get_llm_caller_service_chat_with_llm() -> LLMCallerService:
         api_key=os.getenv("LLM_CHAT_API_KEY_1"),
         model_name=os.getenv("LLM_CHAT_MODEL"),
         temperature=0.7,
-        prompt_name="chatbot_prompt",
+        prompt_name='prompts:/finance_agent_2026.finance_agent_2026_prompt.chatbot_prompt@production',
         add_parser=True,
-        mlflow_experiment_name="Chat_with_LLM_AutoLog_Tracking",
+        mlflow_experiment_id=2361190451851838, # experiments name: chat_with_llm
     )
 
 @lru_cache
@@ -69,7 +69,7 @@ def get_llm_caller_service_query_understand() -> LLMCallerService:
         prompt_name='prompts:/finance_agent_2026.finance_agent_2026_prompt.query_understand_prompt@production',
         add_parser=True,
         pydantic_object=QueryUnderstandOutput,
-        mlflow_experiment_id=3104362340439739,
+        mlflow_experiment_id=2361190451851839, # experiments name: query_understand
     )
 
 @lru_cache
