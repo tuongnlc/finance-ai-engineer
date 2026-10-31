@@ -8,7 +8,7 @@ from pydantic import BaseModel
 
 from ai_engineer.shared.llm.create_llm import create_gemini_llm
 from ai_engineer.applications.chatbot.applications.io_schemas import LLMResponseOutput
-from ai_engineer.applications.chatbot.applications.prompt.prompt_loading import ChatbotPromptLoading
+from ai_engineer.helpers.prompt.prompt_registry.prompt_register import PromptRegister
 
 
 class LLMCallerService:
@@ -53,7 +53,7 @@ class LLMCallerService:
 
         with self.__class__._lock:
             if key not in self.__class__._prompts:
-                template = ChatbotPromptLoading(prompt_name=self.prompt_name).load_and_parse_prompt()
+                template = PromptRegister().load_and_parse_prompt(self.prompt_name)
                 if self._parser is not None:
                     prompt = template.partial(
                         format_instructions=self._parser.get_format_instructions()
