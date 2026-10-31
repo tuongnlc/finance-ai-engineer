@@ -42,31 +42,31 @@ _TOPIC_CONFIG = {
     "business": { # Quản trị Doanh nghiệp & Tài chính Doanh nghiệp
         "report_type": "Báo cáo thông tin doanh nghiệp",
         "main_topic": "quản trị doanh nghiệp",
-        "prompt_name": "topic_summary__business",
+        "prompt_name": "prompts:/finance_agent_2026.finance_agent_2026_prompt.topic_summary__business@production",
         "structure_output": BusinessNewspaperSummaryOutput,
     },
     "macro": { # Kinh tế vĩ mô & chính sách
         "report_type": "Báo cáo kinh tế vĩ mô & chính sách",
         "main_topic": "kinh tế vĩ mô & chính sách",
-        "prompt_name": "topic_summary__macro",
+        "prompt_name": "prompts:/finance_agent_2026.finance_agent_2026_prompt.topic_summary__macro@production",
         "structure_output": MacroNewspaperSummaryOutput,
     },
     "market": { # Thị trường & giao dịch
         "report_type": "Báo cáo thị trường & giao dịch",
         "main_topic": "thị trường & giao dịch",
-        "prompt_name": "topic_summary__market",
+        "prompt_name": "prompts:/finance_agent_2026.finance_agent_2026_prompt.topic_summary__market@production",
         "structure_output": MarketNewspaperSummaryOutput,
     },
     "fund": { # Quỹ & Danh mục đầu tư
         "report_type": "Báo cáo quỹ & danh mục đầu tư",
         "main_topic": "quỹ & danh mục đầu tư",
-        "prompt_name": "topic_summary__fund",
+        "prompt_name": "prompts:/finance_agent_2026.finance_agent_2026_prompt.topic_summary__fund@production",
         "structure_output": FundNewspaperSummaryOutput,
     },
     "law": { # Pháp lý & quản lý nhà nước
         "report_type": "Báo cáo pháp lý & quản lý nhà nước",
         "main_topic": "pháp lý & quản lý nhà nước",
-        "prompt_name": "topic_summary__law",
+        "prompt_name": "prompts:/finance_agent_2026.finance_agent_2026_prompt.topic_summary__law@production",
         "structure_output": LawNewspaperSummaryOutput,
     },
 }
