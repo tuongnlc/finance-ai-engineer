@@ -1,6 +1,6 @@
 import time
 from langchain_core.output_parsers import PydanticOutputParser
-from ai_engineer.helpers.prompt.prompt_loading import MLFlowPromptLoading
+from ai_engineer.helpers.prompt.prompt_registry.prompt_register import PromptRegister
 from ai_engineer.shared.llm.create_llm import create_gemini_llm
 
 
@@ -13,10 +13,7 @@ class CallLLMWithStructuredOutput:
 
     def _prompt_loading_from_mlflow(self):
         parser = PydanticOutputParser(pydantic_object=self.structure_output)
-        return MLFlowPromptLoading(
-            tracking_uri="http://mlflow-server:5001",
-            prompt_name=self.prompt_name
-        ).load_and_parse_prompt().partial(
+        return PromptRegister().load_and_parse_prompt(self.prompt_name).partial(
             format_instructions=parser.get_format_instructions()
         )
 

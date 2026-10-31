@@ -5,31 +5,36 @@ if __name__ == "__main__":
     prompt_register = PromptRegister()
 
     # Register business template
-    # prompt_register.register_prompt(
-    #     prompt_name='topic_summary__business', 
-    #     prompt_template=business_template
-    # )
+    prompt_register.register_prompt(
+        prompt_name='finance_agent_2026.finance_agent_2026_prompt.topic_summary__business', 
+        prompt_template=business_template,
+        enable=True
+    )
 
     # Register macro summary template
-    # prompt_register.register_prompt(
-    #     prompt_name='topic_summary__macro', 
-    #     prompt_template=macro_template
-    # )
+    prompt_register.register_prompt(
+        prompt_name='finance_agent_2026.finance_agent_2026_prompt.topic_summary__macro', 
+        prompt_template=macro_template,
+        enable=True
+    )
 
     # Register market summary template
-    # prompt_register.register_prompt(
-    #     prompt_name='topic_summary__market', 
-    #     prompt_template=market_template
-    # )
+    prompt_register.register_prompt(
+        prompt_name='finance_agent_2026.finance_agent_2026_prompt.topic_summary__market', 
+        prompt_template=market_template,
+        enable=True
+    )
 
     # Register fund summary template
-    # prompt_register.register_prompt(
-    #     prompt_name='topic_summary__fund', 
-    #     prompt_template=fund_template
-    # )
+    prompt_register.register_prompt(
+        prompt_name='finance_agent_2026.finance_agent_2026_prompt.topic_summary__fund', 
+        prompt_template=fund_template,
+        enable=True
+    )
 
     # Register law summary template
     prompt_register.register_prompt(
-        prompt_name='topic_summary__law', 
-        prompt_template=law_template
+        prompt_name='finance_agent_2026.finance_agent_2026_prompt.topic_summary__law', 
+        prompt_template=law_template,
+        enable=True
     )
