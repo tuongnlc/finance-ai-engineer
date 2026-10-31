@@ -1,7 +1,6 @@
 import random
-from unidecode import unidecode
+from ai_engineer.helpers.prompt.prompt_registry.prompt_register import PromptRegister
 from ai_engineer.shared.data_pipeline.load.qdrant_loader import QdrantLoader
-from ai_engineer.applications.topic_tagging.application.prompt.prompt_loading import TopicTaggingPromptLoading
 from ai_engineer.applications.topic_tagging.application.models import TopicTagging
 from ai_engineer.shared.data_pipeline.extract.qdrant_extractor import QdrantExtractorWithPayloadFilter
 import polars as pl
@@ -14,7 +13,7 @@ from dotenv import load_dotenv
 from ai_engineer.shared.data_pipeline.transform.columns import DropColumns, ReplaceCharInColumn, SelectColumns, AddColumn
 from ai_engineer.shared.data_pipeline.transform.join_df import JoinDataFrame
 from ai_engineer.shared.data_pipeline.transform.parse_sparse_vector import ParseSparseVector
-# DropColumns
+
 
 load_dotenv()
 
@@ -138,7 +137,7 @@ class TopicTaggingUseCase:
         parser = PydanticOutputParser(pydantic_object=TopicTagging)
 
         # prepare prompt
-        topic_tagging_prompt = TopicTaggingPromptLoading().load_and_parse_prompt()
+        topic_tagging_prompt = PromptRegister().load_and_parse_prompt("prompts:/finance_agent_2026.finance_agent_2026_prompt.topic_tagging_prompt@production")
         prompt = topic_tagging_prompt.partial(format_instructions=parser.get_format_instructions())
 
         #prepare data

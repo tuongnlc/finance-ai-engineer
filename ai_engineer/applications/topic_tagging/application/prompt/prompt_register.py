@@ -6,6 +6,7 @@ if __name__ == "__main__":
     prompt_register = PromptRegister()
 
     prompt_register.register_prompt(
-        prompt_name='topic_tagging', 
-        prompt_template=template
+        prompt_name='finance_agent_2026.finance_agent_2026_prompt.topic_tagging_prompt',
+        prompt_template=template,
+        enable=True
     )
