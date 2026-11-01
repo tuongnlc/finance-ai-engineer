@@ -80,6 +80,7 @@ class TopicTaggingUseCase:
         return value
 
     def extract_newspaper(self):
+        print("Extracting newspaper collection...")
         df_newspaper = self.newspaper_extractor.extract()
         df_newspaper = df_newspaper.limit(45)
         extracted_ids = df_newspaper.select(["id"])
@@ -91,6 +92,7 @@ class TopicTaggingUseCase:
         return df_newspaper, extract_ids_full    
 
     def extract_newspaper_embedded(self, document_ids: list | None = None):
+        print("Extracting newspaper_embedded collection...")
         override_filter = {"document_id": document_ids}
         df_newspaper_embedded = self.newspaper_embedded_extractor.extract(override_payload_filter=override_filter)
         return df_newspaper_embedded

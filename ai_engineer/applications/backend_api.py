@@ -1,5 +1,4 @@
 from fastapi import FastAPI
-from ai_engineer.shared.observability.mlflow_config import setup_mlflow
 from .chatbot.backend.routes import conversation, health, llm_response, message, rag, call_llm, session
 from ai_engineer.applications.topic_summary.backend.routes import newspaper_summary
 
