@@ -5,7 +5,6 @@ from ai_engineer.applications.topic_summary.backend.routes import newspaper_summ
 
 
 def create_chatbot_api():
-    setup_mlflow()
     app = FastAPI(
         title="Chatbot API",
         version="1.0",
