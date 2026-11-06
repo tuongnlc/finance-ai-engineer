@@ -1,0 +1,20 @@
+# Job test deploy: chạy hello_world.py đã đóng gói trong wheel finance_ai_engineer.
+
+resources:
+  jobs:
+    ai__test_deploy_job:
+      name: ai__test_deploy_job
+
+      tasks:
+        - task_key: hello_world
+          python_wheel_task:
+            package_name: finance_ai_engineer
+            entry_point: hello_world
+          environment_key: default
+
+      environments:
+        - environment_key: default
+          spec:
+            environment_version: "5"
+            dependencies:
+              - ../../../../dist/*.whl

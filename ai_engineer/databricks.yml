@@ -1,0 +1,41 @@
+bundle:
+  name: ai_engineer
+
+include:
+  - applications/topic_tagging/orchestration/dab/*.yaml
+
+artifacts:
+  # Wheel của package finance-ai-engineer build từ gốc repo (cd ..), output vào dist/ của bundle.
+  python_artifact:
+    type: whl
+    build: cd .. && uv build --wheel --out-dir ai_engineer/dist
+
+variables:
+  catalog:
+    description: The catalog to use
+  schema:
+    description: The schema to use
+
+sync:
+  include:
+    - applications/**
+    - shared/**
+    - helpers/**
+    - mcp_server/**
+    - infrastructure/**
+    - examples/**
+  exclude:
+    - "**/__pycache__/**"
+    - "**/*.pyc"
+    - frontend/**
+
+targets:
+  dev:
+    mode: production
+    default: true
+    workspace:
+      host: https://dbc-a4257ab8-9fcb.cloud.databricks.com
+      root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}
+    variables:
+      catalog: test_dab
+      schema: ${workspace.current_user.short_name}
