@@ -21,13 +21,10 @@ sync:
     - applications/**
     - shared/**
     - helpers/**
-    - mcp_server/**
     - infrastructure/**
-    - examples/**
   exclude:
     - "**/__pycache__/**"
     - "**/*.pyc"
-    - frontend/**
 
 targets:
   dev:
