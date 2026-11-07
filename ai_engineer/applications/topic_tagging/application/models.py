@@ -52,6 +52,7 @@ class TopicTaggingDAB(BaseModel):
     main_topic: List[str]
     stocks_mention: List[str]
     person_mention: List[str]
+    newspaper_summary: str
 
     @field_validator(
         "main_topic",
@@ -85,3 +86,20 @@ class TopicTaggingDAB(BaseModel):
             return out
 
         return v
+
+    @field_validator("newspaper_summary", mode="before")
+    @classmethod
+    def _normalize_summary(cls, v):
+        # LLM đôi khi trả về list cho summary dù schema yêu cầu string.
+        # Coerce về string để tránh lỗi validation.
+        if v is None:
+            return ""
+        if isinstance(v, list):
+            return "\n".join(
+                str(item).strip()
+                for item in v
+                if item is not None and str(item).strip()
+            )
+        if isinstance(v, str):
+            return v
+        return str(v)

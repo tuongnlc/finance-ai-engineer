@@ -63,6 +63,7 @@ new_template_dab = [
             "If articles not related to economy or geopolitics to use to analyze the stock market, then return [not relevant]. Example: [not relevant].\n"
             "Task 2: Extract mention stock if any. If no stock mention, then return [].\n"
             "Task 3: Extract mention person if any. If no person mention, then return [].\n"
+            "Task 4: Read and understand newspaper. Then summary main content in 300 words with focusing on the main_topic from task 1"
             "[CONTEXT] You think and respond like a financial expert.\n"
             "[FORMAT] Return ONLY valid JSON (no markdown, no extra text) with this schema. newspaper_url is the url of the article this value is keep the same between the input and output. \n"
             "{\n"
@@ -70,6 +71,7 @@ new_template_dab = [
             '  "main_topic": ["..."],\n'
             '  "stocks_mention": ["..."],\n'
             '  "person_mention": ["..."]\n'
+            '  "newspaper_summary": "..."\n'
             "}\n"
             "\n"
             "{{format_instructions}}\n"
@@ -87,6 +89,7 @@ new_template_dab = [
             '  "main_topic": ["Kinh tế vĩ mô & Chính sách", "Thị trường & Giao dịch", "Quản trị Doanh nghiệp"],\n'
             '  "stocks_mention": ["VN-Index"],\n'
             '  "person_mention": ["Donal Trump"]\n'
+            '  "newspaper_summary": "..."\n'
             "}\n"
             "--- END OF EXAMPLE ---"
         ),
