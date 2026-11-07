@@ -2,8 +2,8 @@
 
 resources:
   jobs:
-    ai__topic_tagging:
-      name: ai__topic_tagging
+    ai__topic_tagging__cafef_chung_khoan:
+      name: ai__topic_tagging__cafef_chung_khoan
 
       parameters:
         - name: run_date

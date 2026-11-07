@@ -1,0 +1,35 @@
+# Job test deploy: chạy topic_tagging_dab (entry point trong wheel finance_ai_engineer).
+
+resources:
+  jobs:
+    ai__topic_tagging__cafef_doanh_nghiep:
+      name: ai__topic_tagging__cafef_doanh_nghiep
+
+      parameters:
+        - name: run_date
+          default: "{{job.start_time.iso_date}}"
+        - name: source_link
+          default: https://cafef.vn/doanh-nghiep.chn
+        - name: merge_keys
+          default: newspaper_url
+        - name: partition_column
+          default: publish_date
+
+      tasks:
+        - task_key: topic_tagging
+          python_wheel_task:
+            package_name: finance_ai_engineer
+            entry_point: topic_tagging_dab
+            parameters:
+              - "{{job.parameters.run_date}}"
+              - "{{job.parameters.source_link}}"
+              - "{{job.parameters.merge_keys}}"
+              - "{{job.parameters.partition_column}}"
+          environment_key: default
+
+      environments:
+        - environment_key: default
+          spec:
+            environment_version: "5"
+            dependencies:
+              - ../../../../dist/*.whl

@@ -39,6 +39,7 @@ dependencies = [
 
 [project.scripts]
 topic_tagging_dab = "ai_engineer.applications.topic_tagging.orchestration.python_script.topic_tagging_dab:main"
+topic_summary_dab = "ai_engineer.applications.topic_summary.orchestration.python_script.topic_summary_dab:main"
 
 [build-system]
 requires = ["hatchling"]

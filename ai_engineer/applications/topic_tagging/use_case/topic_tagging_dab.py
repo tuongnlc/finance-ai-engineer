@@ -31,18 +31,6 @@ class TopicTaggingUseCaseDAB:
         self.newspaper_tagging_loader = newspaper_tagging_loader
 
     @staticmethod
-    def _build_article(x: dict):
-        return json.dumps(
-            {
-                "id": x["id"],
-                "title": x["newspaper_title"],
-                "description": x["newspaper_summary"],
-                "content": x["newspaper_content"],
-            },
-            ensure_ascii=False,
-        )
-
-    @staticmethod
     def _lowercase_text(value=None):
         if value is None:
             return None
@@ -124,6 +112,7 @@ class TopicTaggingUseCaseDAB:
             - main_topic: The main topic of the article
             - stocks_mention: The stocks mentioned in the article
             - person_mention: The person mentioned in the article
+            - newspaper_summary: The summary of the article
 
             :param df: The dataframe to call llm
             :return: The dataframe with the topic tagging output
@@ -177,6 +166,7 @@ class TopicTaggingUseCaseDAB:
                 StructField("main_topic", ArrayType(StringType()), True),
                 StructField("stocks_mention", ArrayType(StringType()), True),
                 StructField("person_mention", ArrayType(StringType()), True),
+                StructField("newspaper_summary", StringType(), True),
             ]
         )
 
@@ -196,6 +186,7 @@ class TopicTaggingUseCaseDAB:
             "stocks_mention",
             "main_topic",
             "person_mention",
+            "newspaper_summary",
         ]
 
         base_cols = [
@@ -227,7 +218,11 @@ class TopicTaggingUseCaseDAB:
     def run(self, run_date: str | None = None, source_link: str | None = None):
         df_newspaper = self.extract(run_date, source_link)
         df_newspaper = self.transform(df_newspaper)
-        df_llm_output = self.call_llm(df_newspaper)
-        newspaper_data_final = self.load_data_to_newspaper_collection(df_llm_output, df_newspaper)
-        print(newspaper_data_final)
-        return newspaper_data_final
+
+        if df_newspaper.count() ==0:
+            return None
+        else:
+            df_llm_output = self.call_llm(df_newspaper)
+            newspaper_data_final = self.load_data_to_newspaper_collection(df_llm_output, df_newspaper)
+            print(newspaper_data_final)
+            return newspaper_data_final
