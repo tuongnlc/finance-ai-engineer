@@ -36,6 +36,7 @@ topic_tagging_model = os.getenv("TOPIC_TAGGING_MODEL")
 BATCH_SIZE = 15
 BATCH_SLEEP_SECONDS = 75
 
+
 class TopicTaggingUseCase:
     """
         Do topic tagging. Then load to multiple collections. Including:
