@@ -5,15 +5,18 @@ resources:
     ai__topic_tagging__cafef_chung_khoan:
       name: ai__topic_tagging__cafef_chung_khoan
 
+      schedule:
+        quartz_cron_expression: "0 0 7,18 * * ?"   #Crawl piepline run at: "0 0 6,18 * * ?"
+        timezone_id: "Asia/Ho_Chi_Minh"
+        pause_status: UNPAUSED
+
       parameters:
         - name: run_date
           default: "{{job.start_time.iso_date}}"
         - name: source_link
           default: https://cafef.vn/thi-truong-chung-khoan.chn
-        # Danh sách cột khóa dùng để merge (insert-only), phân tách bằng dấu phẩy.
         - name: merge_keys
           default: newspaper_url
-        # Cột partition của bảng target, dùng để prune khi merge.
         - name: partition_column
           default: publish_date
 
