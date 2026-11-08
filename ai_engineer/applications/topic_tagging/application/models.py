@@ -53,6 +53,7 @@ class TopicTaggingDAB(BaseModel):
     stocks_mention: List[str]
     person_mention: List[str]
     newspaper_summary: str
+    sentiment_analysis: str
 
     @field_validator(
         "main_topic",
