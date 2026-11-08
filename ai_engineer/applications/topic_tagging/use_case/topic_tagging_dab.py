@@ -151,8 +151,8 @@ class TopicTaggingUseCaseDAB:
         for idx, result in enumerate(results, start=1):
             result = result.model_dump()
 
-            result = { #normalize all value except id
-                key: value if key == "id" else self._lowercase_text(value)
+            result = { # chỉ normalize các tag field, giữ nguyên các field còn lại, (các key này để filter)
+                key: self._lowercase_text(value) if key in ("main_topic", "stocks_mention") else value
                 for key, value in result.items()
             }
 
@@ -167,6 +167,7 @@ class TopicTaggingUseCaseDAB:
                 StructField("stocks_mention", ArrayType(StringType()), True),
                 StructField("person_mention", ArrayType(StringType()), True),
                 StructField("newspaper_summary", StringType(), True),
+                StructField("sentiment_analysis", StringType(), True),
             ]
         )
 
@@ -187,6 +188,7 @@ class TopicTaggingUseCaseDAB:
             "main_topic",
             "person_mention",
             "newspaper_summary",
+            "sentiment_analysis",
         ]
 
         base_cols = [
