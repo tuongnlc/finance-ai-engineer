@@ -52,6 +52,8 @@ class TopicTaggingDAB(BaseModel):
     main_topic: List[str]
     stocks_mention: List[str]
     person_mention: List[str]
+    funds_mention: List[str]
+    stock_analysis_type: str
     newspaper_summary: str
     sentiment_analysis: str
 
@@ -59,6 +61,7 @@ class TopicTaggingDAB(BaseModel):
         "main_topic",
         "stocks_mention",
         "person_mention",
+        "funds_mention",
         mode="before",
     )
     @classmethod
